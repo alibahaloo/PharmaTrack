@@ -8,24 +8,9 @@
     mc:Ignorable="d"
     Title="PharmaTrack">
 
-    <Grid>
-        <!-- Define two columns with equal width -->
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-
-        <!-- Calendar Grid -->
-        <local:CalendarControl
-            x:Name="MyCalendar"
-            Grid.Column="0"
-            HorizontalAlignment="Stretch" 
-            VerticalAlignment="Stretch" />
-
-
-        <!-- StackPanel with Button in the right column -->
-        <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button x:Name="myButton" Click="myButton_Click">Click Me Here</Button>
-        </StackPanel>
-    </Grid>
+    <local:CalendarControl
+    x:Name="MyCalendar"
+    Grid.Column="0"
+    HorizontalAlignment="Stretch" 
+    VerticalAlignment="Stretch" />
 </Window>

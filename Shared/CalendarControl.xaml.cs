@@ -88,60 +88,78 @@ namespace PharmaTrack.Shared
                     Foreground = new SolidColorBrush(Colors.White)
                 };
 
-                var border = new Border
+                Border border = new Border
                 {
                     BorderBrush = new SolidColorBrush(Colors.White),
                     BorderThickness = new Thickness(1),
                     Child = dayHeader
                 };
 
-                Grid.SetRow(border, 0); // Row 0 is for headers
+                Grid.SetRow(border, 0);
                 Grid.SetColumn(border, i);
                 CalendarGrid.Children.Add(border);
             }
 
-            // Get first day of the month and total days
+            // Populate calendar days
             DateTime firstDayOfMonth = new DateTime(month.Year, month.Month, 1);
             int daysInMonth = DateTime.DaysInMonth(month.Year, month.Month);
-
-            // Get the day of the week for the first day
             int startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
             startDayOfWeek = (startDayOfWeek == 0) ? 6 : startDayOfWeek - 1;
 
-            int currentRow = 1; // Start from row 1 because row 0 is for headers
+            int currentRow = 1;
             int currentColumn = startDayOfWeek;
 
-            // Populate the grid with day labels
             for (int day = 1; day <= daysInMonth; day++)
             {
                 DateTime currentDate = new DateTime(month.Year, month.Month, day);
 
-                var dayLabel = new TextBlock
+                TextBlock dayLabel = new TextBlock
                 {
                     Text = day.ToString(),
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center,
                     FontSize = 14,
+                    FontWeight = FontWeights.Bold,
                     Foreground = new SolidColorBrush(Colors.White)
                 };
 
-                var dayBorder = new Border
+                Border dayBorder = new Border
                 {
                     BorderBrush = new SolidColorBrush(Colors.White),
                     BorderThickness = new Thickness(1),
                     Background = highlightedDates.Contains(currentDate)
                         ? new SolidColorBrush(Colors.Green)
-                        : new SolidColorBrush(Colors.Transparent),
+                        : new SolidColorBrush(Colors.Black),
                     Child = dayLabel
                 };
+
+                // Highlighted dates: Change cursor to hand and capture click event
+                if (highlightedDates.Contains(currentDate))
+                {
+                    dayBorder.Tapped += (s, e) =>
+                    {
+                        EventDetails.Text = $"You clicked on {currentDate:MMMM dd, yyyy}.";
+
+                        // Show a message box with the selected dat
+                        /*
+                        var dialog = new ContentDialog
+                        {
+                            Title = "Selected Date",
+                            Content = $"You clicked on {currentDate:MMMM dd, yyyy}.",
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        };
+                        _ = dialog.ShowAsync();
+                        */
+                    };
+                }
 
                 Grid.SetRow(dayBorder, currentRow);
                 Grid.SetColumn(dayBorder, currentColumn);
                 CalendarGrid.Children.Add(dayBorder);
 
-                // Move to the next cell
                 currentColumn++;
-                if (currentColumn > 6) // Move to the next row if end of the week
+                if (currentColumn > 6)
                 {
                     currentColumn = 0;
                     currentRow++;

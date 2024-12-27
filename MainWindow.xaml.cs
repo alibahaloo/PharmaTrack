@@ -36,10 +36,5 @@ namespace PharmaTrack
                 new DateTime(2024, 12, 25)
             };
         }
-
-        private void myButton_Click(object sender, RoutedEventArgs e)
-        {
-            myButton.Content = "Clicked";
-        }
     }
 }
