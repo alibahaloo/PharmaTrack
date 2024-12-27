@@ -25,15 +25,15 @@ namespace PharmaTrack.Shared
         private DateTime currentMonth;
         // Dependency property for HighlightedDates
         public static readonly DependencyProperty HighlightedDatesProperty =
-            DependencyProperty.Register(
-                nameof(HighlightedDates),
-                typeof(DateTime[]),
-                typeof(CalendarControl),
-                new PropertyMetadata(Array.Empty<DateTime>(), OnHighlightedDatesChanged));
+    DependencyProperty.Register(
+        nameof(HighlightedDates),
+        typeof(Dictionary<DateTime, string>),
+        typeof(CalendarControl),
+        new PropertyMetadata(new Dictionary<DateTime, string>(), OnHighlightedDatesChanged));
 
-        public DateTime[] HighlightedDates
+        public Dictionary<DateTime, string> HighlightedDates
         {
-            get => (DateTime[])GetValue(HighlightedDatesProperty);
+            get => (Dictionary<DateTime, string>)GetValue(HighlightedDatesProperty);
             set => SetValue(HighlightedDatesProperty, value);
         }
 
@@ -41,9 +41,10 @@ namespace PharmaTrack.Shared
         {
             if (d is CalendarControl calendarControl)
             {
-                calendarControl.GenerateCalendar(calendarControl.currentMonth, (DateTime[])e.NewValue);
+                calendarControl.GenerateCalendar(calendarControl.currentMonth, (Dictionary<DateTime, string>)e.NewValue);
             }
         }
+
         public CalendarControl()
         {
             this.InitializeComponent();
@@ -51,7 +52,7 @@ namespace PharmaTrack.Shared
             GenerateCalendar(currentMonth, HighlightedDates);
         }
 
-        private void GenerateCalendar(DateTime month, DateTime[] highlightedDates)
+        private void GenerateCalendar(DateTime month, Dictionary<DateTime, string> highlightedDates)
         {
             CalendarGrid.Children.Clear();
             CalendarGrid.RowDefinitions.Clear();
@@ -113,6 +114,17 @@ namespace PharmaTrack.Shared
             {
                 DateTime currentDate = new DateTime(month.Year, month.Month, day);
 
+                // Check if the date is highlighted
+                bool isHighlighted = highlightedDates.ContainsKey(currentDate);
+
+                // Create the day label
+                var dayStackPanel = new StackPanel
+                {
+                    Orientation = Orientation.Vertical,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+
                 TextBlock dayLabel = new TextBlock
                 {
                     Text = day.ToString(),
@@ -122,35 +134,40 @@ namespace PharmaTrack.Shared
                     FontWeight = FontWeights.Bold,
                     Foreground = new SolidColorBrush(Colors.White)
                 };
+                dayStackPanel.Children.Add(dayLabel);
 
+                // Add the event string if highlighted
+                if (isHighlighted)
+                {
+                    TextBlock eventLabel = new TextBlock
+                    {
+                        Text = highlightedDates[currentDate],
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        FontSize = 12,
+                        FontWeight = FontWeights.Normal,
+                        Foreground = new SolidColorBrush(Colors.LightYellow)
+                    };
+                    dayStackPanel.Children.Add(eventLabel);
+                }
+
+                // Create the border
                 Border dayBorder = new Border
                 {
                     BorderBrush = new SolidColorBrush(Colors.White),
                     BorderThickness = new Thickness(1),
-                    Background = highlightedDates.Contains(currentDate)
+                    Background = isHighlighted
                         ? new SolidColorBrush(Colors.Green)
                         : new SolidColorBrush(Colors.Black),
-                    Child = dayLabel
+                    Child = dayStackPanel
                 };
 
-                // Highlighted dates: Change cursor to hand and capture click event
-                if (highlightedDates.Contains(currentDate))
+                // Handle clicks on highlighted dates
+                if (isHighlighted)
                 {
                     dayBorder.Tapped += (s, e) =>
                     {
-                        EventDetails.Text = $"You clicked on {currentDate:MMMM dd, yyyy}.";
-
-                        // Show a message box with the selected dat
-                        /*
-                        var dialog = new ContentDialog
-                        {
-                            Title = "Selected Date",
-                            Content = $"You clicked on {currentDate:MMMM dd, yyyy}.",
-                            CloseButtonText = "OK",
-                            XamlRoot = this.XamlRoot
-                        };
-                        _ = dialog.ShowAsync();
-                        */
+                        EventDetails.Text = $"You clicked on {currentDate:MMMM dd, yyyy}: {highlightedDates[currentDate]}";
                     };
                 }
 

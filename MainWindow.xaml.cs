@@ -29,12 +29,13 @@ namespace PharmaTrack
         public MainWindow()
         {
             this.InitializeComponent();
-            MyCalendar.HighlightedDates = new[]
-            {
-                new DateTime(2024, 12, 5),
-                new DateTime(2024, 12, 15),
-                new DateTime(2024, 12, 25)
-            };
+            MyCalendar.HighlightedDates = new Dictionary<DateTime, string>
+{
+    { new DateTime(2024, 12, 5), "Meeting" },
+    { new DateTime(2024, 12, 15), "Birthday" },
+    { new DateTime(2024, 12, 25), "Holiday" }
+};
+
         }
     }
 }
