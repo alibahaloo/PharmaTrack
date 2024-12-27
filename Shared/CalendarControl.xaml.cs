@@ -136,8 +136,8 @@ namespace PharmaTrack.Shared
                 };
                 dayStackPanel.Children.Add(dayLabel);
 
-                // Add the event string if highlighted
-                if (isHighlighted)
+                // Add the event string if highlighted and not null or empty
+                if (isHighlighted && !string.IsNullOrEmpty(highlightedDates[currentDate]))
                 {
                     TextBlock eventLabel = new TextBlock
                     {
@@ -167,7 +167,10 @@ namespace PharmaTrack.Shared
                 {
                     dayBorder.Tapped += (s, e) =>
                     {
-                        EventDetails.Text = $"You clicked on {currentDate:MMMM dd, yyyy}: {highlightedDates[currentDate]}";
+                        EventDetails.Text = $"You clicked on {currentDate:MMMM dd, yyyy}" +
+                                            (string.IsNullOrEmpty(highlightedDates[currentDate])
+                                                ? ""
+                                                : $": {highlightedDates[currentDate]}");
                     };
                 }
 

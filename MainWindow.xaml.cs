@@ -30,11 +30,12 @@ namespace PharmaTrack
         {
             this.InitializeComponent();
             MyCalendar.HighlightedDates = new Dictionary<DateTime, string>
-{
-    { new DateTime(2024, 12, 5), "Meeting" },
-    { new DateTime(2024, 12, 15), "Birthday" },
-    { new DateTime(2024, 12, 25), "Holiday" }
-};
+            {
+                { new DateTime(2024, 12, 5), "Meeting" },
+                { new DateTime(2024, 12, 15), "Birthday" },
+                { new DateTime(2024, 12, 25), "Holiday" },
+                { new DateTime(2024, 12, 24), string.Empty }
+            };
 
         }
     }
