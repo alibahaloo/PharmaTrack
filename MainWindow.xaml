@@ -7,10 +7,36 @@
     xmlns:local="using:PharmaTrack.Shared"
     mc:Ignorable="d"
     Title="PharmaTrack">
+    <NavigationView x:Name="MainNavView"
+                    IsSettingsVisible="False"
+                    IsBackButtonVisible="Collapsed"
+                    IsBackEnabled="False"
+                    SelectionChanged="NavigationView_SelectionChanged"
+                    Header="PharmaTrack"
+                    AlwaysShowHeader="True"
+                    PaneTitle="Menu"
+                    PaneDisplayMode="Top">
 
-    <local:CalendarControl
-    x:Name="MyCalendar"
-    Grid.Column="0"
-    HorizontalAlignment="Stretch" 
-    VerticalAlignment="Stretch" />
+        <!-- Navigation Items -->
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="My Schedule" Tag="MySchedule" x:Name="MyScheduleItem">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="Calendar" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Stock Transfer" Tag="StockTransfer" x:Name="StockTransferItem">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="Sync" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Inventory" Tag="Inventory" x:Name="InventoryItem">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="Library" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </NavigationView.MenuItems>
+
+        <!-- Content Frame -->
+        <Frame x:Name="ContentFrame" />
+    </NavigationView>
 </Window>

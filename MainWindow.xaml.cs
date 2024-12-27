@@ -26,21 +26,41 @@ namespace PharmaTrack
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        private readonly CalendarControl calendarControl = new();
         public MainWindow()
         {
             this.InitializeComponent();
-            MyCalendar.HighlightedDates = new Dictionary<DateTime, string>
-            {
-                { new DateTime(2024, 12, 5), "Meeting" },
-                { new DateTime(2024, 12, 15), "Birthday" },
-                { new DateTime(2024, 12, 25), "Holiday" },
-                { new DateTime(2024, 12, 24), string.Empty }
-            };
-
-            // Subscribe to the MonthChanged event
-            MyCalendar.MonthChanged += MyCalendar_MonthChanged;
         }
+        private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        {
+            if (args.SelectedItemContainer == null)
+                return;
 
+            var selectedItem = args.SelectedItemContainer as NavigationViewItem;
+
+            if (selectedItem == null || selectedItem.Tag == null)
+                return;
+
+            string? tag = selectedItem.Tag.ToString();
+            switch (tag)
+            {
+                case "MySchedule":
+                    calendarControl.Mode = CalendarMode.SingleUser;
+                    // Subscribe to the MonthChanged event
+                    calendarControl.MonthChanged += MyCalendar_MonthChanged;
+                    // Load your CalendarControl UserControl
+                    ContentFrame.Content = calendarControl; 
+                    break;
+                case "StockTransfer":
+                    //ContentFrame.Content = new StockTransferControl(); // Load your StockTransferControl UserControl
+                    break;
+                case "Inventory":
+                    //ContentFrame.Content = new InventoryControl(); // Load your InventoryControl UserControl
+                    break;
+                default:
+                    break;
+            }
+        }
         private void MyCalendar_MonthChanged(object? sender, DateTime selectedMonth)
         {
             // Handle the month change event
@@ -48,6 +68,18 @@ namespace PharmaTrack
             Console.WriteLine($"Selected Month: {selectedMonth:MMMM yyyy}");
 
             // You can also update your UI or perform other actions here
+            // Define the logic for loading events dynamically
+            calendarControl.LoadEventsForMonth(month =>
+            {
+                // Example: Replace with actual logic to fetch events for the given month
+                return new Dictionary<DateTime, string>
+                {
+                    { new DateTime(month.Year, month.Month, 5), "Meeting" },
+                    { new DateTime(month.Year, month.Month, 15), "Birthday" },
+                    { new DateTime(month.Year, month.Month, 25), "Holiday" },
+                    { new DateTime(month.Year, month.Month, 24), string.Empty }
+                };
+            });
         }
     }
 }

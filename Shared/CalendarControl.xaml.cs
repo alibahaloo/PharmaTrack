@@ -20,14 +20,31 @@ using Microsoft.UI.Text;
 
 namespace PharmaTrack.Shared
 {
+    public enum CalendarMode
+    {
+        SingleUser,
+        MultipleUsers
+    }
     public sealed partial class CalendarControl : UserControl
     {
         private DateTime currentMonth;
-        
+
         // Event to notify the parent of month changes
         public event EventHandler<DateTime>? MonthChanged;
-        
-        // Dependency property for HighlightedDates
+
+        public CalendarMode Mode
+        {
+            get => (CalendarMode)GetValue(ModeProperty);
+            set => SetValue(ModeProperty, value);
+        }
+
+        public static readonly DependencyProperty ModeProperty =
+            DependencyProperty.Register(
+                nameof(Mode),
+                typeof(CalendarMode),
+                typeof(CalendarControl),
+                new PropertyMetadata(CalendarMode.SingleUser));
+
         public static readonly DependencyProperty HighlightedDatesProperty = DependencyProperty.Register(
             nameof(HighlightedDates),
             typeof(Dictionary<DateTime, string>),
@@ -55,23 +72,21 @@ namespace PharmaTrack.Shared
 
             // Handle the Loaded event to ensure the event is fired after the control is initialized
             this.Loaded += CalendarControl_Loaded;
-
-            GenerateCalendar(currentMonth, HighlightedDates);
         }
+
         private void CalendarControl_Loaded(object sender, RoutedEventArgs e)
         {
             // Notify parent of the initial month after the control has loaded
             NotifyMonthChanged();
+            GenerateCalendar(currentMonth, HighlightedDates);
         }
+
         private void NotifyMonthChanged()
         {
-            // Raise the event to notify parent of the selected month
             MonthChanged?.Invoke(this, currentMonth);
         }
         private void GenerateCalendar(DateTime month, Dictionary<DateTime, string> highlightedDates)
         {
-            NotifyMonthChanged(); // Notify parent of the new month
-
             CalendarGrid.Children.Clear();
             CalendarGrid.RowDefinitions.Clear();
             CalendarGrid.ColumnDefinitions.Clear();
@@ -205,22 +220,32 @@ namespace PharmaTrack.Shared
             }
         }
 
-        // Event Handlers for Navigation Buttons
         private void PrevMonthButton_Click(object sender, RoutedEventArgs e)
         {
             currentMonth = currentMonth.AddMonths(-1);
+            NotifyMonthChanged();
             GenerateCalendar(currentMonth, HighlightedDates);
         }
 
         private void NextMonthButton_Click(object sender, RoutedEventArgs e)
         {
             currentMonth = currentMonth.AddMonths(1);
+            NotifyMonthChanged();
             GenerateCalendar(currentMonth, HighlightedDates);
         }
 
         private void TodayButton_Click(object sender, RoutedEventArgs e)
         {
             currentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            NotifyMonthChanged();
+            GenerateCalendar(currentMonth, HighlightedDates);
+        }
+
+        public void LoadEventsForMonth(Func<DateTime, Dictionary<DateTime, string>> fetchEvents)
+        {
+            ArgumentNullException.ThrowIfNull(fetchEvents);
+
+            HighlightedDates = fetchEvents(currentMonth);
             GenerateCalendar(currentMonth, HighlightedDates);
         }
     }
