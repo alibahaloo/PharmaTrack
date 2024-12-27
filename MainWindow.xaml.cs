@@ -37,6 +37,17 @@ namespace PharmaTrack
                 { new DateTime(2024, 12, 24), string.Empty }
             };
 
+            // Subscribe to the MonthChanged event
+            MyCalendar.MonthChanged += MyCalendar_MonthChanged;
+        }
+
+        private void MyCalendar_MonthChanged(object? sender, DateTime selectedMonth)
+        {
+            // Handle the month change event
+            // For now, just display the selected month in the console
+            Console.WriteLine($"Selected Month: {selectedMonth:MMMM yyyy}");
+
+            // You can also update your UI or perform other actions here
         }
     }
 }

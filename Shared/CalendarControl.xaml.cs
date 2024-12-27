@@ -23,13 +23,16 @@ namespace PharmaTrack.Shared
     public sealed partial class CalendarControl : UserControl
     {
         private DateTime currentMonth;
+        
+        // Event to notify the parent of month changes
+        public event EventHandler<DateTime>? MonthChanged;
+        
         // Dependency property for HighlightedDates
-        public static readonly DependencyProperty HighlightedDatesProperty =
-    DependencyProperty.Register(
-        nameof(HighlightedDates),
-        typeof(Dictionary<DateTime, string>),
-        typeof(CalendarControl),
-        new PropertyMetadata(new Dictionary<DateTime, string>(), OnHighlightedDatesChanged));
+        public static readonly DependencyProperty HighlightedDatesProperty = DependencyProperty.Register(
+            nameof(HighlightedDates),
+            typeof(Dictionary<DateTime, string>),
+            typeof(CalendarControl),
+            new PropertyMetadata(new Dictionary<DateTime, string>(), OnHighlightedDatesChanged));
 
         public Dictionary<DateTime, string> HighlightedDates
         {
@@ -49,11 +52,26 @@ namespace PharmaTrack.Shared
         {
             this.InitializeComponent();
             currentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+
+            // Handle the Loaded event to ensure the event is fired after the control is initialized
+            this.Loaded += CalendarControl_Loaded;
+
             GenerateCalendar(currentMonth, HighlightedDates);
         }
-
+        private void CalendarControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Notify parent of the initial month after the control has loaded
+            NotifyMonthChanged();
+        }
+        private void NotifyMonthChanged()
+        {
+            // Raise the event to notify parent of the selected month
+            MonthChanged?.Invoke(this, currentMonth);
+        }
         private void GenerateCalendar(DateTime month, Dictionary<DateTime, string> highlightedDates)
         {
+            NotifyMonthChanged(); // Notify parent of the new month
+
             CalendarGrid.Children.Clear();
             CalendarGrid.RowDefinitions.Clear();
             CalendarGrid.ColumnDefinitions.Clear();
