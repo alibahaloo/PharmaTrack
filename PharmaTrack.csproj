@@ -13,7 +13,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Shared\CalendarControl.xaml" />
+    <None Remove="Controls\CalendarControl.xaml" />
   </ItemGroup>
 
   <ItemGroup>

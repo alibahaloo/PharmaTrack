@@ -12,7 +12,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using PharmaTrack.Shared;
+using PharmaTrack.Controls;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -64,10 +64,8 @@ namespace PharmaTrack
         private void MyCalendar_MonthChanged(object? sender, DateTime selectedMonth)
         {
             // Handle the month change event
-            // For now, just display the selected month in the console
             Console.WriteLine($"Selected Month: {selectedMonth:MMMM yyyy}");
 
-            // You can also update your UI or perform other actions here
             // Define the logic for loading events dynamically
             calendarControl.LoadEventsForMonth(month =>
             {

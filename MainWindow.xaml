@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:local="using:PharmaTrack.Shared"
+    xmlns:local="using:PharmaTrack.Controls"
     mc:Ignorable="d"
     Title="PharmaTrack">
     <NavigationView x:Name="MainNavView"
@@ -12,14 +12,12 @@
                     IsBackButtonVisible="Collapsed"
                     IsBackEnabled="False"
                     SelectionChanged="NavigationView_SelectionChanged"
-                    Header="PharmaTrack"
-                    AlwaysShowHeader="True"
                     PaneTitle="Menu"
                     PaneDisplayMode="Top">
 
         <!-- Navigation Items -->
         <NavigationView.MenuItems>
-            <NavigationViewItem Content="My Schedule" Tag="MySchedule" x:Name="MyScheduleItem">
+            <NavigationViewItem Content="My Schedule" Tag="MySchedule" x:Name="MyScheduleItem" IsSelected="True">
                 <NavigationViewItem.Icon>
                     <SymbolIcon Symbol="Calendar" />
                 </NavigationViewItem.Icon>
