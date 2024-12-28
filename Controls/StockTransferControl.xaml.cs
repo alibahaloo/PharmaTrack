@@ -1,3 +1,4 @@
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -25,6 +26,21 @@ namespace PharmaTrack.Controls
             this.InitializeComponent();
             this.Loaded += StockTransferControl_Loaded;
         }
+        private void UPCInputBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            // Disable the button and update the status
+            ScanBarcodeButton.IsEnabled = false;
+            StatusText.Text = "Ready to Scan";
+            StatusText.Foreground = new SolidColorBrush(Colors.Green);
+        }
+
+        private void UPCInputBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // Enable the button and update the status
+            ScanBarcodeButton.IsEnabled = true;
+            StatusText.Text = "Not Ready for Scanning";
+            StatusText.Foreground = new SolidColorBrush(Colors.Red);
+        }
         private void StockTransferControl_Loaded(object sender, RoutedEventArgs e)
         {
             // Set focus to the AutoSuggestBox
@@ -36,8 +52,9 @@ namespace PharmaTrack.Controls
             // Set focus to the AutoSuggestBox
             UPCInputBox.Focus(FocusState.Programmatic);
         }
-        private async void UPC_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        private void UPC_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
         {
+            /*
             ContentDialog dialog = new ContentDialog();
 
             // XamlRoot must be set in the case of a ContentDialog running in a Desktop app
@@ -47,6 +64,8 @@ namespace PharmaTrack.Controls
             dialog.PrimaryButtonText = "OK";
             dialog.DefaultButton = ContentDialogButton.Close;
             await dialog.ShowAsync();
+            */
+            SubmitButton.Focus(FocusState.Programmatic);
         }
     }
 }

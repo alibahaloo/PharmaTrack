@@ -11,11 +11,18 @@
     <StackPanel Margin="20">
         <StackPanel Orientation="Horizontal">
             <Button Content="Scan Barcode"
+                    x:Name="ScanBarcodeButton"
                     Click="ScanBarcodeButton_Click"
                     HorizontalAlignment="Center"        
                     VerticalAlignment="Center"
-                    Background="DodgerBlue"
-                    Foreground="White" />
+                    Background="Green"
+                    Foreground="White"
+                    Margin="5"/>
+            <TextBlock Text="Ready to scan"
+                       x:Name="StatusText"
+                       HorizontalAlignment="Center" 
+                       VerticalAlignment="Center" 
+                       Margin="5"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
             <AutoSuggestBox PlaceholderText="UPC"
@@ -24,6 +31,8 @@
                             Header="UPC"
                             Width="410"
                             QueryIcon="Find"
+                            GotFocus="UPCInputBox_GotFocus"
+                            LostFocus="UPCInputBox_LostFocus" 
                             Margin="5" />
         </StackPanel>
         <StackPanel Orientation="Horizontal">
@@ -70,6 +79,7 @@
         </StackPanel>
         <StackPanel Orientation="Horizontal">
             <Button Content="Submit Stock Transfer"
+                    x:Name="SubmitButton"
                     HorizontalAlignment="Center"        
                     VerticalAlignment="Center"
                     Background="DodgerBlue"
