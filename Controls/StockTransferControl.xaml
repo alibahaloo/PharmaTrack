@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="PharmaTrack.Controls.StockTransferControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:PharmaTrack.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    
+    <StackPanel Margin="20">
+        <StackPanel Orientation="Horizontal">
+            <AutoSuggestBox PlaceholderText="UPC"
+                            Header="UPC"
+                            Width="410"
+                            QueryIcon="Find"
+                            Margin="5" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBox PlaceholderText="NPN"
+                     Header="NPN"
+                     Width="200"
+                     Margin="5" />
+            <TextBox PlaceholderText="DIN"
+                     Header="DIN"
+                     Width="200"
+                     Margin="5" />
+            <TextBox PlaceholderText="Brand"
+                     Header="Brand"
+                     Width="400"
+                     Margin="5"
+                     Grid.ColumnSpan="2" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBox PlaceholderText="Product Title/Description"
+                     Header="Product"
+                     TextWrapping="Wrap" 
+                     AcceptsReturn="True" 
+                     IsSpellCheckEnabled="True"
+                     SelectionHighlightColor="Green" 
+                     MinWidth="820"
+                     MinHeight="100"
+                     Margin="5"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <RadioButtons x:Name="BackgroundRadioButtons" SelectedIndex="0"  MaxColumns="3" Header="Transfer" Margin="5">
+                <x:String>Stock In</x:String>
+                <x:String>Stock Out</x:String>
+            </RadioButtons>
+            <NumberBox x:Name="NumberBoxSpinButtonPlacementExample"
+                       Margin="5"
+                       Header="Quantity"
+                       Value="1"
+                       SpinButtonPlacementMode="Inline"
+                       SmallChange="1"
+                       LargeChange="10"
+                       Minimum="1"
+                       Maximum="1000"/>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <Button Content="Submit"
+                    HorizontalAlignment="Center"        
+                    VerticalAlignment="Center"
+                    Background="DodgerBlue"
+                    Foreground="White" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

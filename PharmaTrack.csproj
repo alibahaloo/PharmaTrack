@@ -14,6 +14,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Controls\CalendarControl.xaml" />
+    <None Remove="Controls\StockTransferControl.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +42,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\StockTransferControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Shared\CalendarControl.xaml">

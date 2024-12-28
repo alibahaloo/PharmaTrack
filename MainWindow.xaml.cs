@@ -27,6 +27,7 @@ namespace PharmaTrack
     public sealed partial class MainWindow : Window
     {
         private readonly CalendarControl calendarControl = new();
+        private readonly StockTransferControl stockTransferControl = new();
         public MainWindow()
         {
             this.InitializeComponent();
@@ -53,6 +54,7 @@ namespace PharmaTrack
                     break;
                 case "StockTransfer":
                     //ContentFrame.Content = new StockTransferControl(); // Load your StockTransferControl UserControl
+                    ContentFrame.Content = stockTransferControl;
                     break;
                 case "Inventory":
                     //ContentFrame.Content = new InventoryControl(); // Load your InventoryControl UserControl
