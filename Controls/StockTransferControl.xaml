@@ -10,7 +10,17 @@
     
     <StackPanel Margin="20">
         <StackPanel Orientation="Horizontal">
+            <Button Content="Scan Barcode"
+                    Click="ScanBarcodeButton_Click"
+                    HorizontalAlignment="Center"        
+                    VerticalAlignment="Center"
+                    Background="DodgerBlue"
+                    Foreground="White" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
             <AutoSuggestBox PlaceholderText="UPC"
+                            x:Name="UPCInputBox"
+                            QuerySubmitted="UPC_QuerySubmitted"
                             Header="UPC"
                             Width="410"
                             QueryIcon="Find"
@@ -48,6 +58,7 @@
                 <x:String>Stock Out</x:String>
             </RadioButtons>
             <NumberBox x:Name="NumberBoxSpinButtonPlacementExample"
+                       Width="200"                       
                        Margin="5"
                        Header="Quantity"
                        Value="1"
@@ -58,7 +69,7 @@
                        Maximum="1000"/>
         </StackPanel>
         <StackPanel Orientation="Horizontal">
-            <Button Content="Submit"
+            <Button Content="Submit Stock Transfer"
                     HorizontalAlignment="Center"        
                     VerticalAlignment="Center"
                     Background="DodgerBlue"

@@ -23,6 +23,30 @@ namespace PharmaTrack.Controls
         public StockTransferControl()
         {
             this.InitializeComponent();
+            this.Loaded += StockTransferControl_Loaded;
+        }
+        private void StockTransferControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Set focus to the AutoSuggestBox
+            UPCInputBox.Focus(FocusState.Programmatic);
+        }
+        private void ScanBarcodeButton_Click(object sender, RoutedEventArgs e)
+        {
+            UPCInputBox.Text = string.Empty;
+            // Set focus to the AutoSuggestBox
+            UPCInputBox.Focus(FocusState.Programmatic);
+        }
+        private async void UPC_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            ContentDialog dialog = new ContentDialog();
+
+            // XamlRoot must be set in the case of a ContentDialog running in a Desktop app
+            dialog.XamlRoot = this.XamlRoot;
+            dialog.Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
+            dialog.Title = "UPC";
+            dialog.PrimaryButtonText = "OK";
+            dialog.DefaultButton = ContentDialogButton.Close;
+            await dialog.ShowAsync();
         }
     }
 }
