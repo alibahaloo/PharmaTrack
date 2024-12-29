@@ -24,4 +24,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PharmaTrack.Shared\PharmaTrack.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

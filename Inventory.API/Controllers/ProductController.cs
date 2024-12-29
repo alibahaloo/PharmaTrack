@@ -1,5 +1,5 @@
 ﻿using Inventory.API.Data;
-using Inventory.API.Models;
+using PharmaTrack.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

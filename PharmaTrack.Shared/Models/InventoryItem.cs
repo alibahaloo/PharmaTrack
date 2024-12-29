@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Inventory.API.Models
+namespace PharmaTrack.Shared.Models
 {
     public class InventoryItem
     {

@@ -6,6 +6,7 @@ FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 WORKDIR /source
 
 COPY ./PharmaTrack/Gateway.API ./Gateway.API
+COPY ./PharmaTrack/PharmaTrack.Shared ./PharmaTrack.Shared
 
 # Move into Kimia.API directory for build
 WORKDIR /source/Gateway.API

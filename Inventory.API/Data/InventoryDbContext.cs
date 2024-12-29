@@ -1,4 +1,4 @@
-﻿using Inventory.API.Models;
+﻿using PharmaTrack.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Inventory.API.Data

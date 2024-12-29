@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Inventory.API.Models
+namespace PharmaTrack.Shared.Models
 {
     public class Product
     {
