@@ -1,0 +1,65 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using PharmaTrack.Shared.Models;
+using System.Text.Json;
+
+namespace Gateway.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class InventoryController : ControllerBase
+    {
+        private readonly HttpClient _httpClient;
+        private readonly string _inventoryApiBaseUrl;
+
+        public InventoryController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        {
+            _httpClient = httpClientFactory.CreateClient();
+            _inventoryApiBaseUrl = configuration["InventoryApi:BaseUrl"] ?? throw new ArgumentNullException("InventoryApi:BaseUrl", "The base URL for the Inventory API is not configured.");
+        }
+
+        [HttpGet("{upc}")]
+        public async Task<IActionResult> GetProductByUPC(string upc)
+        {
+            if (string.IsNullOrWhiteSpace(upc))
+            {
+                return BadRequest("UPC must be provided.");
+            }
+
+            // Define the Inventory API endpoint URL (update base URL as per your setup)
+            var inventoryApiUrl = $"{_inventoryApiBaseUrl}/api/products/{upc}"; // Ensure the correct endpoint
+
+            try
+            {
+                // Send request to Inventory API
+                var response = await _httpClient.GetAsync(inventoryApiUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                // Deserialize the response JSON into a Product object
+                var productJson = await response.Content.ReadAsStringAsync();
+
+                Product? product;
+                try
+                {
+                    product = JsonSerializer.Deserialize<Product>(productJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing product data: {jsonEx.Message}");
+                }
+
+                return Ok(product);
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(500, $"Error calling Inventory API: {ex.Message}");
+            }
+        }
+    }
+}
