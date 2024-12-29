@@ -1,5 +1,19 @@
 services:
-  server1:
+  gateway-api:
+    container_name: Gateway.API
+    build:
+      context: ..
+      dockerfile: PharmaTrack/Gateway.API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=your_password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    ports:
+      - "8081:80"
+      - "8082:443"
+
+  inventory-api:
     container_name: Inventory.API
     build:
       context: ..
@@ -11,10 +25,10 @@ services:
       - ASPNETCORE_Kestrel__Certificates__Default__Password=your_password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
     ports:
-      - "8081:80"
-      - "8082:443"
+      - "8083:80"
+      - "8084:443"
     depends_on:
-      - inventory-db 
+      - inventory-db
 
   inventory-db:
     container_name: Inventory.db  
