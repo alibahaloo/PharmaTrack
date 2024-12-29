@@ -28,6 +28,13 @@ public class ProductController : ControllerBase
         return product != null ? Ok(product) : NotFound();
     }
 
+    [HttpGet("upc/{upc}")]
+    public async Task<IActionResult> GetProductByUpc(string upc)
+    {
+        var product = await _context.Products.FirstOrDefaultAsync(p => p.UPC == upc);
+        return product != null ? Ok(product) : NotFound($"Product with UPC '{upc}' not found.");
+    }
+
     [HttpPost]
     public async Task<IActionResult> AddProduct(Product product)
     {
