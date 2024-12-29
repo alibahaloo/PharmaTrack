@@ -3,6 +3,15 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# DB Migrations
+*/Migrations/
+
+# AppSettings for APIs
+appsettings.Development.json
+appsettings.Production.json
+# Config files for App
+config.json
+
 # User-specific files
 *.rsuser
 *.suo
