@@ -1,7 +1,7 @@
 using Auth.API.Data;
-using Auth.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PharmaTrack.Shared.DBModels;
 using PharmaTrack.Shared.Services;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,7 +1,6 @@
-﻿using Auth.API.Services;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Auth.API.Data;
+using PharmaTrack.Shared.DBModels;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.Services;
 

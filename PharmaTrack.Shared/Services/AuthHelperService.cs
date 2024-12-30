@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Auth.API.Data;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using PharmaTrack.Shared.DBModels;
 using System.IdentityModel.Tokens.Jwt;
-using PharmaTrack.Shared.Services;
 
-namespace Auth.API.Services
+namespace PharmaTrack.Shared.Services
 {
     public class AuthHelperService
     {
