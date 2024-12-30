@@ -218,5 +218,33 @@ namespace Auth.API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("logout")]
+        public async Task<IActionResult> Logout([FromBody] string refreshToken)
+        {
+            try
+            {
+                // Validate the incoming refresh token
+                var tokenEntity = await ValidateRefreshTokenAsync(refreshToken);
+                if (tokenEntity == null)
+                {
+                    _logger.LogWarning("Invalid refresh token provided for logout.");
+                    return Unauthorized(new { Success = false, Message = "Invalid or expired refresh token." });
+                }
+
+                // Remove the refresh token from the database
+                _dbContext.RefreshTokens.Remove(tokenEntity);
+                await _dbContext.SaveChangesAsync();
+
+                // Respond with success
+                return Ok(new { Success = true, Message = "Logged out successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred during logout.");
+                return BadRequest(new { Success = false, Message = "An error occurred while logging out. Please try again." });
+            }
+        }
+
     }
 }
