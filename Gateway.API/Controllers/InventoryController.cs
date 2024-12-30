@@ -225,6 +225,103 @@ namespace Gateway.API.Controllers
             }
         }
 
+        [HttpGet("transactions")]
+        public async Task<IActionResult> GetAllTransactions()
+        {
+            // Define the Inventory API endpoint URL
+            var getTransactionsUrl = $"{_inventoryApiBaseUrl}/api/transactions";
+
+            try
+            {
+                // Send GET request to the Inventory API
+                var response = await _httpClient.GetAsync(getTransactionsUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Return the error response from the Inventory API
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                // Deserialize the response JSON into a list of Transaction objects
+                var transactionsJson = await response.Content.ReadAsStringAsync();
+
+                List<Transaction>? transactions;
+                try
+                {
+                    transactions = JsonSerializer.Deserialize<List<Transaction>>(transactionsJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing transaction data: {jsonEx.Message}");
+                }
+
+                return Ok(transactions);
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle HTTP request errors
+                return StatusCode(500, $"Error communicating with Inventory API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
+        }
+        [HttpGet("transactions/{id}")]
+        public async Task<IActionResult> GetTransactionById(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid transaction ID.");
+            }
+
+            // Define the Inventory API endpoint URL
+            var getTransactionUrl = $"{_inventoryApiBaseUrl}/api/transactions/{id}";
+
+            try
+            {
+                // Send GET request to the Inventory API
+                var response = await _httpClient.GetAsync(getTransactionUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Return the error response from the Inventory API
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                // Deserialize the response JSON into a Transaction object
+                var transactionJson = await response.Content.ReadAsStringAsync();
+
+                Transaction? transaction;
+                try
+                {
+                    transaction = JsonSerializer.Deserialize<Transaction>(transactionJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing transaction data: {jsonEx.Message}");
+                }
+
+                return Ok(transaction);
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle HTTP request errors
+                return StatusCode(500, $"Error communicating with Inventory API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
+        }
 
         [HttpPost("stock-transfer")]
         public async Task<IActionResult> StockTransfer([FromBody] StockTransferRequest request)

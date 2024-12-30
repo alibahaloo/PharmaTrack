@@ -1,18 +1,10 @@
 ﻿using Inventory.API.Data;
-using PharmaTrack.Shared.DBModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 
 namespace Inventory.API.Controllers
 {
-    public class CreateTransactionRequest
-    {
-        public int ProductId { get; set; }
-        public TransactionType Type { get; set; }
-        public int Quantity { get; set; }
-    }
-
     [Route("api/[controller]")]
     [ApiController]
     public class TransactionsController : ControllerBase
