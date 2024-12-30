@@ -17,8 +17,94 @@ namespace Gateway.API.Controllers
             _httpClient = httpClientFactory.CreateClient();
             _inventoryApiBaseUrl = configuration["InventoryApi:BaseUrl"] ?? throw new ArgumentNullException("InventoryApi:BaseUrl", "The base URL for the Inventory API is not configured.");
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            // Define the Inventory API endpoint URL
+            var getAllProductsUrl = $"{_inventoryApiBaseUrl}/api/products";
 
-        [HttpGet("{upc}")]
+            try
+            {
+                // Send GET request to the Inventory API
+                var response = await _httpClient.GetAsync(getAllProductsUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Return the error response from the Inventory API
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                // Deserialize the response JSON into a list of Product objects
+                var productsJson = await response.Content.ReadAsStringAsync();
+
+                List<Product>? products;
+                try
+                {
+                    products = JsonSerializer.Deserialize<List<Product>>(productsJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing product data: {jsonEx.Message}");
+                }
+
+                return Ok(products);
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle HTTP request errors
+                return StatusCode(500, $"Error communicating with Inventory API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            // Define the Inventory API endpoint URL (update base URL as per your setup)
+            var inventoryApiUrl = $"{_inventoryApiBaseUrl}/api/products/{id}"; // Ensure the correct endpoint
+
+            try
+            {
+                // Send request to Inventory API
+                var response = await _httpClient.GetAsync(inventoryApiUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                // Deserialize the response JSON into a Product object
+                var productJson = await response.Content.ReadAsStringAsync();
+
+                Product? product;
+                try
+                {
+                    product = JsonSerializer.Deserialize<Product>(productJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing product data: {jsonEx.Message}");
+                }
+
+                return Ok(product);
+            }
+            catch (HttpRequestException ex)
+            {
+                return StatusCode(500, $"Error calling Inventory API: {ex.Message}");
+            }
+        }
+
+        [HttpGet("upc/{upc}")]
         public async Task<IActionResult> GetProductByUPC(string upc)
         {
             if (string.IsNullOrWhiteSpace(upc))
@@ -102,6 +188,41 @@ namespace Gateway.API.Controllers
             }
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProductById(int id)
+        {
+            if (id <= 0)
+            {
+                return BadRequest("Invalid product ID.");
+            }
+
+            // Define the Inventory API endpoint URL
+            var deleteProductUrl = $"{_inventoryApiBaseUrl}/api/products/{id}";
+
+            try
+            {
+                // Send DELETE request to the Inventory API
+                var response = await _httpClient.DeleteAsync(deleteProductUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Return the error response from the Inventory API
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                return Ok($"Product with ID {id} deleted successfully.");
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle HTTP request errors
+                return StatusCode(500, $"Error communicating with Inventory API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
+        }
 
 
         [HttpPost("stock-transfer")]
