@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway.API", "Gateway.API\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmaTrack.Shared", "PharmaTrack.Shared\PharmaTrack.Shared.csproj", "{11CDC0C8-FB93-464A-9C22-564DC5F389EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auth.API", "Auth.API\Auth.API.csproj", "{5ABFD094-9758-4E18-B20D-2EE2279E503E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -83,6 +85,18 @@ Global
 		{11CDC0C8-FB93-464A-9C22-564DC5F389EB}.Release|x64.Build.0 = Release|Any CPU
 		{11CDC0C8-FB93-464A-9C22-564DC5F389EB}.Release|x86.ActiveCfg = Release|Any CPU
 		{11CDC0C8-FB93-464A-9C22-564DC5F389EB}.Release|x86.Build.0 = Release|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Debug|x64.Build.0 = Debug|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Debug|x86.Build.0 = Debug|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Release|ARM64.Build.0 = Release|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Release|x64.ActiveCfg = Release|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Release|x64.Build.0 = Release|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Release|x86.ActiveCfg = Release|Any CPU
+		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
