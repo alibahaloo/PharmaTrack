@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PharmaTrack.Shared.Models;
+using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Shared.DBModels;
 using System.Text;
 using System.Text.Json;
 
