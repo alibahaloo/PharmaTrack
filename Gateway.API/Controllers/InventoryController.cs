@@ -34,7 +34,7 @@ namespace Gateway.API.Controllers
             }
 
             // Define the Inventory API endpoint URL (update base URL as per your setup)
-            var inventoryApiUrl = $"{_inventoryApiBaseUrl}/api/products/{upc}"; // Ensure the correct endpoint
+            var inventoryApiUrl = $"{_inventoryApiBaseUrl}/api/products/upc/{upc}"; // Ensure the correct endpoint
 
             try
             {
@@ -69,74 +69,19 @@ namespace Gateway.API.Controllers
                 return StatusCode(500, $"Error calling Inventory API: {ex.Message}");
             }
         }
-
         [HttpPost("stock-transfer")]
         public async Task<IActionResult> StockTransfer([FromBody] StockTransferRequest request)
         {
-            if (request.Product == null || string.IsNullOrWhiteSpace(request.Product.UPC))
-            {
-                return BadRequest("Product UPC is required.");
-            }
-
-            var type = request.Type;
-            var product = request.Product;
-            var quantity = request.Quantity;
-
             try
             {
-                // Check if the product exists
-                var inventoryApiUrl = $"{_inventoryApiBaseUrl}/api/products/upc/{product.UPC}";
-                var response = await _httpClient.GetAsync(inventoryApiUrl);
+                var stockTransferUrl = $"{_inventoryApiBaseUrl}/api/inventory/stock-transfer";
+                var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
-                Product? existingProduct = null;
+                var response = await _httpClient.PostAsync(stockTransferUrl, content);
 
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    var productJson = await response.Content.ReadAsStringAsync();
-                    existingProduct = JsonSerializer.Deserialize<Product>(productJson, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                }
-                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-                {
-                    // Product does not exist, create it
-                    var createProductUrl = $"{_inventoryApiBaseUrl}/api/products";
-                    var productContent = new StringContent(JsonSerializer.Serialize(product), Encoding.UTF8, "application/json");
-
-                    var createResponse = await _httpClient.PostAsync(createProductUrl, productContent);
-                    if (!createResponse.IsSuccessStatusCode)
-                    {
-                        return StatusCode((int)createResponse.StatusCode, await createResponse.Content.ReadAsStringAsync());
-                    }
-
-                    var createdProductJson = await createResponse.Content.ReadAsStringAsync();
-                    existingProduct = JsonSerializer.Deserialize<Product>(createdProductJson, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                }
-
-                if (existingProduct == null)
-                {
-                    return StatusCode(500, "Failed to retrieve or create the product.");
-                }
-
-                // Create a new transaction
-                var transaction = new
-                {
-                    ProductId = existingProduct.Id,
-                    Type = type,
-                    Quantity = quantity
-                };
-
-                var transactionUrl = $"{_inventoryApiBaseUrl}/api/transactions";
-                var transactionContent = new StringContent(JsonSerializer.Serialize(transaction), Encoding.UTF8, "application/json");
-
-                var transactionResponse = await _httpClient.PostAsync(transactionUrl, transactionContent);
-                if (!transactionResponse.IsSuccessStatusCode)
-                {
-                    return StatusCode((int)transactionResponse.StatusCode, await transactionResponse.Content.ReadAsStringAsync());
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
                 }
 
                 return Ok("Stock transfer successful.");
@@ -144,10 +89,6 @@ namespace Gateway.API.Controllers
             catch (HttpRequestException ex)
             {
                 return StatusCode(500, $"Error communicating with Inventory API: {ex.Message}");
-            }
-            catch (JsonException jsonEx)
-            {
-                return StatusCode(500, $"Error processing JSON data: {jsonEx.Message}");
             }
         }
     }

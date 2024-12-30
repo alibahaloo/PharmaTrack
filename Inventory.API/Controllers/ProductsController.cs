@@ -17,11 +17,11 @@ namespace Inventory.API.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly InventoryDbContext _context;
 
-        public ProductController(InventoryDbContext context)
+        public ProductsController(InventoryDbContext context)
         {
             _context = context;
         }
