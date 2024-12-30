@@ -60,9 +60,9 @@ namespace Inventory.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProductById(int id, [FromBody] Product updatedProduct)
+        public async Task<IActionResult> UpdateProductById(int id, [FromBody] ProductUpdateRequest updateRequest)
         {
-            if (updatedProduct == null || id != updatedProduct.Id)
+            if (updateRequest == null)
             {
                 return BadRequest("Invalid product data.");
             }
@@ -76,13 +76,13 @@ namespace Inventory.API.Controllers
 
             try
             {
-                // Update fields of the existing product
-                existingProduct.UPC = updatedProduct.UPC ?? existingProduct.UPC;
-                existingProduct.Name = updatedProduct.Name ?? existingProduct.Name;
-                existingProduct.NPN = updatedProduct.NPN ?? existingProduct.NPN;
-                existingProduct.DIN = updatedProduct.DIN ?? existingProduct.DIN;
-                existingProduct.Brand = updatedProduct.Brand ?? existingProduct.Brand;
-                existingProduct.Quantity = updatedProduct.Quantity > 0 ? updatedProduct.Quantity : existingProduct.Quantity;
+                // Update the fields of the existing product with data from the request
+                existingProduct.UPC = updateRequest.UPC;
+                existingProduct.Name = updateRequest.Name;
+                existingProduct.NPN = updateRequest.NPN;
+                existingProduct.DIN = updateRequest.DIN;
+                existingProduct.Brand = updateRequest.Brand;
+                existingProduct.Quantity = updateRequest.Quantity;
                 existingProduct.UpdatedAt = DateTime.UtcNow;
 
                 // Save changes to the database
@@ -97,6 +97,7 @@ namespace Inventory.API.Controllers
                 return StatusCode(500, $"An error occurred while updating the product: {ex.Message}");
             }
         }
+
 
 
         [HttpGet("upc/{upc}")]

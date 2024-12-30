@@ -2,11 +2,8 @@
 
 namespace PharmaTrack.Shared.Models
 {
-    public class StockTransferRequest
+    public class ProductUpdateRequest
     {
-        [Required]
-        public TransactionType Type { get; set; }
-
         [Required, MaxLength(50)]
         public string UPC { get; set; } = string.Empty;
 

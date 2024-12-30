@@ -62,6 +62,48 @@ namespace Gateway.API.Controllers
                 return StatusCode(500, $"Error calling Inventory API: {ex.Message}");
             }
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProductById(int id, [FromBody] ProductUpdateRequest updateRequest)
+        {
+            if (updateRequest == null)
+            {
+                return BadRequest("Invalid product data.");
+            }
+
+            // Define the Inventory API endpoint URL
+            var updateProductUrl = $"{_inventoryApiBaseUrl}/api/products/{id}";
+
+            try
+            {
+                // Serialize the update request into JSON
+                var content = new StringContent(JsonSerializer.Serialize(updateRequest), Encoding.UTF8, "application/json");
+
+                // Send PUT request to the Inventory API
+                var response = await _httpClient.PutAsync(updateProductUrl, content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Return the error response from the Inventory API
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                return Ok($"Product with ID {id} updated successfully.");
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle HTTP request errors
+                return StatusCode(500, $"Error communicating with Inventory API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+
+
         [HttpPost("stock-transfer")]
         public async Task<IActionResult> StockTransfer([FromBody] StockTransferRequest request)
         {
