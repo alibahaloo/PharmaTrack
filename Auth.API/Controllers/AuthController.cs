@@ -12,8 +12,8 @@ namespace Auth.API.Controllers
     [Route("[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly AuthHelperService _authHelper;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly JwtService _jwtService;
         private readonly ILogger<AuthController> _logger;
         private readonly IUserStore<ApplicationUser> _userStore;
@@ -22,15 +22,15 @@ namespace Auth.API.Controllers
         //private readonly EmailService _emailService;
 
         public AuthController(
-            AuthHelperService authHelper,
             UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             JwtService jwtService,
             ILogger<AuthController> logger,
             IUserStore<ApplicationUser> userStore,
             AuthDBContext dBContext)
         {
-            _authHelper = authHelper;
             _userManager = userManager;
+            _signInManager = signInManager;
             _jwtService = jwtService;
             _logger = logger;
             _userStore = userStore;
@@ -132,7 +132,8 @@ namespace Auth.API.Controllers
         {
             try
             {
-                if (!await _authHelper.ValidateUserCredentialsAsync(model.Username, model.Password))
+                var signInResult = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, lockoutOnFailure: false);
+                if (!signInResult.Succeeded)
                 {
                     _logger.LogWarning("Login failed: Invalid credentials for username '{Username}'.", model.Username);
                     return Unauthorized(new { Success = false, Content = "Invalid credentials." });

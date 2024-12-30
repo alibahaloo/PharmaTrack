@@ -20,7 +20,6 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 // Add HttpContextAccessor and Services
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<JwtService>();
-builder.Services.AddScoped<AuthHelperService>();
 
 var app = builder.Build();
 
