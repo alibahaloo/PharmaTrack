@@ -1,0 +1,7 @@
+{
+  "JwtSettings": {
+    "Issuer": "PhramaTrack",
+    "Audience": "PhramaTrack.Audience",
+    "SecretKey": "Pjq8pzobRB6eFIxV3aK9P3I5R8pdjNkd"
+  }
+}

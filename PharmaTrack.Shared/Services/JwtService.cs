@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace Auth.API.Services
+namespace PharmaTrack.Shared.Services
 {
     public class JwtSettings
     {

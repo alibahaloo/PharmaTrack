@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Auth.API.Data;
 using System.IdentityModel.Tokens.Jwt;
+using PharmaTrack.Shared.Services;
 
 namespace Auth.API.Services
 {

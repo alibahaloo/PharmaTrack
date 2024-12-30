@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Auth.API.Data;
 using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Shared.Services;
 
 namespace Auth.API.Controllers
 {
