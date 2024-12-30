@@ -6,7 +6,8 @@ using PharmaTrack.Shared.APIModels;
 
 namespace Auth.API.Controllers
 {
-    
+    [ApiController]
+    [Route("[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly AuthHelperService _authHelper;
