@@ -3,16 +3,8 @@ using PharmaTrack.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-
 namespace Inventory.API.Controllers
 {
-    public class StockTransferRequest
-    {
-        public TransactionType Type { get; set; }
-        public Product Product { get; set; } = default!;
-        public int Quantity { get; set; }
-    }
-
     [Route("api/[controller]")]
     [ApiController]
     public class InventoryController : ControllerBase
@@ -27,7 +19,7 @@ namespace Inventory.API.Controllers
         [HttpPost("stock-transfer")]
         public async Task<IActionResult> StockTransfer([FromBody] StockTransferRequest request)
         {
-            if (request.Product == null || string.IsNullOrWhiteSpace(request.Product.UPC))
+            if (request.Name == null || string.IsNullOrWhiteSpace(request.UPC))
             {
                 return BadRequest("Product information is required.");
             }
@@ -37,17 +29,17 @@ namespace Inventory.API.Controllers
             try
             {
                 // Check if the product exists
-                var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.UPC == request.Product.UPC);
+                var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.UPC == request.UPC);
 
                 if (existingProduct != null)
                 {
                     // Update the product's fields
-                    existingProduct.Name = request.Product.Name ?? existingProduct.Name;
-                    existingProduct.NPN = request.Product.NPN ?? existingProduct.NPN;
-                    existingProduct.DIN = request.Product.DIN ?? existingProduct.DIN;
-                    existingProduct.Brand = request.Product.Brand ?? existingProduct.Brand;
+                    existingProduct.Name = request.Name ?? existingProduct.Name;
+                    existingProduct.NPN = request.NPN ?? existingProduct.NPN;
+                    existingProduct.DIN = request.DIN ?? existingProduct.DIN;
+                    existingProduct.Brand = request.Brand ?? existingProduct.Brand;
                     existingProduct.UpdatedAt = DateTime.UtcNow;
-
+                    existingProduct.Quantity += request.Type == TransactionType.In ? request.Quantity : -request.Quantity;
                     _context.Products.Update(existingProduct);
                 }
                 else
@@ -55,11 +47,12 @@ namespace Inventory.API.Controllers
                     // Create product if it doesn't exist
                     existingProduct = new Product
                     {
-                        UPC = request.Product.UPC,
-                        Name = request.Product.Name,
-                        NPN = request.Product.NPN,
-                        DIN = request.Product.DIN,
-                        Brand = request.Product.Brand,
+                        UPC = request.UPC,
+                        Name = request.Name,
+                        NPN = request.NPN,
+                        DIN = request.DIN,
+                        Brand = request.Brand,
+                        Quantity = request.Quantity,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     };
@@ -81,27 +74,6 @@ namespace Inventory.API.Controllers
                 _context.Transactions.Add(newTransaction);
                 await _context.SaveChangesAsync();
 
-                // Update or create inventory item
-                var inventoryItem = await _context.InventoryItems.FirstOrDefaultAsync(i => i.ProductId == existingProduct.Id);
-
-                if (inventoryItem != null)
-                {
-                    inventoryItem.Quantity += request.Type == TransactionType.In ? request.Quantity : -request.Quantity;
-                    inventoryItem.LastUpdated = DateTime.UtcNow;
-                }
-                else
-                {
-                    inventoryItem = new InventoryItem
-                    {
-                        ProductId = existingProduct.Id,
-                        Quantity = request.Type == TransactionType.In ? request.Quantity : -request.Quantity,
-                        LastUpdated = DateTime.UtcNow
-                    };
-
-                    _context.InventoryItems.Add(inventoryItem);
-                }
-
-                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
                 return Ok("Stock transfer successful.");

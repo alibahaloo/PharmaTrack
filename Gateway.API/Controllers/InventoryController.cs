@@ -5,13 +5,6 @@ using System.Text.Json;
 
 namespace Gateway.API.Controllers
 {
-    public class StockTransferRequest
-    {
-        public TransactionType Type { get; set; }
-        public Product Product { get; set; } = default!;
-        public int Quantity { get; set; }
-    }
-
     [ApiController]
     [Route("api/[controller]")]
     public class InventoryController : ControllerBase

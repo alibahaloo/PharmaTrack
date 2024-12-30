@@ -8,7 +8,6 @@ namespace Inventory.API.Data
         public InventoryDbContext(DbContextOptions<InventoryDbContext> options) : base(options) { }
 
         public DbSet<Product> Products { get; set; } = null!;
-        public DbSet<InventoryItem> InventoryItems { get; set; } = null!;
         public DbSet<Transaction> Transactions { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,13 +24,6 @@ namespace Inventory.API.Data
                 .HasOne(t => t.Product)
                 .WithMany()
                 .HasForeignKey(t => t.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure Product relationship for InventoryItem
-            modelBuilder.Entity<InventoryItem>()
-                .HasOne(i => i.Product)
-                .WithMany()
-                .HasForeignKey(i => i.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
