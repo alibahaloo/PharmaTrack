@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace PharmaTrack.Shared.Services
@@ -62,6 +63,16 @@ namespace PharmaTrack.Shared.Services
             return GenerateJwtToken(userId, username);
         }
 
+        public string GenerateSecureRefreshToken(int size = 64)
+        {
+            var randomNumber = new byte[size];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+            }
+            return Convert.ToBase64String(randomNumber);
+        }
+
 
         public string GenerateJwtToken(string userId, string username)
         {
@@ -69,12 +80,12 @@ namespace PharmaTrack.Shared.Services
             var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(
-                [
+                Subject = new ClaimsIdentity(new[]
+                {
                     new Claim(ClaimTypes.Name, username),
                     new Claim("userId", userId) // Add userId as a claim
-                ]),
-                Expires = DateTime.UtcNow.AddDays(7), // Token expiry time
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(15), // Short-lived token (15 minutes)
                 Issuer = _jwtSettings.Issuer,
                 Audience = _jwtSettings.Audience,
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -82,5 +93,6 @@ namespace PharmaTrack.Shared.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
+
     }
 }

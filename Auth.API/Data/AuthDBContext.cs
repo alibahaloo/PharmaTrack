@@ -11,5 +11,6 @@ namespace Auth.API.Data
         {
         }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; } = default!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
     }
 }

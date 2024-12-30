@@ -1,6 +1,10 @@
+using PharmaTrack.Shared.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Load the shared configuration
+var sharedConfiguration = SharedConfiguration.GetSharedConfiguration();
+builder.Configuration.AddConfiguration(sharedConfiguration);
 
 builder.Services.AddControllers();
 
@@ -9,6 +13,14 @@ builder.Services.AddHttpClient();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Add JWT configuration using the shared extension
+builder.Services.AddJwtAuthentication(builder.Configuration);
+
+// Add HttpContextAccessor and Services
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<AuthHelperService>();
 
 var app = builder.Build();
 
@@ -25,7 +37,7 @@ if (string.IsNullOrEmpty(app.Configuration["InventoryApi:BaseUrl"]))
 
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

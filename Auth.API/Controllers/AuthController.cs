@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using PharmaTrack.Shared.DBModels;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.Services;
+using Microsoft.EntityFrameworkCore;
+using Auth.API.Data;
 
 namespace Auth.API.Controllers
 {
@@ -16,6 +18,7 @@ namespace Auth.API.Controllers
         private readonly ILogger<AuthController> _logger;
         private readonly IUserStore<ApplicationUser> _userStore;
         private readonly IUserEmailStore<ApplicationUser> _emailStore;
+        private readonly AuthDBContext _dbContext;
         //private readonly EmailService _emailService;
 
         public AuthController(
@@ -23,13 +26,15 @@ namespace Auth.API.Controllers
             UserManager<ApplicationUser> userManager,
             JwtService jwtService,
             ILogger<AuthController> logger,
-            IUserStore<ApplicationUser> userStore)
+            IUserStore<ApplicationUser> userStore,
+            AuthDBContext dBContext)
         {
             _authHelper = authHelper;
             _userManager = userManager;
             _jwtService = jwtService;
             _logger = logger;
             _userStore = userStore;
+            _dbContext = dBContext;
             _emailStore = GetEmailStore();
         }
         private IUserEmailStore<ApplicationUser> GetEmailStore()
@@ -80,8 +85,14 @@ namespace Auth.API.Controllers
                         return Unauthorized(new { Success = false, Message = "User not found." });
                     }
 
-                    var token = _jwtService.GenerateJwtToken(user.Id, user.UserName);
-                    return Ok(new { Success = true, Content = new { token, user.UserName } });
+                    var accessToken = _jwtService.GenerateJwtToken(user.Id, user.UserName);
+                    var refreshToken = _jwtService.GenerateSecureRefreshToken();
+                    var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+                    // Store the Refresh Token in the database
+                    await AddRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
+
+                    return Ok(new { Success = true, Content = new { accessToken, refreshToken, user.UserName } });
                 }
                 else
                 {
@@ -95,6 +106,24 @@ namespace Auth.API.Controllers
                 _logger.LogError(ex, "An error occurred during user registration '{Username}'.", model.Username);
                 return Unauthorized();
             }
+        }
+        public async Task AddRefreshTokenAsync(string userId, string token, DateTime expiryDate)
+        {
+            // Remove existing refresh tokens for the user
+            var existingTokens = _dbContext.RefreshTokens.Where(rt => rt.UserId == userId);
+            _dbContext.RefreshTokens.RemoveRange(existingTokens);
+
+            // Add the new refresh token
+            var refreshToken = new RefreshToken
+            {
+                Token = token,
+                UserId = userId,
+                ExpiryDate = expiryDate,
+                CreatedDate = DateTime.UtcNow
+            };
+
+            _dbContext.RefreshTokens.Add(refreshToken);
+            await _dbContext.SaveChangesAsync();
         }
 
         [HttpPost]
@@ -116,8 +145,14 @@ namespace Auth.API.Controllers
                     return Unauthorized(new { Success = false, Content = "User not found." });
                 }
 
-                var token = _jwtService.GenerateJwtToken(user.Id, user.UserName);
-                return Ok(new { Success = true, Content = new { token, user.UserName } });
+                var accessToken = _jwtService.GenerateJwtToken(user.Id, user.UserName);
+                var refreshToken = _jwtService.GenerateSecureRefreshToken();
+                var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+
+                // Store the Refresh Token in the database
+                await AddRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
+
+                return Ok(new { Success = true, Content = new { accessToken, refreshToken, user.UserName } });
             }
             catch (Exception ex)
             {
@@ -125,26 +160,55 @@ namespace Auth.API.Controllers
                 return Unauthorized();
             }
         }
+        public async Task<RefreshToken?> ValidateRefreshTokenAsync(string refreshToken)
+        {
+            var tokenEntity = await _dbContext.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == refreshToken);
 
-        [HttpGet]
+            if (tokenEntity == null || tokenEntity.ExpiryDate < DateTime.UtcNow)
+            {
+                return null; // Token is invalid or expired
+            }
+
+            return tokenEntity;
+        }
+        public async Task UpdateRefreshTokenAsync(RefreshToken tokenEntity)
+        {
+            _dbContext.RefreshTokens.Update(tokenEntity);
+            await _dbContext.SaveChangesAsync();
+        }
+        [HttpPost]
         [Route("refresh")]
-        public async Task<IActionResult> RefreshToken()
+        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
         {
             try
             {
-                var (user, refreshedToken) = await _authHelper.GetUserIdAndRefreshToken();
-
-                if (refreshedToken == null || user == null)
+                // Step 1: Validate the incoming refresh token
+                var tokenEntity = await ValidateRefreshTokenAsync(refreshToken);
+                if (tokenEntity == null)
                 {
-                    return Unauthorized();
+                    _logger.LogWarning("Invalid refresh token.");
+                    return Unauthorized(new { Success = false, Message = "Invalid or expired refresh token." });
                 }
 
-                return Ok(new { Success = true, Content = new { refreshedToken, user.UserName } });
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Unauthorized access: {Message}", ex.Message);
-                return Unauthorized();
+                // Step 2: Generate a new Access Token
+                var newAccessToken = _jwtService.GenerateJwtToken(tokenEntity.UserId, "username-placeholder"); // Replace with actual username if needed
+
+                // Step 3: (Optional) Generate a new Refresh Token and replace the old one
+                var newRefreshToken = _jwtService.GenerateSecureRefreshToken();
+                tokenEntity.Token = newRefreshToken;
+                tokenEntity.ExpiryDate = DateTime.UtcNow.AddDays(7); // Update expiry
+                await UpdateRefreshTokenAsync(tokenEntity);
+
+                // Step 4: Return the new tokens
+                return Ok(new
+                {
+                    Success = true,
+                    Content = new
+                    {
+                        AccessToken = newAccessToken,
+                        RefreshToken = newRefreshToken
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -152,5 +216,6 @@ namespace Auth.API.Controllers
                 return BadRequest(new { Success = false, Message = "An error occurred. Please try again." });
             }
         }
+
     }
 }
