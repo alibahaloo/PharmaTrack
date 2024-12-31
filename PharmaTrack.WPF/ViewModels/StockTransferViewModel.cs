@@ -107,14 +107,14 @@ namespace PharmaTrack.WPF.ViewModels
             SubmitCommand = new RelayCommand(ExecuteSubmitCommand);
         }
 
-        private void ExecuteScanBarcodeCommand(object parameter)
+        private void ExecuteScanBarcodeCommand(object? parameter)
         {
             UPCInput = string.Empty;
             StatusText = "Ready to Scan";
             StatusForeground = Brushes.Green;
         }
 
-        private void ExecuteSubmitCommand(object parameter)
+        private void ExecuteSubmitCommand(object? parameter)
         {
             StatusText = "Submitted!";
             StatusForeground = Brushes.Blue;
