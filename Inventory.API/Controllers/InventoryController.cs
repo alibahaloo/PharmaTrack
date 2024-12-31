@@ -20,9 +20,9 @@ namespace Inventory.API.Controllers
         [HttpPost("stock-transfer")]
         public async Task<IActionResult> StockTransfer([FromBody] StockTransferRequest request)
         {
-            if (request.Name == null || string.IsNullOrWhiteSpace(request.UPC))
+            if (request.Name == null || string.IsNullOrWhiteSpace(request.UPC) || string.IsNullOrEmpty(request.UserId))
             {
-                return BadRequest("Product information is required.");
+                return BadRequest("Request information is required.");
             }
 
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -66,6 +66,7 @@ namespace Inventory.API.Controllers
                 // Create a new transaction
                 var newTransaction = new Transaction
                 {
+                    CreatedBy = request.UserId,
                     ProductId = existingProduct.Id,
                     Type = request.Type,
                     Quantity = request.Quantity,

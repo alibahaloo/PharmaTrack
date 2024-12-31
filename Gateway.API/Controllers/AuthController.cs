@@ -70,12 +70,12 @@ namespace Gateway.API.Controllers
 
         [HttpPost]
         [Route("refresh")]
-        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest model)
         {
             try
             {
                 // Forward the refresh token request to the Auth API
-                var response = await _httpClient.PostAsJsonAsync($"{_authApiBaseUrl}/auth/refresh", refreshToken);
+                var response = await _httpClient.PostAsJsonAsync($"{_authApiBaseUrl}/auth/refresh", model);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -96,12 +96,12 @@ namespace Gateway.API.Controllers
 
         [HttpPost]
         [Route("logout")]
-        public async Task<IActionResult> Logout([FromBody] string refreshToken)
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest model)
         {
             try
             {
                 // Forward the logout request to the Auth API
-                var response = await _httpClient.PostAsJsonAsync($"{_authApiBaseUrl}/auth/logout", refreshToken);
+                var response = await _httpClient.PostAsJsonAsync($"{_authApiBaseUrl}/auth/logout", model);
 
                 if (!response.IsSuccessStatusCode)
                 {

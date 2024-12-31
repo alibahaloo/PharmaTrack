@@ -179,12 +179,12 @@ namespace Auth.API.Controllers
         }
         [HttpPost]
         [Route("refresh")]
-        public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest model)
         {
             try
             {
                 // Step 1: Validate the incoming refresh token
-                var tokenEntity = await ValidateRefreshTokenAsync(refreshToken);
+                var tokenEntity = await ValidateRefreshTokenAsync(model.RefreshToken);
                 if (tokenEntity == null)
                 {
                     _logger.LogWarning("Invalid refresh token.");
@@ -220,12 +220,12 @@ namespace Auth.API.Controllers
 
         [HttpPost]
         [Route("logout")]
-        public async Task<IActionResult> Logout([FromBody] string refreshToken)
+        public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest model)
         {
             try
             {
                 // Validate the incoming refresh token
-                var tokenEntity = await ValidateRefreshTokenAsync(refreshToken);
+                var tokenEntity = await ValidateRefreshTokenAsync(model.RefreshToken);
                 if (tokenEntity == null)
                 {
                     _logger.LogWarning("Invalid refresh token provided for logout.");

@@ -28,7 +28,7 @@ namespace PharmaTrack.Shared.DBModels
         public string? Reference { get; set; } // Optional external reference
 
         [Required]
-        public int CreatedBy { get; set; }
+        public string CreatedBy { get; set; } = default!;
     }
 
     public enum TransactionType

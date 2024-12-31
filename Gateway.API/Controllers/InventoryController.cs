@@ -366,6 +366,15 @@ namespace Gateway.API.Controllers
         {
             try
             {
+                // Step 1: Validate Authorization Header
+                var (validationResult, userId) = ValidateAuthorizationHeader();
+                if (validationResult != null)
+                {
+                    return validationResult; // Return if validation fails
+                }
+
+                request.UserId = userId;
+
                 var stockTransferUrl = $"{_inventoryApiBaseUrl}/api/inventory/stock-transfer";
                 var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
 
