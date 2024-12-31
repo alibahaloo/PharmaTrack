@@ -94,5 +94,38 @@ namespace PharmaTrack.Shared.Services
             return tokenHandler.WriteToken(token);
         }
 
+        public (bool IsValid, string? UserId) ValidateAccessToken(string token)
+        {
+            try
+            {
+                // Decode and validate the JWT
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _jwtSettings.Issuer, // Replace with your actual issuer
+                    ValidAudience = _jwtSettings.Audience, // Replace with your actual audience
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.SecretKey)) // Replace with your secret key
+                };
+
+                // Validate the token and get the principal
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+
+                // Extract the "userId" claim
+                var userIdClaim = principal.FindFirst("userId"); // Ensure "userId" is added as a claim when issuing the token
+                var userId = userIdClaim?.Value;
+
+                return (true, userId);
+            }
+            catch (Exception)
+            {
+                // Return false with null userId if validation fails
+                return (false, null);
+            }
+        }
+
     }
 }

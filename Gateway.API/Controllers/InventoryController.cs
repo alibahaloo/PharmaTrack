@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Shared.Services;
 using System.Text;
 using System.Text.Json;
 
@@ -12,12 +13,42 @@ namespace Gateway.API.Controllers
     {
         private readonly HttpClient _httpClient;
         private readonly string _inventoryApiBaseUrl;
+        private readonly JwtService _jwtService;
 
-        public InventoryController(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public InventoryController(IHttpClientFactory httpClientFactory, IConfiguration configuration, JwtService jwtService)
         {
+            _jwtService = jwtService;
             _httpClient = httpClientFactory.CreateClient();
             _inventoryApiBaseUrl = configuration["InventoryApi:BaseUrl"] ?? throw new ArgumentNullException("InventoryApi:BaseUrl", "The base URL for the Inventory API is not configured.");
         }
+
+        private (IActionResult? ValidationResult, string? UserId) ValidateAuthorizationHeader()
+        {
+            // Extract the Authorization header
+            if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+            {
+                return (Unauthorized(new { Success = false, Message = "Authorization header is missing." }), null);
+            }
+
+            var token = authHeader.ToString().Replace("Bearer ", string.Empty);
+            if (string.IsNullOrEmpty(token))
+            {
+                return (Unauthorized(new { Success = false, Message = "Token is missing." }), null);
+            }
+
+            // Validate the token and extract user ID
+            var (isValid, userId) = _jwtService.ValidateAccessToken(token);
+            if (!isValid || string.IsNullOrEmpty(userId))
+            {
+                return (Unauthorized(new { Success = false, Message = "Invalid or expired token." }), null);
+            }
+
+            // Return null for validation result if validation succeeds, along with the extracted userId
+            return (null, userId);
+        }
+
+
+
         [HttpGet]
         public async Task<IActionResult> GetAllProducts()
         {
@@ -26,6 +57,13 @@ namespace Gateway.API.Controllers
 
             try
             {
+                // Step 1: Validate Authorization Header
+                var (validationResult, userId) = ValidateAuthorizationHeader();
+                if (validationResult != null)
+                {
+                    return validationResult; // Return if validation fails
+                }
+
                 // Send GET request to the Inventory API
                 var response = await _httpClient.GetAsync(getAllProductsUrl);
 
