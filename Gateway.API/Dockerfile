@@ -8,7 +8,6 @@ WORKDIR /source
 COPY ./PharmaTrack/Gateway.API ./Gateway.API
 COPY ./PharmaTrack/PharmaTrack.Shared ./PharmaTrack.Shared
 
-# Move into Kimia.API directory for build
 WORKDIR /source/Gateway.API
 
 ARG TARGETARCH
@@ -31,7 +30,11 @@ RUN update-ca-certificates
 COPY --from=build /app .
 
 # Copy the SSL certificate from the host to the container
-COPY Kimia/aspnetapp.pfx /https/aspnetapp.pfx
+COPY ./PharmaTrack/aspnetapp.pfx /https/aspnetapp.pfx
+
+# Ensure the SSL certificate has appropriate permissions
+RUN chmod 644 /https/aspnetapp.pfx \
+    && chown 1000:1000 /https/aspnetapp.pfx
 
 # Set environment variables for Kestrel to use HTTPS
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx

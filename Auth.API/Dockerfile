@@ -30,7 +30,7 @@ RUN update-ca-certificates
 COPY --from=build /app .
 
 # Copy the SSL certificate from the host to the container
-COPY Kimia/aspnetapp.pfx /https/aspnetapp.pfx
+COPY ./PharmaTrack/aspnetapp.pfx /https/aspnetapp.pfx
 
 # Set environment variables for Kestrel to use HTTPS
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
