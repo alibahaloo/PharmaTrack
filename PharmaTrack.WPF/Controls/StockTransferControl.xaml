@@ -23,21 +23,25 @@
             <!-- Barcode Scanning -->
             <StackPanel Orientation="Horizontal">
                 <Button Content="Scan Barcode"
-                        Command="{Binding ScanBarcodeCommand}"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Background="Green"
-                        Foreground="White"
-                        Margin="5" />
+            Command="{Binding ScanBarcodeCommand}"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Background="Green"
+            Foreground="White"
+            Margin="5"
+            Click="ScanButton_Click" />
             </StackPanel>
 
-            <!-- UPC Input -->
             <StackPanel Orientation="Horizontal">
-                <TextBox Text="{Binding UPCInput, UpdateSourceTrigger=PropertyChanged}"
-                         Width="410"
-                         Margin="5"
-                         ToolTip="Enter UPC here" />
+                <TextBox x:Name="UPCInputTextBox"
+             Text="{Binding UPCInput, UpdateSourceTrigger=PropertyChanged}"
+             Width="410"
+             Margin="5"
+             ToolTip="Enter UPC here"
+             GotFocus="UPCInputTextBox_GotFocus"
+             LostFocus="UPCInputTextBox_LostFocus" />
             </StackPanel>
+
 
             <!-- Additional Input Fields -->
             <StackPanel Orientation="Horizontal">
