@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmaTrack.App", "PharmaTrack.App\PharmaTrack.App.csproj", "{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{80495D9B-2029-42A2-AC72-63AEC97D80B0}"
 	ProjectSection(SolutionItems) = preProject
 		.gitattributes = .gitattributes
@@ -22,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmaTrack.Shared", "Pharm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auth.API", "Auth.API\Auth.API.csproj", "{5ABFD094-9758-4E18-B20D-2EE2279E503E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmaTrack.WPF", "PharmaTrack.WPF\PharmaTrack.WPF.csproj", "{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -32,24 +32,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Debug|ARM64.ActiveCfg = Debug|ARM64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Debug|ARM64.Build.0 = Debug|ARM64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Debug|ARM64.Deploy.0 = Debug|ARM64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Debug|x64.ActiveCfg = Debug|x64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Debug|x64.Build.0 = Debug|x64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Debug|x64.Deploy.0 = Debug|x64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Debug|x86.ActiveCfg = Debug|x86
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Debug|x86.Build.0 = Debug|x86
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Debug|x86.Deploy.0 = Debug|x86
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Release|ARM64.ActiveCfg = Release|ARM64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Release|ARM64.Build.0 = Release|ARM64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Release|ARM64.Deploy.0 = Release|ARM64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Release|x64.ActiveCfg = Release|x64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Release|x64.Build.0 = Release|x64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Release|x64.Deploy.0 = Release|x64
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Release|x86.ActiveCfg = Release|x86
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Release|x86.Build.0 = Release|x86
-		{86F74DD0-F344-48A2-9EFD-D22CD7A1BA6B}.Release|x86.Deploy.0 = Release|x86
 		{613B69AE-EB5B-4BE2-8BFB-2E5F3B1E534E}.Debug|ARM64.ActiveCfg = Debug|Any CPU
 		{613B69AE-EB5B-4BE2-8BFB-2E5F3B1E534E}.Debug|ARM64.Build.0 = Debug|Any CPU
 		{613B69AE-EB5B-4BE2-8BFB-2E5F3B1E534E}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -98,6 +80,18 @@ Global
 		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Release|x64.Build.0 = Release|Any CPU
 		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Release|x86.ActiveCfg = Release|Any CPU
 		{5ABFD094-9758-4E18-B20D-2EE2279E503E}.Release|x86.Build.0 = Release|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Debug|x64.Build.0 = Debug|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Debug|x86.Build.0 = Debug|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Release|ARM64.Build.0 = Release|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Release|x64.ActiveCfg = Release|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Release|x64.Build.0 = Release|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Release|x86.ActiveCfg = Release|Any CPU
+		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

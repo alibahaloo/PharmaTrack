@@ -1,31 +1,29 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI;
-using Microsoft.UI.Text;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
-namespace PharmaTrack.Controls
+namespace PharmaTrack.WPF.Controls
 {
     public enum CalendarMode
     {
         SingleUser,
         MultipleUsers
     }
-    public sealed partial class CalendarControl : UserControl
+    /// <summary>
+    /// Interaction logic for CalendarControl.xaml
+    /// </summary>
+    public partial class CalendarControl : UserControl
     {
         private DateTime currentMonth;
 
@@ -64,10 +62,9 @@ namespace PharmaTrack.Controls
                 calendarControl.GenerateCalendar(calendarControl.currentMonth, (Dictionary<DateTime, string>)e.NewValue);
             }
         }
-
         public CalendarControl()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             currentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
 
             // Handle the Loaded event to ensure the event is fired after the control is initialized
@@ -198,7 +195,7 @@ namespace PharmaTrack.Controls
                 // Handle clicks on highlighted dates
                 if (isHighlighted)
                 {
-                    dayBorder.Tapped += (s, e) =>
+                    dayBorder.MouseLeftButtonDown += (s, e) =>
                     {
                         EventDetails.Text = $"You clicked on {currentDate:MMMM dd, yyyy}" +
                                             (string.IsNullOrEmpty(highlightedDates[currentDate])

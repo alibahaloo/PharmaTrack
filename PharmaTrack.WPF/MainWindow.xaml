@@ -1,0 +1,22 @@
+﻿<Window x:Class="PharmaTrack.WPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PharmaTrack.WPF"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <DockPanel>
+        <!-- Top Menu -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Menu">
+                <MenuItem Header="My Schedule" Click="MyScheduleMenuItem_Click" />
+                <MenuItem Header="Stock Transfer" Click="StockTransferMenuItem_Click" />
+                <MenuItem Header="Inventory" Click="InventoryMenuItem_Click" />
+            </MenuItem>
+        </Menu>
+
+        <!-- Main Content -->
+        <ContentControl x:Name="ContentFrame" />
+    </DockPanel>
+</Window>
