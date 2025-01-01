@@ -19,33 +19,46 @@
         </StatusBar>
         <!-- Main Content -->
         <StackPanel>
-
             <!-- Barcode Scanning -->
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Margin="5">
                 <Button Content="Scan Barcode"
+                        x:Name="ScanButton"
                         Command="{Binding ScanBarcodeCommand}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Background="Green"
-                        Foreground="White"
+                        Foreground="Black"
                         Padding="5"
                         Click="ScanButton_Click" />
+                <TextBlock Text="UPC" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
+                <TextBox x:Name="UPCInputTextBox"
+                         Padding="5"
+                         Text="{Binding UPCInput, UpdateSourceTrigger=PropertyChanged}"
+                         Width="200"
+                         Margin="5"
+                         ToolTip="Enter UPC here"
+                         GotFocus="UPCInputTextBox_GotFocus"
+                         LostFocus="UPCInputTextBox_LostFocus" />
+
+                <Button Content="Lookup Barcode"
+                        x:Name="LoockupBarcode"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Background="Cyan"
+                        Foreground="Black"
+                        Padding="5" />
             </StackPanel>
-
-            <StackPanel Orientation="Horizontal">
-                <StackPanel HorizontalAlignment="Left">
-                    <TextBlock Text="UPC" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
-                    <TextBox x:Name="UPCInputTextBox"
+            
+            <!-- Additional Input Fields -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <StackPanel>
+                    <TextBlock Text="Brand" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
+                    <TextBox Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"
                              Padding="5"
-                             Text="{Binding UPCInput, UpdateSourceTrigger=PropertyChanged}"
-                             Width="150"
-                             Margin="5"
-                             ToolTip="Enter UPC here"
-                             GotFocus="UPCInputTextBox_GotFocus"
-                             LostFocus="UPCInputTextBox_LostFocus" />
+                             Width="200"
+                             Margin="5" />
                 </StackPanel>
-
-                <StackPanel HorizontalAlignment="Left">
+                <StackPanel>
                     <TextBlock Text="NPN" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
                     <TextBox Text="{Binding NPN, UpdateSourceTrigger=PropertyChanged}"
                              Padding="5"
@@ -61,15 +74,6 @@
                              Width="150"
                              Margin="5" />
                 </StackPanel>
-            </StackPanel>
-            
-            <!-- Additional Input Fields -->
-            <StackPanel HorizontalAlignment="Left">
-                <TextBlock Text="Brand" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
-                <TextBox Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"
-                         Padding="5"
-                         Width="200"
-                         Margin="5" />
             </StackPanel>
 
             <!-- Product Description -->
@@ -92,7 +96,7 @@
                 <!-- Radio Buttons and Quantity -->
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="Transfer" Margin="5" />
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" >
                         <RadioButton Content="Stock In"
                                      GroupName="Transfer"
                                      IsChecked="{Binding IsStockIn, Mode=TwoWay}"
