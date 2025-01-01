@@ -17,60 +17,80 @@
                            Margin="5" />
             </StatusBarItem>
         </StatusBar>
-
         <!-- Main Content -->
         <StackPanel>
+
             <!-- Barcode Scanning -->
             <StackPanel Orientation="Horizontal">
                 <Button Content="Scan Barcode"
-            Command="{Binding ScanBarcodeCommand}"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Background="Green"
-            Foreground="White"
-            Margin="5"
-            Click="ScanButton_Click" />
+                        Command="{Binding ScanBarcodeCommand}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Background="Green"
+                        Foreground="White"
+                        Padding="5"
+                        Click="ScanButton_Click" />
             </StackPanel>
 
             <StackPanel Orientation="Horizontal">
-                <TextBox x:Name="UPCInputTextBox"
-             Text="{Binding UPCInput, UpdateSourceTrigger=PropertyChanged}"
-             Width="410"
-             Margin="5"
-             ToolTip="Enter UPC here"
-             GotFocus="UPCInputTextBox_GotFocus"
-             LostFocus="UPCInputTextBox_LostFocus" />
+                <StackPanel HorizontalAlignment="Left">
+                    <TextBlock Text="UPC" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
+                    <TextBox x:Name="UPCInputTextBox"
+                             Padding="5"
+                             Text="{Binding UPCInput, UpdateSourceTrigger=PropertyChanged}"
+                             Width="150"
+                             Margin="5"
+                             ToolTip="Enter UPC here"
+                             GotFocus="UPCInputTextBox_GotFocus"
+                             LostFocus="UPCInputTextBox_LostFocus" />
+                </StackPanel>
+
+                <StackPanel HorizontalAlignment="Left">
+                    <TextBlock Text="NPN" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
+                    <TextBox Text="{Binding NPN, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="5"
+                             Width="150"
+                             Margin="5" />
+                </StackPanel>
+
+
+                <StackPanel HorizontalAlignment="Left">
+                    <TextBlock Text="DIN" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
+                    <TextBox Text="{Binding DIN, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="5"
+                             Width="150"
+                             Margin="5" />
+                </StackPanel>
             </StackPanel>
-
-
+            
             <!-- Additional Input Fields -->
-            <StackPanel Orientation="Horizontal">
-                <TextBox Text="{Binding NPN, UpdateSourceTrigger=PropertyChanged}"
-                         Width="200"
-                         Margin="5" />
-                <TextBox Text="{Binding DIN, UpdateSourceTrigger=PropertyChanged}"
-                         Width="200"
-                         Margin="5" />
+            <StackPanel HorizontalAlignment="Left">
+                <TextBlock Text="Brand" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
                 <TextBox Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"
-                         Width="400"
+                         Padding="5"
+                         Width="200"
                          Margin="5" />
             </StackPanel>
 
             <!-- Product Description -->
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="Product Description" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5"/>
                 <TextBox Text="{Binding ProductDescription, UpdateSourceTrigger=PropertyChanged}"
                          TextWrapping="Wrap"
                          AcceptsReturn="True"
                          SelectionBrush="Green"
-                         MinWidth="820"
-                         MinHeight="100"
+                         MinWidth="100"
+                         MinHeight="50"
+                         Padding="5"
                          Margin="5"
                          ToolTip="Enter product title or description" />
             </StackPanel>
 
-            <!-- Radio Buttons and Quantity -->
+            
+
             <StackPanel Orientation="Horizontal">
-                <StackPanel>
+                <!-- Radio Buttons and Quantity -->
+                <StackPanel Orientation="Vertical">
                     <TextBlock Text="Transfer" Margin="5" />
                     <StackPanel Orientation="Horizontal">
                         <RadioButton Content="Stock In"
@@ -83,13 +103,17 @@
                                      Margin="5" />
                     </StackPanel>
                 </StackPanel>
-                <StackPanel>
+
+                <StackPanel HorizontalAlignment="Left">
+                    <TextBlock Text="Quantity" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5"/>
+
                     <TextBox Width="200"
+                             Padding="5"
                              Margin="5"
                              Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
                              ToolTip="Enter quantity" />
                     <TextBlock Foreground="Red"
-                               Text="{Binding ElementName=QuantityTextBox, Path=(Validation.Errors)[0].ErrorContent, FallbackValue='', NotifyOnValidationError=True}" />
+                                Text="{Binding ElementName=QuantityTextBox, Path=(Validation.Errors)[0].ErrorContent, FallbackValue='', NotifyOnValidationError=True}" />
                 </StackPanel>
             </StackPanel>
 
@@ -101,7 +125,8 @@
                         VerticalAlignment="Center"
                         Background="DodgerBlue"
                         Foreground="White"
-                        Margin="5" />
+                        Margin="5"
+                        Padding="5"/>
             </StackPanel>
         </StackPanel>
     </DockPanel>
