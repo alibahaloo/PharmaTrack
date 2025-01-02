@@ -17,11 +17,27 @@ namespace PharmaTrack.WPF.ViewModels
         private string _productDescription;
         private bool _isStockIn;
         private bool _isStockOut;
+        private bool _lookUpBtnEnabled;
+
+        public bool LookUpBtnEnabled
+        {
+            get => _lookUpBtnEnabled;
+            set
+            {
+                _lookUpBtnEnabled = value;
+                OnPropertyChanged(); // Notify UI of changes
+            }
+        }
 
         public string UPCInput
         {
             get => _upcInput;
-            set { _upcInput = value; OnPropertyChanged(); }
+            set
+            {
+                _upcInput = value;
+                LookUpBtnEnabled = !string.IsNullOrEmpty(value); // Update the button state
+                OnPropertyChanged(); // Notify UI that UPCInput has changed
+            }
         }
 
         public string StatusText

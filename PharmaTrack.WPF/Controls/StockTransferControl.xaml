@@ -47,6 +47,7 @@
                              LostFocus="UPCInputTextBox_LostFocus" />
 
                     <Button Content="Lookup Barcode"
+                            IsEnabled="{Binding LookUpBtnEnabled}"
                             x:Name="LoockupBarcode"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
