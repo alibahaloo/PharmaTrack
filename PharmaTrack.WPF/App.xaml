@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:PharmaTrack.WPF"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <FontFamily x:Key="FontAwesome">/Fonts/fa-regular-400.ttf#Font Awesome 6 Free Regular</FontFamily>
     </Application.Resources>
 </Application>

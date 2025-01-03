@@ -20,6 +20,8 @@
         <!-- Main Content -->
         <StackPanel>
             <TextBlock Text="Stock Transfer"></TextBlock>
+            <TextBlock x:Name="tbFontAwesome" Text="&#xf004;" FontFamily="{StaticResource FontAwesome}" Foreground="Red" FontSize="32" Margin="10" VerticalAlignment="Center"></TextBlock>
+            <TextBlock Text="Font Awesome" FontSize="32" Margin="10" VerticalAlignment="Center"></TextBlock>
 
             <Button 
                     FontWeight="Bold" 
