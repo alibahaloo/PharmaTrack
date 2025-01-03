@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PharmaTrack.WPF.Controls"
+             xmlns:bi="https://github.com/helluvamatt/BootstrapIcons.Wpf/"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel Margin="20">
@@ -20,8 +21,10 @@
         <!-- Main Content -->
         <StackPanel>
             <TextBlock Text="Stock Transfer"></TextBlock>
-            <TextBlock x:Name="tbFontAwesome" Text="&#xf004;" FontFamily="{StaticResource FontAwesome}" Foreground="Red" FontSize="32" Margin="10" VerticalAlignment="Center"></TextBlock>
+            <TextBlock x:Name="tbFontAwesome" Text="&#xf2b9;" FontFamily="{StaticResource FontAwesome}" Foreground="Red" FontSize="32" Margin="10" VerticalAlignment="Center"></TextBlock>
             <TextBlock Text="Font Awesome" FontSize="32" Margin="10" VerticalAlignment="Center"></TextBlock>
+            <bi:BootstrapIcon Icon="Upc" Width="32" Height="32" Foreground="Black" />
+
 
             <Button 
                     FontWeight="Bold" 
@@ -38,10 +41,7 @@
                     Click="ScanButton_Click">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock FontFamily="Segoe MDL2 Assets" 
-                                   Text="&#xE8FE;" 
-                                   FontSize="20" 
-                                   Margin="0,0,5,0" />
+                        <bi:BootstrapIcon Icon="UpcScan" Width="32" Height="32" Foreground="Black" />
                         <TextBlock Text="Scan Barcode"
                                    VerticalAlignment="Center" />
                     </StackPanel>
@@ -72,10 +72,7 @@
                             Padding="5">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock FontFamily="Segoe MDL2 Assets" 
-                                           Text="&#xE71E;" 
-                                           FontSize="20" 
-                                           Margin="0,0,5,0" />
+                                <bi:BootstrapIcon Icon="Search" Width="32" Height="32" Foreground="Black" />
                                 <TextBlock Text="Lookup"
                                            VerticalAlignment="Center" />
                             </StackPanel>
