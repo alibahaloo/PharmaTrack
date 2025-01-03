@@ -17,6 +17,10 @@
                            VerticalAlignment="Center"
                            Margin="5" />
             </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <ProgressBar x:Name="StatusBar" Width="100" Height="10" IsIndeterminate="True"/>
+            </StatusBarItem>
         </StatusBar>
         <!-- Main Content -->
         <StackPanel>
@@ -87,6 +91,8 @@
                     <TextBlock Text="Look up status"
                                Foreground="Green"
                                VerticalAlignment="Center" />
+
+                    
                 </StackPanel>
             </StackPanel>
             
