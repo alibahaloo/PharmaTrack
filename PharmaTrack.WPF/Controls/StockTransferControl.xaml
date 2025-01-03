@@ -15,20 +15,19 @@
                            Foreground="{Binding StatusForeground}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
+                           FontWeight="Bold"
                            Margin="5" />
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <ProgressBar x:Name="StatusBar" Width="100" Height="10" IsIndeterminate="True"/>
+                <ProgressBar x:Name="StatusBar" Width="100" Height="10" IsIndeterminate="{Binding IsLoading}"/>
             </StatusBarItem>
         </StatusBar>
         <!-- Main Content -->
         <StackPanel>
             <TextBlock Text="Stock Transfer" FontSize="32" Margin="5"></TextBlock>
 
-
-            <Button 
-                    FontWeight="Regular"
+            <Button FontWeight="Regular"
                     FontSize="16"
                     x:Name="ScanButton"
                     Command="{Binding ScanBarcodeCommand}"
@@ -67,21 +66,21 @@
                              GotFocus="UPCInputTextBox_GotFocus"
                              LostFocus="UPCInputTextBox_LostFocus" />
 
-                    <Button 
-                            IsEnabled="{Binding LookUpBtnEnabled}"
+                    <Button IsEnabled="{Binding LookUpBtnEnabled}"
+                            Command="{Binding LookupCommand}"
                             x:Name="LoockupBarcode"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Background="Cyan"
-                            Foreground="Black"
+                            Background="Green"
+                            Foreground="White"
                             Margin="5">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <bi:BootstrapIcon Icon="Search" 
                                                   Margin="5"
                                                   Width="16" Height="16" 
-                                                  Foreground="Black" />
-                                <TextBlock Text="Lookup"
+                                                  Foreground="White" />
+                                <TextBlock Text="Lookup Product"
                                            Margin="5"
                                            VerticalAlignment="Center" />
                             </StackPanel>

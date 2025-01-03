@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PharmaTrack.Shared\PharmaTrack.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Fonts\fa-regular-400.ttf" />
     <Resource Include="Fonts\Font-Awesome-6-Free-Regular-400.otf" />
   </ItemGroup>

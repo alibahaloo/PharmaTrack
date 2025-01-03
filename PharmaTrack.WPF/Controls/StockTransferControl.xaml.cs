@@ -24,6 +24,7 @@ namespace PharmaTrack.WPF.Controls
             {
                 viewModel.StatusText = "Ready to Scan";
                 viewModel.StatusForeground = System.Windows.Media.Brushes.Green;
+                viewModel.ScanBarcodeBtnEnabled = false;
             }
         }
 
@@ -34,6 +35,7 @@ namespace PharmaTrack.WPF.Controls
             {
                 viewModel.StatusText = "Not Ready to Scan";
                 viewModel.StatusForeground = System.Windows.Media.Brushes.Red;
+                viewModel.ScanBarcodeBtnEnabled = true;
             }
         }
 

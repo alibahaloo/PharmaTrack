@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using PharmaTrack.Shared.DBModels;
+using System.ComponentModel;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -18,7 +20,48 @@ namespace PharmaTrack.WPF.ViewModels
         private bool _isStockIn = true;
         private bool _isStockOut = default!;
         private bool _lookUpBtnEnabled = default!;
+        private bool _scanBarcodeBtnEnabled = true;
+        private bool _isLoading = false;
+        private Product? _selectedProduct = default!;
+        private string _errorMessage = default!;
 
+        public Product? SelectedProduct
+        {
+            get => _selectedProduct;
+            set
+            {
+                _selectedProduct = value;
+                OnPropertyChanged(nameof(SelectedProduct));
+            }
+        }
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set
+            {
+                _errorMessage = value;
+                OnPropertyChanged(nameof(ErrorMessage));
+            }
+        }
+
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged(); // Notify UI of changes
+            }
+        }
+        public bool ScanBarcodeBtnEnabled
+        {
+            get => _scanBarcodeBtnEnabled;
+            set
+            {
+                _scanBarcodeBtnEnabled = value;
+                OnPropertyChanged(); // Notify UI of changes
+            }
+        }
         public bool LookUpBtnEnabled
         {
             get => _lookUpBtnEnabled;
@@ -110,6 +153,7 @@ namespace PharmaTrack.WPF.ViewModels
 
         public ICommand ScanBarcodeCommand { get; }
         public ICommand SubmitCommand { get; }
+        public ICommand LookupCommand { get; }
 
         public StockTransferViewModel()
         {
@@ -121,6 +165,60 @@ namespace PharmaTrack.WPF.ViewModels
             // Initialize commands
             ScanBarcodeCommand = new RelayCommand(ExecuteScanBarcodeCommand);
             SubmitCommand = new RelayCommand(ExecuteSubmitCommand);
+            LookupCommand = new RelayCommand(ExecuteLookupCommand);
+        }
+        private async void ExecuteLookupCommand(object? parameter)
+        {
+            IsLoading = true;
+
+            try
+            {
+                // Ensure the UPC input is valid
+                if (string.IsNullOrWhiteSpace(UPCInput))
+                {
+                    throw new ArgumentException("UPC input cannot be empty.");
+                }
+
+                // Prepare the HttpClient
+                using (HttpClient client = new HttpClient())
+                {
+                    // Construct the API URL with the UPC parameter
+                    string apiUrl = $"https://localhost:8082/api/inventory/upc/{UPCInput}";
+
+                    // Make the API request
+                    HttpResponseMessage response = await client.GetAsync(apiUrl);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        // Parse the response (deserialize JSON into Product object)
+                        var responseData = await response.Content.ReadAsStringAsync();
+                        Product? product = System.Text.Json.JsonSerializer.Deserialize<Product>(responseData, new System.Text.Json.JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+
+                        // Assign product data to a bound property
+
+                        if (product != null) {
+                            SelectedProduct = product; // Ensure SelectedProduct is a bindable property in the ViewModel
+                        }
+                    }
+                    else
+                    {
+                        // Handle API errors
+                        throw new HttpRequestException($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions (e.g., show error message)
+                ErrorMessage = ex.Message; // Bind this property to display the error in the UI if needed
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private void ExecuteScanBarcodeCommand(object? parameter)
@@ -128,6 +226,7 @@ namespace PharmaTrack.WPF.ViewModels
             UPCInput = string.Empty;
             StatusText = "Ready to Scan";
             StatusForeground = Brushes.Green;
+            ScanBarcodeBtnEnabled = false;
         }
 
         private void ExecuteSubmitCommand(object? parameter)
