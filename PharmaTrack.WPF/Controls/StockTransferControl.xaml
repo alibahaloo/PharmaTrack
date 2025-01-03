@@ -19,7 +19,9 @@
         </StatusBar>
         <!-- Main Content -->
         <StackPanel>
-            <Button Content="Scan Barcode"
+            <TextBlock Text="Stock Transfer"></TextBlock>
+
+            <Button 
                     FontWeight="Bold" 
                     FontSize="16"
                     x:Name="ScanButton"
@@ -31,7 +33,18 @@
                     
                     Margin="5"
                     Padding="5"
-                    Click="ScanButton_Click" />
+                    Click="ScanButton_Click">
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                   Text="&#xE8FE;" 
+                                   FontSize="20" 
+                                   Margin="0,0,5,0" />
+                        <TextBlock Text="Scan Barcode"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button.Content>
+            </Button>
 
             <!-- Barcode Scanning -->
             <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
@@ -46,7 +59,7 @@
                              GotFocus="UPCInputTextBox_GotFocus"
                              LostFocus="UPCInputTextBox_LostFocus" />
 
-                    <Button Content="Lookup Barcode"
+                    <Button 
                             IsEnabled="{Binding LookUpBtnEnabled}"
                             x:Name="LoockupBarcode"
                             HorizontalAlignment="Center"
@@ -54,7 +67,18 @@
                             Background="Cyan"
                             Foreground="Black"
                             Margin="5"
-                            Padding="5" />
+                            Padding="5">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                           Text="&#xE71E;" 
+                                           FontSize="20" 
+                                           Margin="0,0,5,0" />
+                                <TextBlock Text="Lookup"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
                 </StackPanel>
             </StackPanel>
             
@@ -117,21 +141,41 @@
                 <StackPanel Orientation="Vertical">
                     <TextBlock FontSize="14" FontWeight="Bold" Text="Transfer" Margin="5" />
                     <StackPanel Orientation="Vertical" >
-                        <RadioButton Content="Stock In"
-                     GroupName="Transfer"
-                     IsChecked="{Binding IsStockIn, Mode=TwoWay}"
-                     Margin="5" />
-                        <RadioButton Content="Stock Out"
-                     GroupName="Transfer"
-                     IsChecked="{Binding IsStockOut, Mode=TwoWay}"
-                     Margin="5" />
+                        <RadioButton GroupName="Transfer"
+                                     IsChecked="{Binding IsStockIn, Mode=TwoWay}" 
+                                     Margin="5">
+                            <RadioButton.Content>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                               Text="&#xE8B5;" 
+                                               FontSize="16" 
+                                               Margin="0,0,5,0" />
+                                    <TextBlock Text="Stock In" 
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </RadioButton.Content>
+                        </RadioButton>
+                        <RadioButton GroupName="Transfer"
+                                     IsChecked="{Binding IsStockOut, Mode=TwoWay}" 
+                                     Margin="5">
+                            <RadioButton.Content>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                               Text="&#xEDE1;" 
+                                               FontSize="16" 
+                                               Margin="0,0,5,0" />
+                                    <TextBlock Text="Stock Out" 
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </RadioButton.Content>
+                        </RadioButton>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
 
             <!-- Submit Button -->
             <StackPanel Orientation="Horizontal">
-                <Button Content="Submit Stock Transfer"
+                <Button 
                         FontWeight="Bold" 
                         FontSize="16"
                         Command="{Binding SubmitCommand}"
@@ -140,7 +184,18 @@
                         Background="DodgerBlue"
                         Foreground="White"
                         Margin="5"
-                        Padding="5"/>
+                        Padding="5">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                       Text="&#xE8FB;" 
+                                       FontSize="20" 
+                                       Margin="0,0,5,0" />
+                            <TextBlock Text="Submit Stock Transfer" 
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
             </StackPanel>
         </StackPanel>
     </DockPanel>

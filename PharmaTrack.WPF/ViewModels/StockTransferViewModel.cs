@@ -15,7 +15,7 @@ namespace PharmaTrack.WPF.ViewModels
         private string _din = default!;
         private string _brand = default!;
         private string _productDescription = default!;
-        private bool _isStockIn = default!;
+        private bool _isStockIn = true;
         private bool _isStockOut = default!;
         private bool _lookUpBtnEnabled = default!;
 

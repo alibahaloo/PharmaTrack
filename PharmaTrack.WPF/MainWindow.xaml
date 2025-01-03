@@ -8,11 +8,39 @@
         Title="PhramaTrack" Height="600" Width="800">
     <DockPanel>
         <!-- Top Menu -->
-        <Menu DockPanel.Dock="Top" FontSize="20">
-            <MenuItem Header="Menu">
-                <MenuItem Header="My Schedule" Click="MyScheduleMenuItem_Click" />
-                <MenuItem Header="Stock Transfer" Click="StockTransferMenuItem_Click" />
-                <MenuItem Header="Inventory" Click="InventoryMenuItem_Click" />
+        <Menu DockPanel.Dock="Top" FontSize="16">
+            <MenuItem Header="My Schedule" Click="MyScheduleMenuItem_Click">
+                <MenuItem.Icon>
+                    <Viewbox Width="16" Height="16">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" 
+                       Text="&#xE8C0;" 
+                       FontSize="16" 
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Center" />
+                    </Viewbox>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Stock Transfer" Click="StockTransferMenuItem_Click">
+                <MenuItem.Icon>
+                    <Viewbox Width="16" Height="16">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                    Text="&#xE895;" 
+                                    FontSize="16" 
+                                    VerticalAlignment="Center" 
+                                    HorizontalAlignment="Center" />
+                    </Viewbox>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Inventory" Click="InventoryMenuItem_Click">
+                <MenuItem.Icon>
+                    <Viewbox Width="16" Height="16">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                   Text="&#xF003;" 
+                                   FontSize="16" 
+                                   VerticalAlignment="Center" 
+                                   HorizontalAlignment="Center" />
+                    </Viewbox>
+                </MenuItem.Icon>
             </MenuItem>
         </Menu>
 
