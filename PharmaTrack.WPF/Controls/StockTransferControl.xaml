@@ -44,7 +44,8 @@
                                           Height="16"
                                           Foreground="White" />
                         <TextBlock Text="Scan Barcode"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center"
+                                   Margin="5"/>
                     </StackPanel>
                 </Button.Content>
             </Button>
@@ -69,8 +70,7 @@
                             VerticalAlignment="Center"
                             Background="Cyan"
                             Foreground="Black"
-                            Margin="5"
-                            Padding="5">
+                            Margin="5">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <bi:BootstrapIcon Icon="Search" 
@@ -78,10 +78,15 @@
                                                   Width="16" Height="16" 
                                                   Foreground="Black" />
                                 <TextBlock Text="Lookup"
+                                           Margin="5"
                                            VerticalAlignment="Center" />
                             </StackPanel>
                         </Button.Content>
                     </Button>
+
+                    <TextBlock Text="Look up status"
+                               Foreground="Green"
+                               VerticalAlignment="Center" />
                 </StackPanel>
             </StackPanel>
             
@@ -194,7 +199,8 @@
                                               Height="16"
                                               Foreground="White" />
                             <TextBlock Text="Submit Stock Transfer" 
-                                       VerticalAlignment="Center" />
+                                       VerticalAlignment="Center"
+                                       Margin="5"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
