@@ -7,17 +7,17 @@ namespace PharmaTrack.WPF.ViewModels
 {
     public class StockTransferViewModel : INotifyPropertyChanged
     {
-        private string _upcInput;
-        private string _statusText;
-        private Brush _statusForeground;
-        private string _quantity;
-        private string _npn;
-        private string _din;
-        private string _brand;
-        private string _productDescription;
-        private bool _isStockIn;
-        private bool _isStockOut;
-        private bool _lookUpBtnEnabled;
+        private string _upcInput = default!;
+        private string _statusText = default!;
+        private Brush _statusForeground = default!;
+        private string _quantity = default!;
+        private string _npn = default!;
+        private string _din = default!;
+        private string _brand = default!;
+        private string _productDescription = default!;
+        private bool _isStockIn = default!;
+        private bool _isStockOut = default!;
+        private bool _lookUpBtnEnabled = default!;
 
         public bool LookUpBtnEnabled
         {
