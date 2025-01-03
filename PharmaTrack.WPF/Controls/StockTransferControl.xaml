@@ -20,14 +20,11 @@
         </StatusBar>
         <!-- Main Content -->
         <StackPanel>
-            <TextBlock Text="Stock Transfer"></TextBlock>
-            <TextBlock x:Name="tbFontAwesome" Text="&#xf2b9;" FontFamily="{StaticResource FontAwesome}" Foreground="Red" FontSize="32" Margin="10" VerticalAlignment="Center"></TextBlock>
-            <TextBlock Text="Font Awesome" FontSize="32" Margin="10" VerticalAlignment="Center"></TextBlock>
-            <bi:BootstrapIcon Icon="Upc" Width="32" Height="32" Foreground="Black" />
+            <TextBlock Text="Stock Transfer" FontSize="32" Margin="5"></TextBlock>
 
 
             <Button 
-                    FontWeight="Bold" 
+                    FontWeight="Regular"
                     FontSize="16"
                     x:Name="ScanButton"
                     Command="{Binding ScanBarcodeCommand}"
@@ -41,7 +38,11 @@
                     Click="ScanButton_Click">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <bi:BootstrapIcon Icon="UpcScan" Width="32" Height="32" Foreground="Black" />
+                        <bi:BootstrapIcon Icon="UpcScan"
+                                          Margin="5"
+                                          Width="16"
+                                          Height="16"
+                                          Foreground="White" />
                         <TextBlock Text="Scan Barcode"
                                    VerticalAlignment="Center" />
                     </StackPanel>
@@ -72,7 +73,10 @@
                             Padding="5">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <bi:BootstrapIcon Icon="Search" Width="32" Height="32" Foreground="Black" />
+                                <bi:BootstrapIcon Icon="Search" 
+                                                  Margin="5"
+                                                  Width="16" Height="16" 
+                                                  Foreground="Black" />
                                 <TextBlock Text="Lookup"
                                            VerticalAlignment="Center" />
                             </StackPanel>
@@ -145,11 +149,10 @@
                                      Margin="5">
                             <RadioButton.Content>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock FontFamily="Segoe MDL2 Assets" 
-                                               Text="&#xE8B5;" 
-                                               FontSize="16" 
-                                               Margin="0,0,5,0" />
-                                    <TextBlock Text="Stock In" 
+                                    <bi:BootstrapIcon Icon="BoxArrowInLeft"
+                                                      Width="16"
+                                                      Height="16" />
+                                    <TextBlock Text=" Stock In" 
                                                VerticalAlignment="Center" />
                                 </StackPanel>
                             </RadioButton.Content>
@@ -159,11 +162,10 @@
                                      Margin="5">
                             <RadioButton.Content>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock FontFamily="Segoe MDL2 Assets" 
-                                               Text="&#xEDE1;" 
-                                               FontSize="16" 
-                                               Margin="0,0,5,0" />
-                                    <TextBlock Text="Stock Out" 
+                                    <bi:BootstrapIcon Icon="BoxArrowRight"
+                                                      Width="16"
+                                                      Height="16" />
+                                    <TextBlock Text=" Stock Out" 
                                                VerticalAlignment="Center" />
                                 </StackPanel>
                             </RadioButton.Content>
@@ -186,10 +188,11 @@
                         Padding="5">
                     <Button.Content>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock FontFamily="Segoe MDL2 Assets" 
-                                       Text="&#xE8FB;" 
-                                       FontSize="20" 
-                                       Margin="0,0,5,0" />
+                            <bi:BootstrapIcon Icon="CheckLg"
+                                              Margin="5"
+                                              Width="16"
+                                              Height="16"
+                                              Foreground="White" />
                             <TextBlock Text="Submit Stock Transfer" 
                                        VerticalAlignment="Center" />
                         </StackPanel>
