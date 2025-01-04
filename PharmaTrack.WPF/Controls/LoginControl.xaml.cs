@@ -59,6 +59,8 @@ namespace PharmaTrack.WPF.Controls
 
         private async void LoginButton_Click(object sender, RoutedEventArgs e)
         {
+            ErrorTextBlock.Visibility = Visibility.Collapsed;
+
             string username = UsernameTextBox.Text;
             string password = PasswordBox.Password;
 
