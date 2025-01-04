@@ -42,8 +42,8 @@
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <bi:BootstrapIcon Icon="UpcScan"
                                           Margin="5"
-                                          Width="16"
-                                          Height="16"
+                                          Width="20"
+                                          Height="20"
                                           Foreground="White" />
                         <TextBlock Text="Scan Barcode"
                                    VerticalAlignment="Center"
@@ -191,7 +191,7 @@
                         Command="{Binding SubmitCommand}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Background="DodgerBlue"
+                        Background="Blue"
                         Foreground="White"
                         Margin="5"
                         Padding="5">
@@ -199,8 +199,8 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <bi:BootstrapIcon Icon="CheckLg"
                                               Margin="5"
-                                              Width="16"
-                                              Height="16"
+                                              Width="20"
+                                              Height="20"
                                               Foreground="White" />
                             <TextBlock Text="Submit Stock Transfer" 
                                        VerticalAlignment="Center"

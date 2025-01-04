@@ -2,8 +2,11 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PharmaTrack.WPF"
+             xmlns:converters="clr-namespace:PharmaTrack.WPF.Converters"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <FontFamily x:Key="FontAwesome">/Fonts/Font-Awesome-6-Free-Regular-400.otf#Font Awesome 6 Free Regular</FontFamily>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+        <converters:BooleanInverterConverter x:Key="BooleanInverterConverter" />
     </Application.Resources>
 </Application>
