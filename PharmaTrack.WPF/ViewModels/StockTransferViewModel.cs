@@ -23,7 +23,7 @@ namespace PharmaTrack.WPF.ViewModels
         private bool _scanBarcodeBtnEnabled = true;
         private bool _isLoading = false;
         private Product? _selectedProduct = default!;
-        private string _errorMessage = default!;
+        private string _lookupStatus = default!;
 
         public Product? SelectedProduct
         {
@@ -34,13 +34,13 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(SelectedProduct));
             }
         }
-        public string ErrorMessage
+        public string LookupStatus
         {
-            get => _errorMessage;
+            get => _lookupStatus;
             set
             {
-                _errorMessage = value;
-                OnPropertyChanged(nameof(ErrorMessage));
+                _lookupStatus = value;
+                OnPropertyChanged(nameof(LookupStatus));
             }
         }
 
@@ -170,7 +170,6 @@ namespace PharmaTrack.WPF.ViewModels
         private async void ExecuteLookupCommand(object? parameter)
         {
             IsLoading = true;
-
             try
             {
                 // Ensure the UPC input is valid
@@ -199,21 +198,32 @@ namespace PharmaTrack.WPF.ViewModels
 
                         // Assign product data to a bound property
 
-                        if (product != null) {
+                        if (product != null)
+                        {
                             SelectedProduct = product; // Ensure SelectedProduct is a bindable property in the ViewModel
+                            UPCInput = product.UPC;
+                            NPN = product.NPN ?? string.Empty;
+                            DIN = product.DIN ?? string.Empty;
+                            Brand = product.Brand ?? string.Empty;
+                            ProductDescription = product.Name;
                         }
+
+                        LookupStatus = "Product Information Found";
                     }
                     else
                     {
+                        LookupStatus = $"{response.ReasonPhrase}";
                         // Handle API errors
-                        throw new HttpRequestException($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+                        //throw new HttpRequestException($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+
                     }
                 }
+
             }
             catch (Exception ex)
             {
                 // Handle exceptions (e.g., show error message)
-                ErrorMessage = ex.Message; // Bind this property to display the error in the UI if needed
+                LookupStatus = ex.Message;
             }
             finally
             {

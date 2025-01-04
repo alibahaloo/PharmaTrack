@@ -35,7 +35,6 @@
                     VerticalAlignment="Center"
                     Background="Green"
                     Foreground="White"
-                    
                     Margin="5"
                     Padding="5"
                     Click="ScanButton_Click">
@@ -87,7 +86,7 @@
                         </Button.Content>
                     </Button>
 
-                    <TextBlock Text="Look up status"
+                    <TextBlock Text="{Binding LookupStatus}"
                                Foreground="Green"
                                VerticalAlignment="Center" />
 
