@@ -1,18 +1,70 @@
-﻿using System;
-using System.IO;
+﻿using Microsoft.Data.Sqlite;
 
 namespace PharmaTrack.WPF.Helpers
 {
     public static class TokenStorage
     {
-        private static readonly string FilePath = "tokens.txt";
+        private static readonly string DatabasePath = "tokens.db";
+        private static readonly string ConnectionString = $"Data Source={DatabasePath};";
 
-        // Save tokens to file
+        static TokenStorage()
+        {
+            InitializeDatabase();
+        }
+
+        // Initialize the database
+        private static void InitializeDatabase()
+        {
+            // SQLite will create the file when a connection is opened
+            using (var connection = new SqliteConnection(ConnectionString))
+            {
+                connection.Open();
+
+                // Ensure the Tokens table exists
+                string createTableQuery = @"
+                CREATE TABLE IF NOT EXISTS Tokens (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    AccessToken TEXT NOT NULL,
+                    RefreshToken TEXT NOT NULL,
+                    UserName TEXT NOT NULL
+                );";
+                using (var command = new SqliteCommand(createTableQuery, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+
+        // Save tokens to the database
         public static void SaveTokens(string accessToken, string refreshToken, string userName)
         {
             try
             {
-                File.WriteAllText(FilePath, $"{accessToken}\n{refreshToken}\n{userName}");
+                using (var connection = new SqliteConnection(ConnectionString))
+                {
+                    connection.Open();
+
+                    // Clear existing tokens (optional, ensures single token entry)
+                    string deleteQuery = "DELETE FROM Tokens;";
+                    using (var deleteCommand = new SqliteCommand(deleteQuery, connection))
+                    {
+                        deleteCommand.ExecuteNonQuery();
+                    }
+
+                    // Insert new tokens
+                    string insertQuery = @"
+                    INSERT INTO Tokens (AccessToken, RefreshToken, UserName)
+                    VALUES (@AccessToken, @RefreshToken, @UserName);";
+                    using (var insertCommand = new SqliteCommand(insertQuery, connection))
+                    {
+                        insertCommand.Parameters.AddWithValue("@AccessToken", accessToken);
+                        insertCommand.Parameters.AddWithValue("@RefreshToken", refreshToken);
+                        insertCommand.Parameters.AddWithValue("@UserName", userName);
+
+                        insertCommand.ExecuteNonQuery();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -20,37 +72,38 @@ namespace PharmaTrack.WPF.Helpers
             }
         }
 
-        // Read tokens from file
+        // Read tokens from the database
         public static (string AccessToken, string RefreshToken, string UserName) ReadTokens()
         {
             try
             {
-                // Ensure the file exists
-                if (!File.Exists(FilePath))
+                using (var connection = new SqliteConnection(ConnectionString))
                 {
-                    File.Create(FilePath).Close(); // Create and close the file
-                    return (string.Empty, string.Empty, string.Empty); // Return empty values
-                }
+                    connection.Open();
 
-                // Read all lines
-                string[] lines = File.ReadAllLines(FilePath);
-
-                // Ensure file has enough lines to avoid IndexOutOfRangeException
-                if (lines.Length >= 3)
-                {
-                    return (lines[0], lines[1], lines[2]);
-                }
-                else
-                {
-                    Console.WriteLine("Token file is not in the expected format.");
-                    return (string.Empty, string.Empty, string.Empty);
+                    string selectQuery = "SELECT AccessToken, RefreshToken, UserName FROM Tokens LIMIT 1;";
+                    using (var command = new SqliteCommand(selectQuery, connection))
+                    {
+                        using (var reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                string accessToken = reader.GetString(0);
+                                string refreshToken = reader.GetString(1);
+                                string userName = reader.GetString(2);
+                                return (accessToken, refreshToken, userName);
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error reading tokens: {ex.Message}");
-                return (string.Empty, string.Empty, string.Empty); // Return empty values on error
             }
+
+            // Return empty values if no tokens are found
+            return (string.Empty, string.Empty, string.Empty);
         }
     }
 }

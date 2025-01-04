@@ -1,6 +1,5 @@
 ﻿using PharmaTrack.WPF.Controls;
 using PharmaTrack.WPF.Helpers;
-using System.IO;
 using System.Windows;
 
 namespace PharmaTrack.WPF
