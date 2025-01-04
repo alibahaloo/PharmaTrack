@@ -7,7 +7,7 @@
              xmlns:bi="https://github.com/helluvamatt/BootstrapIcons.Wpf/"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
-    <DockPanel Margin="20">
+    <DockPanel>
         <!-- Status Bar -->
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>

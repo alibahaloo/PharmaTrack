@@ -15,13 +15,14 @@
         <TextBlock Text="Login" FontSize="32" Margin="5" />
         <TextBlock Text="Username" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>
         <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}" 
-                 Margin="0,0,0,10"
                  Padding="5"/>
         <TextBlock Text="Password" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>
         <PasswordBox x:Name="PasswordBox" 
-                     Margin="0,0,0,10"
                      Padding="5"
                      PasswordChanged="PasswordBox_PasswordChanged" />
+
+        <CheckBox Content="Remember Me"
+                  Margin="5"/>
 
         <Button FontWeight="Bold" 
                 Command="{Binding LoginCommand}"

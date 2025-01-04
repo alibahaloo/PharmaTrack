@@ -80,7 +80,7 @@ namespace PharmaTrack.WPF.Helpers
                 using (var connection = new SqliteConnection(ConnectionString))
                 {
                     connection.Open();
-
+                    //TODO: Select my be on the given UserName .. so the Tokens belonging to the given username is retrieved
                     string selectQuery = "SELECT AccessToken, RefreshToken, UserName FROM Tokens LIMIT 1;";
                     using (var command = new SqliteCommand(selectQuery, connection))
                     {
