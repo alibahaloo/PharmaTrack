@@ -9,26 +9,33 @@
         Title="PhramaTrack" Height="600" Width="800">
     <DockPanel>
         <!-- Top Menu -->
-        <Menu DockPanel.Dock="Top" FontSize="16">
+        <Menu DockPanel.Dock="Top" FontSize="16" >
+            <MenuItem Header="Login" Click="LoginMenuItem_Click">
+                <MenuItem.Icon>
+                    <bi:BootstrapIcon Icon="Person"
+                                      Width="16"
+                                      Height="16" />
+                </MenuItem.Icon>
+            </MenuItem>
             <MenuItem Header="My Schedule" Click="MyScheduleMenuItem_Click">
                 <MenuItem.Icon>
                     <bi:BootstrapIcon Icon="CalendarRange"
-                  Width="16"
-                  Height="16" />
+                                      Width="16"
+                                      Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Stock Transfer" Click="StockTransferMenuItem_Click">
                 <MenuItem.Icon>
                     <bi:BootstrapIcon Icon="ArrowRepeat"
-Width="16"
-Height="16" />
+                                      Width="16"
+                                      Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
             <MenuItem Header="Inventory" Click="InventoryMenuItem_Click">
                 <MenuItem.Icon>
                     <bi:BootstrapIcon Icon="BoxSeam"
-Width="16"
-Height="16" />
+                                      Width="16"
+                                      Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
         </Menu>

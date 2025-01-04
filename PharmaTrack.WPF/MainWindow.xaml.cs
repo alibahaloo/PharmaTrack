@@ -1,4 +1,6 @@
 ﻿using PharmaTrack.WPF.Controls;
+using PharmaTrack.WPF.Helpers;
+using System.IO;
 using System.Windows;
 
 namespace PharmaTrack.WPF
@@ -10,12 +12,23 @@ namespace PharmaTrack.WPF
     {
         private readonly CalendarControl calendarControl = new();
         private readonly StockTransferControl stockTransferControl = new();
+        private readonly LoginControl loginControl = new();    
         public MainWindow()
         {
             InitializeComponent();
+
+            var (accessToken, refreshToken, userName) = TokenStorage.ReadTokens();
+
+            if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(userName))
+            {
+                LoadLogin();
+            }
+            else {
+                LoadMySchedule();
+            }           
         }
 
-        private void MyScheduleMenuItem_Click(object sender, RoutedEventArgs e)
+        private void LoadMySchedule()
         {
             calendarControl.Mode = CalendarMode.SingleUser;
 
@@ -28,6 +41,21 @@ namespace PharmaTrack.WPF
 
             // Load initial events for the current month
             MyCalendar_MonthChanged(this, DateTime.Now);
+        }
+
+        private void MyScheduleMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            LoadMySchedule();
+        }
+
+        private void LoadLogin()
+        {
+            ContentFrame.Content = loginControl;
+        }
+
+        private void LoginMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            LoadLogin();
         }
 
         private void StockTransferMenuItem_Click(object sender, RoutedEventArgs e)
