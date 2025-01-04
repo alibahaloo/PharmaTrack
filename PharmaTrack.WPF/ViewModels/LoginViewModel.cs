@@ -74,6 +74,8 @@ namespace PharmaTrack.WPF.ViewModels
         public LoginViewModel()
         {
             LoginCommand = new RelayCommand(async _ => await LoginAsync(), _ => IsLoginEnabled);
+            Username = "user@email.com";
+            Password = "B4guy#kSDvKJJP+";
         }
 
         private async Task LoginAsync()
