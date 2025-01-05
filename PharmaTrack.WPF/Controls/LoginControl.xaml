@@ -22,7 +22,9 @@
                      PasswordChanged="PasswordBox_PasswordChanged" />
 
         <CheckBox Content="Remember Me"
-                  Margin="5"/>
+                  Margin="5"
+                  IsChecked="{Binding RememberMe, Mode=TwoWay}" />
+
 
         <Button FontWeight="Bold" 
                 Command="{Binding LoginCommand}"

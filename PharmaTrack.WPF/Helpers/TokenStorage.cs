@@ -7,7 +7,29 @@ namespace PharmaTrack.WPF.Helpers
         private static readonly string DatabasePath = "tokens.db";
         private static readonly string ConnectionString = $"Data Source={DatabasePath};";
 
-        //public string LocalAccessToken { get; set; }
+        public static string? LocalAccessToken
+        {
+            get { return App.Current.Properties.Contains("AccessToken")
+                    ? App.Current.Properties["AccessToken"] as string
+                    : string.Empty;}
+            set { App.Current.Properties["AccessToken"] = value; }
+        }
+
+        public static string? LocalRefreshToken
+        {
+            get { return App.Current.Properties.Contains("RefreshToken")
+                    ? App.Current.Properties["RefreshToken"] as string
+                    : string.Empty; }
+            set { App.Current.Properties["RefreshToken"] = value; }
+        }
+
+        public static string? LocalUserName
+        {
+            get { return App.Current.Properties.Contains("UserName")
+                    ? App.Current.Properties["UserName"] as string
+                    : string.Empty; }
+            set { App.Current.Properties["UserName"] = value; }
+        }
 
         static TokenStorage()
         {
@@ -38,10 +60,9 @@ namespace PharmaTrack.WPF.Helpers
         public static void SaveTokens(string accessToken, string refreshToken, string userName, bool remember = false)
         {
 
-            // Store securely
-            App.Current.Properties["AccessToken"] = accessToken;
-            App.Current.Properties["RefreshToken"] = refreshToken;
-            App.Current.Properties["UserName"] = userName;
+            LocalAccessToken = accessToken;
+            LocalRefreshToken = refreshToken;
+            LocalUserName = userName;
 
             if (remember == false) return;
             //If remember is true, then save tokens persistently (in SQLite)
@@ -79,24 +100,17 @@ namespace PharmaTrack.WPF.Helpers
         {
             try
             {
-                using (var connection = new SqliteConnection(ConnectionString))
+                using var connection = new SqliteConnection(ConnectionString);
+                connection.Open();
+                string selectQuery = "SELECT AccessToken, RefreshToken, UserName FROM Tokens LIMIT 1;";
+                using var command = new SqliteCommand(selectQuery, connection);
+                using var reader = command.ExecuteReader();
+                if (reader.Read())
                 {
-                    connection.Open();
-                    //TODO: Select my be on the given UserName .. so the Tokens belonging to the given username is retrieved
-                    string selectQuery = "SELECT AccessToken, RefreshToken, UserName FROM Tokens LIMIT 1;";
-                    using (var command = new SqliteCommand(selectQuery, connection))
-                    {
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                string accessToken = reader.GetString(0);
-                                string refreshToken = reader.GetString(1);
-                                string userName = reader.GetString(2);
-                                return (accessToken, refreshToken, userName);
-                            }
-                        }
-                    }
+                    string accessToken = reader.GetString(0);
+                    string refreshToken = reader.GetString(1);
+                    string userName = reader.GetString(2);
+                    return (accessToken, refreshToken, userName);
                 }
             }
             catch (Exception ex)

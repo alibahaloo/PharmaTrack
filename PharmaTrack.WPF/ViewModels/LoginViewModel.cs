@@ -16,6 +16,7 @@ namespace PharmaTrack.WPF.ViewModels
         private string errorMessage = string.Empty;
         private bool isLoginEnabled;
         private bool isLoggingIn;
+        private bool _rememberMe;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -69,6 +70,19 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(IsLoggingIn));
             }
         }
+
+        public bool RememberMe
+        {
+            get => _rememberMe;
+            set
+            {
+                if (_rememberMe != value)
+                {
+                    _rememberMe = value;
+                    OnPropertyChanged(nameof(RememberMe));
+                }
+            }
+        }
         public ICommand LoginCommand { get; }
 
         public LoginViewModel()
@@ -98,7 +112,7 @@ namespace PharmaTrack.WPF.ViewModels
                     if (apiResponse != null && apiResponse.Success)
                     {
                         // Save tokens securely
-                        TokenStorage.SaveTokens(apiResponse.Content.AccessToken, apiResponse.Content.RefreshToken, apiResponse.Content.UserName);
+                        TokenStorage.SaveTokens(apiResponse.Content.AccessToken, apiResponse.Content.RefreshToken, apiResponse.Content.UserName, RememberMe);
                         // Handle login success logic here
                     }
                     else
