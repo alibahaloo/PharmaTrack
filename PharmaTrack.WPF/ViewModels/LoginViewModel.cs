@@ -106,14 +106,10 @@ namespace PharmaTrack.WPF.ViewModels
                     // Save tokens securely
                     TokenStorage.SaveTokens(response.Content.AccessToken, response.Content.RefreshToken, response.Content.UserName, RememberMe);
                 }
-                else
-                {
-                    ErrorMessage = "Invalid username or password.";
-                }
             }
             catch (Exception ex)
             {
-                ErrorMessage = "An error occurred: " + ex.Message;
+                ErrorMessage = ex.Message;
             }
             finally
             {

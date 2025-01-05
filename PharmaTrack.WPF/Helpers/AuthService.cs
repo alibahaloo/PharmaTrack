@@ -14,7 +14,9 @@ namespace PharmaTrack.WPF.Helpers
         public AuthService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            _loginUrl = configuration["ApiUrls:Login"];
+            // Safely handle null or empty configuration value
+            _loginUrl = configuration["ApiUrls:Login"]
+                        ?? throw new ArgumentException("Login URL is not configured in the application settings.", nameof(configuration));
         }
 
         public async Task<ApiResponse?> LoginAsync(string username, string password)
@@ -31,7 +33,7 @@ namespace PharmaTrack.WPF.Helpers
                 return JsonSerializer.Deserialize<ApiResponse>(responseContent);
             }
 
-            throw new HttpRequestException($"Error during login: {response.StatusCode}");
+            throw new HttpRequestException($"An error occurred: {response.StatusCode}");
         }
     }
 }
