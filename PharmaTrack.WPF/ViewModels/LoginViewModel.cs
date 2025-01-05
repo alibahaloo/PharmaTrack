@@ -10,7 +10,7 @@ namespace PharmaTrack.WPF.ViewModels
 {
     public class LoginViewModel : INotifyPropertyChanged
     {
-        private readonly HttpClient httpClient = new();
+        private readonly AuthService _authService;
         private string username = string.Empty;
         private string password = string.Empty;
         private string errorMessage = string.Empty;
@@ -85,8 +85,9 @@ namespace PharmaTrack.WPF.ViewModels
         }
         public ICommand LoginCommand { get; }
 
-        public LoginViewModel()
+        public LoginViewModel(AuthService authService)
         {
+            _authService = authService;
             LoginCommand = new RelayCommand(async _ => await LoginAsync(), _ => IsLoginEnabled);
             Username = "user@email.com";
             Password = "B4guy#kSDvKJJP+";
@@ -98,27 +99,12 @@ namespace PharmaTrack.WPF.ViewModels
             IsLoggingIn = true;
             try
             {
-                var payload = new { username, password };
-                string json = JsonSerializer.Serialize(payload);
-                HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
+                var response = await _authService.LoginAsync(Username, Password);
 
-                HttpResponseMessage response = await httpClient.PostAsync("https://localhost:8082/api/auth/login", content);
-
-                if (response.IsSuccessStatusCode)
+                if (response != null && response.Success)
                 {
-                    string responseContent = await response.Content.ReadAsStringAsync();
-                    var apiResponse = JsonSerializer.Deserialize<ApiResponse>(responseContent);
-
-                    if (apiResponse != null && apiResponse.Success)
-                    {
-                        // Save tokens securely
-                        TokenStorage.SaveTokens(apiResponse.Content.AccessToken, apiResponse.Content.RefreshToken, apiResponse.Content.UserName, RememberMe);
-                        // Handle login success logic here
-                    }
-                    else
-                    {
-                        ErrorMessage = "Invalid response from the server.";
-                    }
+                    // Save tokens securely
+                    TokenStorage.SaveTokens(response.Content.AccessToken, response.Content.RefreshToken, response.Content.UserName, RememberMe);
                 }
                 else
                 {

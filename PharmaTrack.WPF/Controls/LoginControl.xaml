@@ -7,10 +7,6 @@
              xmlns:vm="clr-namespace:PharmaTrack.WPF.ViewModels"
              xmlns:bi="https://github.com/helluvamatt/BootstrapIcons.Wpf/"
              mc:Ignorable="d">
-    <UserControl.DataContext>
-        <vm:LoginViewModel />
-    </UserControl.DataContext>
-
     <StackPanel Margin="20" Width="300" VerticalAlignment="Center" HorizontalAlignment="Center">
         <TextBlock Text="Login" FontSize="32" Margin="5" />
         <TextBlock Text="Username" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>

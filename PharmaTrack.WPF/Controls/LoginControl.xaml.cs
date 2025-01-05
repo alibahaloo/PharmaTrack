@@ -9,9 +9,11 @@ namespace PharmaTrack.WPF.Controls
     /// </summary>
     public partial class LoginControl : UserControl
     {
-        public LoginControl()
+        public LoginControl(LoginViewModel viewModel)
         {
+            DataContext = viewModel;
             InitializeComponent();
+            
         }
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)

@@ -11,10 +11,11 @@ namespace PharmaTrack.WPF
     {
         private readonly CalendarControl calendarControl = new();
         private readonly StockTransferControl stockTransferControl = new();
-        private readonly LoginControl loginControl = new();    
-        public MainWindow()
+        private readonly LoginControl _loginControl;
+        public MainWindow(LoginControl loginControl)
         {
             InitializeComponent();
+            _loginControl = loginControl;
 
             var (accessToken, refreshToken, userName) = TokenStorage.ReadTokens();
 
@@ -22,9 +23,10 @@ namespace PharmaTrack.WPF
             {
                 LoadLogin();
             }
-            else {
+            else
+            {
                 LoadMySchedule();
-            }           
+            }
         }
 
         private void LoadMySchedule()
@@ -49,7 +51,7 @@ namespace PharmaTrack.WPF
 
         private void LoadLogin()
         {
-            ContentFrame.Content = loginControl;
+            ContentFrame.Content = _loginControl;
         }
 
         private void LoginMenuItem_Click(object sender, RoutedEventArgs e)

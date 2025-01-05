@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="appsettings.json" />
     <None Remove="Fonts\fa-regular-400.ttf" />
   </ItemGroup>
 
@@ -23,6 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Fonts\fa-regular-400.ttf" />
     <Resource Include="Fonts\Font-Awesome-6-Free-Regular-400.otf" />
   </ItemGroup>
