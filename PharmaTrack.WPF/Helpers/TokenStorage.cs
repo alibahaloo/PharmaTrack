@@ -7,6 +7,8 @@ namespace PharmaTrack.WPF.Helpers
         private static readonly string DatabasePath = "tokens.db";
         private static readonly string ConnectionString = $"Data Source={DatabasePath};";
 
+        //public string LocalAccessToken { get; set; }
+
         static TokenStorage()
         {
             InitializeDatabase();
@@ -16,55 +18,55 @@ namespace PharmaTrack.WPF.Helpers
         private static void InitializeDatabase()
         {
             // SQLite will create the file when a connection is opened
-            using (var connection = new SqliteConnection(ConnectionString))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection(ConnectionString);
+            connection.Open();
 
-                // Ensure the Tokens table exists
-                string createTableQuery = @"
+            // Ensure the Tokens table exists
+            string createTableQuery = @"
                 CREATE TABLE IF NOT EXISTS Tokens (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     AccessToken TEXT NOT NULL,
                     RefreshToken TEXT NOT NULL,
                     UserName TEXT NOT NULL
                 );";
-                using (var command = new SqliteCommand(createTableQuery, connection))
-                {
-                    command.ExecuteNonQuery();
-                }
-            }
+            using var command = new SqliteCommand(createTableQuery, connection);
+            command.ExecuteNonQuery();
         }
 
 
         // Save tokens to the database
-        public static void SaveTokens(string accessToken, string refreshToken, string userName)
+        public static void SaveTokens(string accessToken, string refreshToken, string userName, bool remember = false)
         {
+
+            // Store securely
+            App.Current.Properties["AccessToken"] = accessToken;
+            App.Current.Properties["RefreshToken"] = refreshToken;
+            App.Current.Properties["UserName"] = userName;
+
+            if (remember == false) return;
+            //If remember is true, then save tokens persistently (in SQLite)
             try
             {
-                using (var connection = new SqliteConnection(ConnectionString))
+                using var connection = new SqliteConnection(ConnectionString);
+                connection.Open();
+
+                // Clear existing tokens (optional, ensures single token entry)
+                string deleteQuery = "DELETE FROM Tokens;";
+                using (var deleteCommand = new SqliteCommand(deleteQuery, connection))
                 {
-                    connection.Open();
+                    deleteCommand.ExecuteNonQuery();
+                }
 
-                    // Clear existing tokens (optional, ensures single token entry)
-                    string deleteQuery = "DELETE FROM Tokens;";
-                    using (var deleteCommand = new SqliteCommand(deleteQuery, connection))
-                    {
-                        deleteCommand.ExecuteNonQuery();
-                    }
-
-                    // Insert new tokens
-                    string insertQuery = @"
+                // Insert new tokens
+                string insertQuery = @"
                     INSERT INTO Tokens (AccessToken, RefreshToken, UserName)
                     VALUES (@AccessToken, @RefreshToken, @UserName);";
-                    using (var insertCommand = new SqliteCommand(insertQuery, connection))
-                    {
-                        insertCommand.Parameters.AddWithValue("@AccessToken", accessToken);
-                        insertCommand.Parameters.AddWithValue("@RefreshToken", refreshToken);
-                        insertCommand.Parameters.AddWithValue("@UserName", userName);
+                using var insertCommand = new SqliteCommand(insertQuery, connection);
+                insertCommand.Parameters.AddWithValue("@AccessToken", accessToken);
+                insertCommand.Parameters.AddWithValue("@RefreshToken", refreshToken);
+                insertCommand.Parameters.AddWithValue("@UserName", userName);
 
-                        insertCommand.ExecuteNonQuery();
-                    }
-                }
+                insertCommand.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
