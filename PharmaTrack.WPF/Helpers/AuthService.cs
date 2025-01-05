@@ -33,7 +33,13 @@ namespace PharmaTrack.WPF.Helpers
                 return JsonSerializer.Deserialize<ApiResponse>(responseContent);
             }
 
-            throw new HttpRequestException($"An error occurred: {response.StatusCode}");
+            switch (response.StatusCode)
+            {
+                case System.Net.HttpStatusCode.Unauthorized:
+                    throw new UnauthorizedAccessException($"{response.StatusCode}: Invalid Username and/or Password!");
+                default:
+                    throw new HttpRequestException($"An error occurred: {response.StatusCode}");
+            }
         }
     }
 }
