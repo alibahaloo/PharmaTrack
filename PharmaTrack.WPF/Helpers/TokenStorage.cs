@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
+using PharmaTrack.Shared.DBModels;
 
 namespace PharmaTrack.WPF.Helpers
 {
@@ -120,6 +121,40 @@ namespace PharmaTrack.WPF.Helpers
 
             // Return empty values if no tokens are found
             return (string.Empty, string.Empty, string.Empty);
+        }
+
+        //Delete token from the database
+        public static void DeleteTokens()
+        {
+            try
+            {
+                using var connection = new SqliteConnection(ConnectionString);
+                connection.Open();
+
+                // Clear existing tokens 
+                string deleteQuery = "DELETE FROM Tokens;";
+                using var deleteCommand = new SqliteCommand(deleteQuery, connection);
+                deleteCommand.ExecuteNonQuery();
+
+                // Remove from App.Current.Properties
+                if (App.Current.Properties.Contains("AccessToken"))
+                    App.Current.Properties.Remove("AccessToken");
+
+                if (App.Current.Properties.Contains("RefreshToken"))
+                    App.Current.Properties.Remove("RefreshToken");
+
+                if (App.Current.Properties.Contains("UserName"))
+                    App.Current.Properties.Remove("UserName");
+
+                // Set the static properties to null or empty
+                LocalAccessToken = null;
+                LocalRefreshToken = null;
+                LocalUserName = null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reading tokens: {ex.Message}");
+            }
         }
     }
 }

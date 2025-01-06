@@ -10,12 +10,26 @@
     <DockPanel>
         <!-- Top Menu -->
         <Menu DockPanel.Dock="Top" FontSize="16" >
-            <MenuItem Header="Login" Click="LoginMenuItem_Click">
+            <MenuItem Header="Authenticate">
                 <MenuItem.Icon>
-                    <bi:BootstrapIcon Icon="Person"
+                    <bi:BootstrapIcon Icon="Person"      
                                       Width="16"
                                       Height="16" />
                 </MenuItem.Icon>
+                <MenuItem Header="Login" Click="LoginMenuItem_Click">
+                    <MenuItem.Icon>
+                        <bi:BootstrapIcon Icon="DoorOpen"
+                          Width="16"
+                          Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Logout" Click="LogoutMenuItem_Click">
+                    <MenuItem.Icon>
+                        <bi:BootstrapIcon Icon="DoorClosed"
+                                          Width="16"
+                                          Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="My Schedule" Click="MyScheduleMenuItem_Click">
                 <MenuItem.Icon>

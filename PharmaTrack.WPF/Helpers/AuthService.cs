@@ -11,6 +11,7 @@ namespace PharmaTrack.WPF.Helpers
         private readonly HttpClient _httpClient;
         private readonly string _loginUrl;
         private readonly string _refreshUrl;
+        private readonly string _logoutUrl;
 
         public AuthService(HttpClient httpClient, IConfiguration configuration)
         {
@@ -20,6 +21,8 @@ namespace PharmaTrack.WPF.Helpers
                         ?? throw new ArgumentException("Login URL is not configured in the application settings.", nameof(configuration));
             _refreshUrl = configuration["ApiUrls:Refresh"]
                         ?? throw new ArgumentException("Refresh URL is not configured in the application settings.", nameof(configuration));
+            _logoutUrl = configuration["ApiUrls:Logout"]
+                        ?? throw new ArgumentException("Logout URL is not configured in the application settings.", nameof(configuration));
         }
 
         public async Task<ApiResponse?> LoginAsync(string username, string password)
@@ -55,6 +58,26 @@ namespace PharmaTrack.WPF.Helpers
             {
                 string responseContent = await response.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<ApiResponse>(responseContent);
+            }
+
+            throw response.StatusCode switch
+            {
+                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"An error occurred: {response.StatusCode}"),
+            };
+        }
+
+        public async Task<bool> LogoutAsync(string refreshToken)
+        {
+            var payload = new { refreshToken };
+            string json = JsonSerializer.Serialize(payload);
+            HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await _httpClient.PostAsync(_refreshUrl, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
             }
 
             throw response.StatusCode switch

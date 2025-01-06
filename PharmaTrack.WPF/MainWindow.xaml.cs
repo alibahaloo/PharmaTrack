@@ -121,5 +121,20 @@ namespace PharmaTrack.WPF
                 };
             });
         }
+
+        private async void LogoutMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            var refreshToken = TokenStorage.LocalRefreshToken;
+
+            if (refreshToken == null) return;
+            
+            var response = await _authService.LogoutAsync(refreshToken);
+
+            if (response)
+            {
+                // Save tokens securely
+                TokenStorage.DeleteTokens();
+            }
+        }
     }
 }
