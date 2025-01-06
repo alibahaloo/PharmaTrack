@@ -1,9 +1,6 @@
 ﻿using PharmaTrack.WPF.Controls;
 using PharmaTrack.WPF.Helpers;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace PharmaTrack.WPF.ViewModels
@@ -14,29 +11,10 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly LoginControl _loginControl;
         private readonly CalendarControl _calendarControl = new();
         private readonly StockTransferControl _stockTransferControl = new();
-        private object _currentContent;
+        private object _currentContent = default!;
         private bool _isLoggedIn;
 
         public event PropertyChangedEventHandler? PropertyChanged;
-
-        public MainWindowViewModel(AuthService authService, LoginControl loginControl)
-        {
-            _authService = authService;
-            _loginControl = loginControl;
-            InitializeAsync();
-
-            // Subscribe to LoginViewModel's LoginSuccessful event
-            if (_loginControl.DataContext is LoginViewModel loginViewModel)
-            {
-                loginViewModel.LoginSuccessful += OnLoginSuccessful;
-            }
-
-            LoginCommand = new RelayCommand(_ => LoadLogin());
-            LogoutCommand = new RelayCommand(async _ => await LogoutAsync());
-            ShowMyScheduleCommand = new RelayCommand(_ => LoadMySchedule());
-            ShowStockTransferCommand = new RelayCommand(_ => LoadStockTransfer());
-        }
-
         public ICommand LoginCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand ShowMyScheduleCommand { get; }
@@ -74,6 +52,23 @@ namespace PharmaTrack.WPF.ViewModels
                 LoadMySchedule();
             else
                 LoadLogin();
+        }
+        public MainWindowViewModel(AuthService authService, LoginControl loginControl)
+        {
+            _authService = authService;
+            _loginControl = loginControl;
+            InitializeAsync();
+
+            // Subscribe to LoginViewModel's LoginSuccessful event
+            if (_loginControl.DataContext is LoginViewModel loginViewModel)
+            {
+                loginViewModel.LoginSuccessful += OnLoginSuccessful;
+            }
+
+            LoginCommand = new RelayCommand(_ => LoadLogin());
+            LogoutCommand = new RelayCommand(async _ => await LogoutAsync());
+            ShowMyScheduleCommand = new RelayCommand(_ => LoadMySchedule());
+            ShowStockTransferCommand = new RelayCommand(_ => LoadStockTransfer());
         }
 
         private async Task<bool> CheckAuth()
