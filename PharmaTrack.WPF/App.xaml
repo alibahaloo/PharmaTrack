@@ -7,5 +7,6 @@
         <FontFamily x:Key="FontAwesome">/Fonts/Font-Awesome-6-Free-Regular-400.otf#Font Awesome 6 Free Regular</FontFamily>
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
         <converters:BooleanInverterConverter x:Key="BooleanInverterConverter" />
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Application.Resources>
 </Application>

@@ -6,55 +6,35 @@
         xmlns:local="clr-namespace:PharmaTrack.WPF"
         xmlns:bi="https://github.com/helluvamatt/BootstrapIcons.Wpf/"
         mc:Ignorable="d"
-        Title="PhramaTrack" Height="600" Width="800">
+        Title="PharmaTrack" Height="600" Width="800">
     <DockPanel>
         <!-- Top Menu -->
-        <Menu DockPanel.Dock="Top" FontSize="16" >
+        <Menu DockPanel.Dock="Top" FontSize="16">
             <MenuItem Header="Authenticate">
-                <MenuItem.Icon>
-                    <bi:BootstrapIcon Icon="Person"      
-                                      Width="16"
-                                      Height="16" />
-                </MenuItem.Icon>
-                <MenuItem Header="Login" Click="LoginMenuItem_Click">
+                <MenuItem Header="Login" Command="{Binding LoginCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=true}">
                     <MenuItem.Icon>
-                        <bi:BootstrapIcon Icon="DoorOpen"
-                          Width="16"
-                          Height="16" />
+                        <bi:BootstrapIcon Icon="DoorOpen" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Logout" Click="LogoutMenuItem_Click">
+                <MenuItem Header="Logout" Command="{Binding LogoutCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                     <MenuItem.Icon>
-                        <bi:BootstrapIcon Icon="DoorClosed"
-                                          Width="16"
-                                          Height="16" />
+                        <bi:BootstrapIcon Icon="DoorClosed" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="My Schedule" Click="MyScheduleMenuItem_Click">
+            <MenuItem Header="My Schedule" Command="{Binding ShowMyScheduleCommand}">
                 <MenuItem.Icon>
-                    <bi:BootstrapIcon Icon="CalendarRange"
-                                      Width="16"
-                                      Height="16" />
+                    <bi:BootstrapIcon Icon="CalendarRange" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Stock Transfer" Click="StockTransferMenuItem_Click">
+            <MenuItem Header="Stock Transfer" Command="{Binding ShowStockTransferCommand}">
                 <MenuItem.Icon>
-                    <bi:BootstrapIcon Icon="ArrowRepeat"
-                                      Width="16"
-                                      Height="16" />
-                </MenuItem.Icon>
-            </MenuItem>
-            <MenuItem Header="Inventory" Click="InventoryMenuItem_Click">
-                <MenuItem.Icon>
-                    <bi:BootstrapIcon Icon="BoxSeam"
-                                      Width="16"
-                                      Height="16" />
+                    <bi:BootstrapIcon Icon="ArrowRepeat" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
         </Menu>
 
         <!-- Main Content -->
-        <ContentControl x:Name="ContentFrame" />
+        <ContentControl Content="{Binding CurrentContent}" />
     </DockPanel>
 </Window>

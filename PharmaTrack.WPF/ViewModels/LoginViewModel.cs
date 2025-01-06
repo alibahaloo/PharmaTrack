@@ -20,6 +20,8 @@ namespace PharmaTrack.WPF.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        // Event to notify login success
+        public event Action? LoginSuccessful;
         public string Username
         {
             get => username;
@@ -105,6 +107,9 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     // Save tokens securely
                     TokenStorage.SaveTokens(response.Content.AccessToken, response.Content.RefreshToken, response.Content.UserName, RememberMe);
+
+                    // Notify the parent ViewModel about successful login
+                    LoginSuccessful?.Invoke();
                 }
             }
             catch (Exception ex)
