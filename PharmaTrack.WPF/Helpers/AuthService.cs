@@ -10,6 +10,7 @@ namespace PharmaTrack.WPF.Helpers
     {
         private readonly HttpClient _httpClient;
         private readonly string _loginUrl;
+        private readonly string _refreshUrl;
 
         public AuthService(HttpClient httpClient, IConfiguration configuration)
         {
@@ -17,6 +18,8 @@ namespace PharmaTrack.WPF.Helpers
             // Safely handle null or empty configuration value
             _loginUrl = configuration["ApiUrls:Login"]
                         ?? throw new ArgumentException("Login URL is not configured in the application settings.", nameof(configuration));
+            _refreshUrl = configuration["ApiUrls:Refresh"]
+                        ?? throw new ArgumentException("Refresh URL is not configured in the application settings.", nameof(configuration));
         }
 
         public async Task<ApiResponse?> LoginAsync(string username, string password)
@@ -33,13 +36,32 @@ namespace PharmaTrack.WPF.Helpers
                 return JsonSerializer.Deserialize<ApiResponse>(responseContent);
             }
 
-            switch (response.StatusCode)
+            throw response.StatusCode switch
             {
-                case System.Net.HttpStatusCode.Unauthorized:
-                    throw new UnauthorizedAccessException($"{response.StatusCode}: Invalid Username and/or Password!");
-                default:
-                    throw new HttpRequestException($"An error occurred: {response.StatusCode}");
+                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid Username and/or Password!"),
+                _ => new HttpRequestException($"An error occurred: {response.StatusCode}"),
+            };
+        }
+
+        public async Task<ApiResponse?> RefreshTokenAsync(string refreshToken)
+        {
+            var payload = new { refreshToken };
+            string json = JsonSerializer.Serialize(payload);
+            HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await _httpClient.PostAsync(_refreshUrl, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string responseContent = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<ApiResponse>(responseContent);
             }
+
+            throw response.StatusCode switch
+            {
+                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"An error occurred: {response.StatusCode}"),
+            };
         }
     }
 }

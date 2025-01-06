@@ -71,7 +71,7 @@ namespace PharmaTrack.WPF.Helpers
                 using var connection = new SqliteConnection(ConnectionString);
                 connection.Open();
 
-                // Clear existing tokens (optional, ensures single token entry)
+                // Clear existing tokens 
                 string deleteQuery = "DELETE FROM Tokens;";
                 using (var deleteCommand = new SqliteCommand(deleteQuery, connection))
                 {

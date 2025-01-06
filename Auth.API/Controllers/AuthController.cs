@@ -191,8 +191,16 @@ namespace Auth.API.Controllers
                     return Unauthorized(new { Success = false, Message = "Invalid or expired refresh token." });
                 }
 
+                //Find user based on UserID
+                var user = await _userManager.FindByIdAsync(tokenEntity.UserId);
+
+                if (user == null || string.IsNullOrEmpty(user.UserName)) {
+                    _logger.LogWarning("User not found.");
+                    return Unauthorized(new { Success = false, Message = "User not found." });
+                }
+
                 // Step 2: Generate a new Access Token
-                var newAccessToken = _jwtService.GenerateJwtToken(tokenEntity.UserId, "username-placeholder"); // Replace with actual username if needed
+                var newAccessToken = _jwtService.GenerateJwtToken(tokenEntity.UserId, user.UserName); // Replace with actual username if needed
 
                 // Step 3: (Optional) Generate a new Refresh Token and replace the old one
                 var newRefreshToken = _jwtService.GenerateSecureRefreshToken();
@@ -207,7 +215,8 @@ namespace Auth.API.Controllers
                     Content = new
                     {
                         AccessToken = newAccessToken,
-                        RefreshToken = newRefreshToken
+                        RefreshToken = newRefreshToken,
+                        user.UserName
                     }
                 });
             }

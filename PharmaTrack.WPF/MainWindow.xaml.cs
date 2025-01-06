@@ -12,21 +12,56 @@ namespace PharmaTrack.WPF
         private readonly CalendarControl calendarControl = new();
         private readonly StockTransferControl stockTransferControl = new();
         private readonly LoginControl _loginControl;
-        public MainWindow(LoginControl loginControl)
+        private readonly AuthService _authService;
+        private bool _isLoggedIn = false;
+        public MainWindow(LoginControl loginControl, AuthService authService)
         {
             InitializeComponent();
             _loginControl = loginControl;
+            _authService = authService;
 
-            var (accessToken, refreshToken, userName) = TokenStorage.ReadTokens();
+            InitializeAsync();
+        }
 
-            if (string.IsNullOrEmpty(accessToken) || string.IsNullOrEmpty(refreshToken) || string.IsNullOrEmpty(userName))
-            {
-                LoadLogin();
-            }
-            else
+        private async void InitializeAsync()
+        {
+            _isLoggedIn = await CheckAuth();
+
+            if (_isLoggedIn)
             {
                 LoadMySchedule();
             }
+            else
+            {
+                LoadLogin();
+            }
+        }
+
+        private async Task<bool> CheckAuth()
+        {
+            var (accessToken, refreshToken, userName) = TokenStorage.ReadTokens();
+
+            if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(refreshToken) && !string.IsNullOrEmpty(userName))
+            {
+                // Check refreshToken validity
+                try
+                {
+                    var response = await _authService.RefreshTokenAsync(refreshToken);
+
+                    if (response != null && response.Success)
+                    {
+                        // Save tokens securely
+                        TokenStorage.SaveTokens(response.Content.AccessToken, response.Content.RefreshToken, response.Content.UserName, true);
+                        return true;
+                    }
+                }
+                catch
+                {
+                    // Handle error, e.g., logging
+                }
+            }
+
+            return false;
         }
 
         private void LoadMySchedule()
