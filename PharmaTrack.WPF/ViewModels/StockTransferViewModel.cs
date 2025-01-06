@@ -1,4 +1,6 @@
-﻿using PharmaTrack.Shared.DBModels;
+﻿using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Shared.DBModels;
+using PharmaTrack.WPF.Helpers;
 using System.ComponentModel;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -155,12 +157,16 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand SubmitCommand { get; }
         public ICommand LookupCommand { get; }
 
-        public StockTransferViewModel()
+        private readonly InventoryService _inventoryService;
+
+        public StockTransferViewModel(InventoryService inventoryService)
         {
             // Initialize defaults
             StatusText = "Ready to Scan";
             StatusForeground = Brushes.Green;
             Quantity = "1";
+
+            _inventoryService = inventoryService;
 
             // Initialize commands
             ScanBarcodeCommand = new RelayCommand(ExecuteScanBarcodeCommand);
@@ -178,47 +184,20 @@ namespace PharmaTrack.WPF.ViewModels
                     throw new ArgumentException("UPC input cannot be empty.");
                 }
 
-                // Prepare the HttpClient
-                using (HttpClient client = new HttpClient())
+                Product? product = await _inventoryService.GetProductByUPCAsync(UPCInput);
+
+                if (product != null)
                 {
-                    // Construct the API URL with the UPC parameter
-                    string apiUrl = $"https://localhost:8082/api/inventory/upc/{UPCInput}";
-
-                    // Make the API request
-                    HttpResponseMessage response = await client.GetAsync(apiUrl);
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        // Parse the response (deserialize JSON into Product object)
-                        var responseData = await response.Content.ReadAsStringAsync();
-                        Product? product = System.Text.Json.JsonSerializer.Deserialize<Product>(responseData, new System.Text.Json.JsonSerializerOptions
-                        {
-                            PropertyNameCaseInsensitive = true
-                        });
-
-                        // Assign product data to a bound property
-
-                        if (product != null)
-                        {
-                            SelectedProduct = product; // Ensure SelectedProduct is a bindable property in the ViewModel
-                            UPCInput = product.UPC;
-                            NPN = product.NPN ?? string.Empty;
-                            DIN = product.DIN ?? string.Empty;
-                            Brand = product.Brand ?? string.Empty;
-                            ProductDescription = product.Name;
-                        }
-
-                        LookupStatus = "Product Information Found";
-                    }
-                    else
-                    {
-                        LookupStatus = $"{response.ReasonPhrase}";
-                        // Handle API errors
-                        //throw new HttpRequestException($"Error: {response.StatusCode} - {response.ReasonPhrase}");
-
-                    }
+                    SelectedProduct = product; // Ensure SelectedProduct is a bindable property in the ViewModel
+                    UPCInput = product.UPC;
+                    NPN = product.NPN ?? string.Empty;
+                    DIN = product.DIN ?? string.Empty;
+                    Brand = product.Brand ?? string.Empty;
+                    ProductDescription = product.Name;
                 }
 
+                LookupStatus = "Product Information Found";
+                
             }
             catch (Exception ex)
             {
@@ -239,10 +218,46 @@ namespace PharmaTrack.WPF.ViewModels
             ScanBarcodeBtnEnabled = false;
         }
 
-        private void ExecuteSubmitCommand(object? parameter)
+        private async void ExecuteSubmitCommand(object? parameter)
         {
-            StatusText = "Submitted!";
-            StatusForeground = Brushes.Blue;
+            IsLoading = true;
+            try
+            {
+                TransactionType transactionType = new();
+
+                if (IsStockIn) { transactionType = TransactionType.In; } else
+                {
+                    transactionType = TransactionType.Out;
+                }
+
+                StockTransferRequest stockTransferRequest = new()
+                {
+                    UPC = UPCInput,
+                    DIN = DIN,
+                    NPN = NPN,
+                    Name = ProductDescription,
+                    Brand = Brand,
+                    Quantity = Int32.Parse(Quantity),
+                    Type = transactionType,
+                };
+
+                var response = await _inventoryService.StockTransferAsync(stockTransferRequest);
+
+                if (response)
+                {
+                    StatusText = "Submitted!";
+                    StatusForeground = Brushes.Blue;
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusText = ex.Message;
+                StatusForeground = Brushes.Red;
+            }
+            finally 
+            {
+                IsLoading = false;
+            }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

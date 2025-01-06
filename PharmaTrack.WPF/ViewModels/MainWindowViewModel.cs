@@ -10,7 +10,7 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly AuthService _authService;
         private readonly LoginControl _loginControl;
         private readonly CalendarControl _calendarControl = new();
-        private readonly StockTransferControl _stockTransferControl = new();
+        private readonly StockTransferControl _stockTransferControl;
         private object _currentContent = default!;
         private bool _isLoggedIn;
 
@@ -53,10 +53,11 @@ namespace PharmaTrack.WPF.ViewModels
             else
                 LoadLogin();
         }
-        public MainWindowViewModel(AuthService authService, LoginControl loginControl)
+        public MainWindowViewModel(AuthService authService, LoginControl loginControl, StockTransferControl stockTransferControl)
         {
             _authService = authService;
             _loginControl = loginControl;
+            _stockTransferControl = stockTransferControl;
             InitializeAsync();
 
             // Subscribe to LoginViewModel's LoginSuccessful event

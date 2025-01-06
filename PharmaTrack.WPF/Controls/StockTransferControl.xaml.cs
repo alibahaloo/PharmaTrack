@@ -5,10 +5,10 @@ namespace PharmaTrack.WPF.Controls
 {
     public partial class StockTransferControl : UserControl
     {
-        public StockTransferControl()
+        public StockTransferControl(StockTransferViewModel viewModel)
         {
             InitializeComponent();
-            DataContext = new StockTransferViewModel();
+            DataContext = viewModel;
             Loaded += StockTransferControl_Loaded;
         }
 
