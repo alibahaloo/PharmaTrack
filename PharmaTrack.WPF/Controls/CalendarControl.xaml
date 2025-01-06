@@ -86,7 +86,7 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Grid.Row="1"
-                Text="October 2019" />
+                Text="" />
 
             <!-- Calendar Days -->
             <Grid 

@@ -188,7 +188,7 @@ namespace PharmaTrack.WPF.Controls
                     BorderThickness = new Thickness(1),
                     Background = isHighlighted
                         ? new SolidColorBrush(Colors.Green)
-                        : new SolidColorBrush(Colors.Black),
+                        : new SolidColorBrush(Colors.Gray),
                     Child = dayStackPanel
                 };
 
