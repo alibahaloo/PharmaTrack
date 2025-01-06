@@ -73,7 +73,7 @@ namespace PharmaTrack.WPF.Helpers
             string json = JsonSerializer.Serialize(payload);
             HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await _httpClient.PostAsync(_refreshUrl, content);
+            HttpResponseMessage response = await _httpClient.PostAsync(_logoutUrl, content);
 
             if (response.IsSuccessStatusCode)
             {
