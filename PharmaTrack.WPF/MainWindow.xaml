@@ -9,34 +9,41 @@
         Title="PharmaTrack" MinHeight="600" MinWidth="800" Height="600" Width="800">
     <DockPanel>
         <!-- Top Menu -->
-        <Menu DockPanel.Dock="Top" FontSize="16">
-            <MenuItem Header="User">
-                <MenuItem.Icon>
-                    <bi:BootstrapIcon Icon="Person" Width="16" Height="16" />
-                </MenuItem.Icon>
-                <MenuItem Header="Login" Command="{Binding LoginCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=true}">
+        <Grid DockPanel.Dock="Top" Background="#FFF0F0F0" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Menu Grid.Column="0" FontSize="16">
+                <MenuItem Header="My Schedule" Command="{Binding ShowMyScheduleCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                     <MenuItem.Icon>
-                        <bi:BootstrapIcon Icon="DoorOpen" Width="16" Height="16" />
+                        <bi:BootstrapIcon Icon="CalendarRange" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Logout" Command="{Binding LogoutCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                <MenuItem Header="Stock Transfer" Command="{Binding ShowStockTransferCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                     <MenuItem.Icon>
-                        <bi:BootstrapIcon Icon="DoorClosed" Width="16" Height="16" />
+                        <bi:BootstrapIcon Icon="ArrowRepeat" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
-            </MenuItem>
-            <MenuItem Header="My Schedule" Command="{Binding ShowMyScheduleCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
-                <MenuItem.Icon>
-                    <bi:BootstrapIcon Icon="CalendarRange" Width="16" Height="16" />
-                </MenuItem.Icon>
-            </MenuItem>
-            <MenuItem Header="Stock Transfer" Command="{Binding ShowStockTransferCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
-                <MenuItem.Icon>
-                    <bi:BootstrapIcon Icon="ArrowRepeat" Width="16" Height="16" />
-                </MenuItem.Icon>
-            </MenuItem>
-        </Menu>
-
+            </Menu>
+            <Menu Grid.Column="1" HorizontalAlignment="Right" FontSize="16">
+                <MenuItem Header="User">
+                    <MenuItem.Icon>
+                        <bi:BootstrapIcon Icon="Person" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                    <MenuItem Header="Login" Command="{Binding LoginCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=true}">
+                        <MenuItem.Icon>
+                            <bi:BootstrapIcon Icon="DoorOpen" Width="16" Height="16" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Logout" Command="{Binding LogoutCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                        <MenuItem.Icon>
+                            <bi:BootstrapIcon Icon="DoorClosed" Width="16" Height="16" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
+        </Grid>
         <!-- Main Content -->
         <ContentControl Content="{Binding CurrentContent}" />
     </DockPanel>
