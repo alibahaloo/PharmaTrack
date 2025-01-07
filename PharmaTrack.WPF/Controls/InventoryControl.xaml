@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PharmaTrack.WPF.Controls"
              xmlns:viewModels="clr-namespace:PharmaTrack.WPF.ViewModels"
+             xmlns:bi="https://github.com/helluvamatt/BootstrapIcons.Wpf/"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -14,9 +15,9 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBlock Text="{Binding StatusMessage}" Foreground="Red" Margin="10" />
+        <TextBlock Text="{Binding StatusMessage}" Foreground="Red" Margin="1" />
 
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" AutoGenerateColumns="False" Margin="10" 
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" AutoGenerateColumns="False" Margin="1" 
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="Stretch"
                   CanUserAddRows="False" 
@@ -36,14 +37,30 @@
         </DataGrid>
 
         <!-- Pagination Controls -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
-            <Button Content="Previous" Command="{Binding PreviousPageCommand}" 
-                    IsEnabled="{Binding CurrentPage, Converter={StaticResource GreaterThanOneConverter}}" />
-            <TextBlock Text="{Binding CurrentPage}" Margin="10,0" />
-            <TextBlock Text="/" />
-            <TextBlock Text="{Binding TotalPages}" Margin="0,0,10,0" />
-            <Button Content="Next" Command="{Binding NextPageCommand}" 
-                    IsEnabled="{Binding CurrentPage, Converter={StaticResource LessThanTotalPagesConverter}}" />
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+            <Button Command="{Binding PreviousPageCommand}" 
+                    IsEnabled="{Binding CurrentPage, Converter={StaticResource GreaterThanOneConverter}}">
+                <Button.Content>
+                    <bi:BootstrapIcon Icon="CaretLeftFill"
+                                      Margin="5"
+                                      Width="12"
+                                      Height="12"
+                                      Foreground="White" /> 
+                </Button.Content>
+            </Button>
+            <TextBlock VerticalAlignment="Center" Text="{Binding CurrentPage}" Margin="10,0,0,0" />
+            <TextBlock VerticalAlignment="Center" Text="/" />
+            <TextBlock VerticalAlignment="Center" Text="{Binding TotalPages}" Margin="0,0,10,0" />
+            <Button Command="{Binding NextPageCommand}" 
+                    IsEnabled="{Binding CurrentPage, Converter={StaticResource LessThanTotalPagesConverter}}">
+                <Button.Content>
+                    <bi:BootstrapIcon Icon="CaretRightFill"
+                                      Margin="5"
+                                      Width="12"
+                                      Height="12"
+                                      Foreground="White" />
+                </Button.Content>
+            </Button>
         </StackPanel>
     </Grid>
 </UserControl>
