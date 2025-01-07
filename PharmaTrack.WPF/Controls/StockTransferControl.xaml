@@ -10,7 +10,7 @@
     <DockPanel>
         <!-- Status Bar -->
         <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem>
+            <StatusBarItem Width="200" HorizontalContentAlignment="Center">
                 <TextBlock Text="{Binding StatusText}"
                            Foreground="{Binding StatusForeground}"
                            HorizontalAlignment="Center"
@@ -19,8 +19,8 @@
                            Margin="5" />
             </StatusBarItem>
             <Separator/>
-            <StatusBarItem>
-                <ProgressBar x:Name="StatusBar" Width="100" Height="10" IsIndeterminate="{Binding IsLoading}"/>
+            <StatusBarItem HorizontalContentAlignment="Stretch">
+                <ProgressBar x:Name="StatusBar"  Height="10" IsIndeterminate="{Binding IsLoading}"/>
             </StatusBarItem>
         </StatusBar>
         <!-- Main Content -->
@@ -86,8 +86,8 @@
                         </Button.Content>
                     </Button>
 
-                    <TextBlock Text="{Binding LookupStatus}"
-                               Foreground="Green"
+                    <TextBlock Text="{Binding LookupStatusText}"
+                               Foreground="{Binding LookupForeground}"
                                VerticalAlignment="Center" />
 
                     

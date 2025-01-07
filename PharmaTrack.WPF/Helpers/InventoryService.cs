@@ -52,6 +52,7 @@ namespace PharmaTrack.WPF.Helpers
             throw response.StatusCode switch
             {
                 System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                System.Net.HttpStatusCode.NotFound => new UnauthorizedAccessException($"Product Not Found!"),
                 _ => new HttpRequestException($"An error occurred: {response.StatusCode}"),
             };
         }

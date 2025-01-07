@@ -24,25 +24,16 @@ namespace PharmaTrack.WPF.ViewModels
         private bool _lookUpBtnEnabled = default!;
         private bool _scanBarcodeBtnEnabled = true;
         private bool _isLoading = false;
-        private Product? _selectedProduct = default!;
-        private string _lookupStatus = default!;
+        private string _lookupStatusText = default!;
+        private Brush _lookupForeground = default!;
 
-        public Product? SelectedProduct
+        public string LookupStatusText
         {
-            get => _selectedProduct;
+            get => _lookupStatusText;
             set
             {
-                _selectedProduct = value;
-                OnPropertyChanged(nameof(SelectedProduct));
-            }
-        }
-        public string LookupStatus
-        {
-            get => _lookupStatus;
-            set
-            {
-                _lookupStatus = value;
-                OnPropertyChanged(nameof(LookupStatus));
+                _lookupStatusText = value;
+                OnPropertyChanged(nameof(LookupStatusText));
             }
         }
 
@@ -95,6 +86,12 @@ namespace PharmaTrack.WPF.ViewModels
         {
             get => _statusForeground;
             set { _statusForeground = value; OnPropertyChanged(); }
+        }
+
+        public Brush LookupForeground
+        {
+            get => _lookupForeground;
+            set { _lookupForeground = value; OnPropertyChanged(); }
         }
 
         public string Quantity
@@ -176,6 +173,7 @@ namespace PharmaTrack.WPF.ViewModels
         private async void ExecuteLookupCommand(object? parameter)
         {
             IsLoading = true;
+            LookupStatusText = string.Empty;
             try
             {
                 // Ensure the UPC input is valid
@@ -188,7 +186,6 @@ namespace PharmaTrack.WPF.ViewModels
 
                 if (product != null)
                 {
-                    SelectedProduct = product; // Ensure SelectedProduct is a bindable property in the ViewModel
                     UPCInput = product.UPC;
                     NPN = product.NPN ?? string.Empty;
                     DIN = product.DIN ?? string.Empty;
@@ -196,13 +193,14 @@ namespace PharmaTrack.WPF.ViewModels
                     ProductDescription = product.Name;
                 }
 
-                LookupStatus = "Product Information Found";
+                LookupStatusText = "Product Information Found";
+                LookupForeground = Brushes.Green;
                 
             }
             catch (Exception ex)
             {
-                // Handle exceptions (e.g., show error message)
-                LookupStatus = ex.Message;
+                LookupStatusText = ex.Message;
+                LookupForeground = Brushes.Red;
             }
             finally
             {
