@@ -11,6 +11,7 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly LoginControl _loginControl;
         private readonly CalendarControl _calendarControl = new();
         private readonly StockTransferControl _stockTransferControl;
+        private readonly InventoryControl _inventoryControl;
         private object _currentContent = default!;
         private bool _isLoggedIn;
 
@@ -19,6 +20,7 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand LogoutCommand { get; }
         public ICommand ShowMyScheduleCommand { get; }
         public ICommand ShowStockTransferCommand { get; }
+        public ICommand ShowInventoryCommand { get; }
 
         public object CurrentContent
         {
@@ -53,11 +55,12 @@ namespace PharmaTrack.WPF.ViewModels
             else
                 LoadLogin();
         }
-        public MainWindowViewModel(AuthService authService, LoginControl loginControl, StockTransferControl stockTransferControl)
+        public MainWindowViewModel(AuthService authService, LoginControl loginControl, StockTransferControl stockTransferControl, InventoryControl inventoryControl)
         {
             _authService = authService;
             _loginControl = loginControl;
             _stockTransferControl = stockTransferControl;
+            _inventoryControl = inventoryControl;
             InitializeAsync();
 
             // Subscribe to LoginViewModel's LoginSuccessful event
@@ -70,6 +73,7 @@ namespace PharmaTrack.WPF.ViewModels
             LogoutCommand = new RelayCommand(async _ => await LogoutAsync());
             ShowMyScheduleCommand = new RelayCommand(_ => LoadMySchedule());
             ShowStockTransferCommand = new RelayCommand(_ => LoadStockTransfer());
+            ShowInventoryCommand = new RelayCommand(_ => LoadInventory());
         }
 
         private async Task<bool> CheckAuth()
@@ -117,7 +121,10 @@ namespace PharmaTrack.WPF.ViewModels
             CurrentContent = _calendarControl;
             MyCalendar_MonthChanged(this, DateTime.Now);
         }
-
+        private void LoadInventory()
+        {
+            CurrentContent = _inventoryControl;
+        }
         private void LoadLogin()
         {
             CurrentContent = _loginControl;

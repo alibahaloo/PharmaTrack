@@ -25,7 +25,7 @@
                         <bi:BootstrapIcon Icon="ArrowRepeat" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Inventory" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                <MenuItem Header="Inventory" Command="{Binding ShowInventoryCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                     <MenuItem.Icon>
                         <bi:BootstrapIcon Icon="BoxSeam" Width="16" Height="16" />
                     </MenuItem.Icon>
