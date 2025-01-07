@@ -34,6 +34,12 @@ namespace Inventory.API.Controllers
 
                 if (existingProduct != null)
                 {
+                    //If the product exits, check for the quantity, if it's stock out, the transfer quantity must not be greater than inventory quantity
+                    if (request.Type == TransactionType.Out && request.Quantity > existingProduct.Quantity)
+                    {
+                        return UnprocessableEntity("request quantity cannot be greater than inventory count.");
+                    }
+
                     // Update the product's fields
                     existingProduct.Name = request.Name ?? existingProduct.Name;
                     existingProduct.NPN = request.NPN ?? existingProduct.NPN;
@@ -45,6 +51,12 @@ namespace Inventory.API.Controllers
                 }
                 else
                 {
+                    //If product doesn't exist, stock out is not allowed
+                    if (request.Type == TransactionType.Out)
+                    {
+                        return UnprocessableEntity("stock out is not allowed when inventory doesn't exist.");
+                    }
+
                     // Create product if it doesn't exist
                     existingProduct = new Product
                     {
