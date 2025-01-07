@@ -8,5 +8,7 @@
         <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
         <converters:BooleanInverterConverter x:Key="BooleanInverterConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:GreaterThanOneConverter x:Key="GreaterThanOneConverter" />
+        <converters:LessThanTotalPagesConverter x:Key="LessThanTotalPagesConverter" />
     </Application.Resources>
 </Application>
