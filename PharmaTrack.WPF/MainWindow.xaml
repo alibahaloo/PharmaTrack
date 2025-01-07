@@ -6,11 +6,14 @@
         xmlns:local="clr-namespace:PharmaTrack.WPF"
         xmlns:bi="https://github.com/helluvamatt/BootstrapIcons.Wpf/"
         mc:Ignorable="d"
-        Title="PharmaTrack" Height="600" Width="800">
+        Title="PharmaTrack" MinHeight="600" MinWidth="800" Height="600" Width="800">
     <DockPanel>
         <!-- Top Menu -->
         <Menu DockPanel.Dock="Top" FontSize="16">
-            <MenuItem Header="Authenticate">
+            <MenuItem Header="User">
+                <MenuItem.Icon>
+                    <bi:BootstrapIcon Icon="Person" Width="16" Height="16" />
+                </MenuItem.Icon>
                 <MenuItem Header="Login" Command="{Binding LoginCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=true}">
                     <MenuItem.Icon>
                         <bi:BootstrapIcon Icon="DoorOpen" Width="16" Height="16" />
@@ -22,12 +25,12 @@
                     </MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
-            <MenuItem Header="My Schedule" Command="{Binding ShowMyScheduleCommand}">
+            <MenuItem Header="My Schedule" Command="{Binding ShowMyScheduleCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                 <MenuItem.Icon>
                     <bi:BootstrapIcon Icon="CalendarRange" Width="16" Height="16" />
                 </MenuItem.Icon>
             </MenuItem>
-            <MenuItem Header="Stock Transfer" Command="{Binding ShowStockTransferCommand}">
+            <MenuItem Header="Stock Transfer" Command="{Binding ShowStockTransferCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                 <MenuItem.Icon>
                     <bi:BootstrapIcon Icon="ArrowRepeat" Width="16" Height="16" />
                 </MenuItem.Icon>
