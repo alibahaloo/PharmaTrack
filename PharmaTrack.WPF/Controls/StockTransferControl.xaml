@@ -67,7 +67,11 @@
                              Margin="5"
                              ToolTip="Enter UPC here"
                              GotFocus="UPCInputTextBox_GotFocus"
-                             LostFocus="UPCInputTextBox_LostFocus" />
+                             LostFocus="UPCInputTextBox_LostFocus">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding LookupCommand}" />
+                        </TextBox.InputBindings>
+                    </TextBox>
 
                     <Button IsEnabled="{Binding LookUpBtnEnabled}"
                             Command="{Binding LookupCommand}"

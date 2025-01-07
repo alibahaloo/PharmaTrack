@@ -11,8 +11,8 @@
         <!-- Top Menu -->
         <Grid DockPanel.Dock="Top" Background="#FFF0F0F0" >
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="90*" />
+                <ColumnDefinition Width="10*" />
             </Grid.ColumnDefinitions>
             <Menu Grid.Column="0" FontSize="16">
                 <MenuItem Header="My Schedule" Command="{Binding ShowMyScheduleCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
@@ -23,6 +23,16 @@
                 <MenuItem Header="Stock Transfer" Command="{Binding ShowStockTransferCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                     <MenuItem.Icon>
                         <bi:BootstrapIcon Icon="ArrowRepeat" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Inventory" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                    <MenuItem.Icon>
+                        <bi:BootstrapIcon Icon="BoxSeam" Width="16" Height="16" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="Transactions" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                    <MenuItem.Icon>
+                        <bi:BootstrapIcon Icon="ArrowLeftRight" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
             </Menu>
