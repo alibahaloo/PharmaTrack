@@ -2,7 +2,6 @@
 using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Helpers;
 using System.ComponentModel;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -26,6 +25,24 @@ namespace PharmaTrack.WPF.ViewModels
         private bool _isLoading = false;
         private string _lookupStatusText = default!;
         private Brush _lookupForeground = default!;
+        private string _scannerStatusText = default!;
+        private Brush _scannerForeground = default!;
+
+        public string ScannerStatusText
+        {
+            get => _scannerStatusText;
+            set
+            {
+                _scannerStatusText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public Brush ScannerForeground
+        {
+            get => _scannerForeground;
+            set { _scannerForeground = value; OnPropertyChanged(); }
+        }
 
         public string LookupStatusText
         {
@@ -159,8 +176,8 @@ namespace PharmaTrack.WPF.ViewModels
         public StockTransferViewModel(InventoryService inventoryService)
         {
             // Initialize defaults
-            StatusText = "Ready to Scan";
-            StatusForeground = Brushes.Green;
+            ScannerStatusText = "Ready to Scan";
+            ScannerForeground = Brushes.Green;
             Quantity = "1";
 
             _inventoryService = inventoryService;
@@ -211,8 +228,8 @@ namespace PharmaTrack.WPF.ViewModels
         private void ExecuteScanBarcodeCommand(object? parameter)
         {
             UPCInput = string.Empty;
-            StatusText = "Ready to Scan";
-            StatusForeground = Brushes.Green;
+            ScannerStatusText = "Ready to Scan";
+            ScannerForeground = Brushes.Green;
             ScanBarcodeBtnEnabled = false;
         }
 
@@ -243,7 +260,7 @@ namespace PharmaTrack.WPF.ViewModels
 
                 if (response)
                 {
-                    StatusText = "Submitted!";
+                    StatusText = "Stock Transfer Submitted Successfully!";
                     StatusForeground = Brushes.Blue;
                 }
             }

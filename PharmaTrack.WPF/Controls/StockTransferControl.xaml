@@ -10,47 +10,51 @@
     <DockPanel>
         <!-- Status Bar -->
         <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem Width="200" HorizontalContentAlignment="Center">
-                <TextBlock Text="{Binding StatusText}"
-                           Foreground="{Binding StatusForeground}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           FontWeight="Bold"
-                           Margin="5" />
+            <StatusBarItem>
+                <ProgressBar x:Name="StatusBar" Width="200" Height="10" IsIndeterminate="{Binding IsLoading}"/>
             </StatusBarItem>
             <Separator/>
-            <StatusBarItem HorizontalContentAlignment="Stretch">
-                <ProgressBar x:Name="StatusBar"  Height="10" IsIndeterminate="{Binding IsLoading}"/>
+            <StatusBarItem HorizontalContentAlignment="Left">
+                <TextBlock Text="{Binding StatusText}"
+                           Foreground="{Binding StatusForeground}"
+                           FontWeight="Bold"
+                           Margin="5" />
             </StatusBarItem>
         </StatusBar>
         <!-- Main Content -->
         <StackPanel>
             <TextBlock Text="Stock Transfer" FontSize="32" Margin="5"></TextBlock>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button FontWeight="Regular"
+                        FontSize="16"
+                        x:Name="ScanButton"
+                        Command="{Binding ScanBarcodeCommand}"
+                        HorizontalAlignment="left"
+                        VerticalAlignment="Center"
+                        Background="Green"
+                        Foreground="White"
+                        Margin="5"
+                        Padding="5"
+                        Click="ScanButton_Click">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <bi:BootstrapIcon Icon="UpcScan"
+                              Margin="5"
+                              Width="20"
+                              Height="20"
+                              Foreground="White" />
+                            <TextBlock Text="Scan Barcode"
+                                       VerticalAlignment="Center"
+                                       Margin="5"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
 
-            <Button FontWeight="Regular"
-                    FontSize="16"
-                    x:Name="ScanButton"
-                    Command="{Binding ScanBarcodeCommand}"
-                    HorizontalAlignment="left"
-                    VerticalAlignment="Center"
-                    Background="Green"
-                    Foreground="White"
-                    Margin="5"
-                    Padding="5"
-                    Click="ScanButton_Click">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <bi:BootstrapIcon Icon="UpcScan"
-                                          Margin="5"
-                                          Width="20"
-                                          Height="20"
-                                          Foreground="White" />
-                        <TextBlock Text="Scan Barcode"
-                                   VerticalAlignment="Center"
-                                   Margin="5"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
+                <TextBlock Text="{Binding ScannerStatusText}"
+                           Foreground="{Binding ScannerForeground}"
+                           VerticalAlignment="Center" />
+            </StackPanel>
+            
 
             <!-- Barcode Scanning -->
             <StackPanel Orientation="Vertical" HorizontalAlignment="Left">

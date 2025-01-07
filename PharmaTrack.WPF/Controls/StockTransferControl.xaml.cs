@@ -22,8 +22,8 @@ namespace PharmaTrack.WPF.Controls
             var viewModel = DataContext as StockTransferViewModel;
             if (viewModel != null)
             {
-                viewModel.StatusText = "Ready to Scan";
-                viewModel.StatusForeground = System.Windows.Media.Brushes.Green;
+                viewModel.ScannerStatusText = "Ready to Scan";
+                viewModel.ScannerForeground = System.Windows.Media.Brushes.Green;
                 viewModel.ScanBarcodeBtnEnabled = false;
             }
         }
@@ -33,8 +33,8 @@ namespace PharmaTrack.WPF.Controls
             var viewModel = DataContext as StockTransferViewModel;
             if (viewModel != null)
             {
-                viewModel.StatusText = "Not Ready to Scan";
-                viewModel.StatusForeground = System.Windows.Media.Brushes.Red;
+                viewModel.ScannerStatusText = "Not Ready to Scan";
+                viewModel.ScannerForeground = System.Windows.Media.Brushes.Red;
                 viewModel.ScanBarcodeBtnEnabled = true;
             }
         }
