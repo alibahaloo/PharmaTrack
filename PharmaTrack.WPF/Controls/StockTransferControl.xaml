@@ -193,6 +193,7 @@
                         FontWeight="Bold" 
                         FontSize="16"
                         Command="{Binding SubmitCommand}"
+                        IsEnabled="{Binding SubmitButtonEnabled}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Background="Blue"

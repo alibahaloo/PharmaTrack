@@ -27,7 +27,16 @@ namespace PharmaTrack.WPF.ViewModels
         private Brush _lookupForeground = default!;
         private string _scannerStatusText = default!;
         private Brush _scannerForeground = default!;
-
+        private bool _submitButtonEnabled;
+        public bool SubmitButtonEnabled
+        {
+            get => _submitButtonEnabled;
+            set
+            {
+                _submitButtonEnabled = value;
+                OnPropertyChanged();
+            }
+        }
         public string ScannerStatusText
         {
             get => _scannerStatusText;
@@ -90,6 +99,7 @@ namespace PharmaTrack.WPF.ViewModels
                 _upcInput = value;
                 LookUpBtnEnabled = !string.IsNullOrEmpty(value); // Update the button state
                 OnPropertyChanged(); // Notify UI that UPCInput has changed
+                UpdateSubmitButtonState();
             }
         }
 
@@ -128,6 +138,7 @@ namespace PharmaTrack.WPF.ViewModels
 
                 _quantity = value;
                 OnPropertyChanged();
+                UpdateSubmitButtonState();
             }
         }
 
@@ -152,7 +163,7 @@ namespace PharmaTrack.WPF.ViewModels
         public string ProductDescription
         {
             get => _productDescription;
-            set { _productDescription = value; OnPropertyChanged(); }
+            set { _productDescription = value; OnPropertyChanged(); UpdateSubmitButtonState(); }
         }
 
         public bool IsStockIn
@@ -186,6 +197,23 @@ namespace PharmaTrack.WPF.ViewModels
             ScanBarcodeCommand = new RelayCommand(ExecuteScanBarcodeCommand);
             SubmitCommand = new RelayCommand(ExecuteSubmitCommand);
             LookupCommand = new RelayCommand(ExecuteLookupCommand);
+        }
+        private void UpdateSubmitButtonState()
+        {
+            // Check if all required fields are valid
+            SubmitButtonEnabled = !string.IsNullOrWhiteSpace(UPCInput)
+                                  && !string.IsNullOrWhiteSpace(ProductDescription)
+                                  && !string.IsNullOrWhiteSpace(Quantity);
+
+            if (!SubmitButtonEnabled)
+            {
+                StatusText = "UPC, Product and Quantity are needed for submission.";
+                StatusForeground = Brushes.Red;
+            } else
+            {
+                StatusText = "Ready to submit";
+                StatusForeground = Brushes.Green;
+            }
         }
         private async void ExecuteLookupCommand(object? parameter)
         {
