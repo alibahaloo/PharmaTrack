@@ -50,10 +50,10 @@ namespace Gateway.API.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetAllProducts(int curPage = 1)
         {
             // Define the Inventory API endpoint URL
-            var getAllProductsUrl = $"{_inventoryApiBaseUrl}/api/products";
+            var getAllProductsUrl = $"{_inventoryApiBaseUrl}/api/products?curPage={curPage}";
 
             try
             {
@@ -76,10 +76,10 @@ namespace Gateway.API.Controllers
                 // Deserialize the response JSON into a list of Product objects
                 var productsJson = await response.Content.ReadAsStringAsync();
 
-                List<Product>? products;
+                PagedResponse<Product>? apiResponse;
                 try
                 {
-                    products = JsonSerializer.Deserialize<List<Product>>(productsJson, new JsonSerializerOptions
+                    apiResponse = JsonSerializer.Deserialize<PagedResponse<Product>>(productsJson, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
@@ -89,7 +89,7 @@ namespace Gateway.API.Controllers
                     return StatusCode(500, $"Error deserializing product data: {jsonEx.Message}");
                 }
 
-                return Ok(products);
+                return Ok(apiResponse);
             }
             catch (HttpRequestException ex)
             {

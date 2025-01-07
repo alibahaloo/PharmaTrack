@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Shared.Services;
 
 
 namespace Inventory.API.Controllers
@@ -18,10 +20,22 @@ namespace Inventory.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts(int curPage = 1)
         {
-            var products = await _context.Products.ToListAsync();
-            return Ok(products);
+            IQueryable<Product> query = _context.Products;
+
+            var result = await EFExtensions.GetPaged(query, curPage);
+
+            var response = new PagedResponse<Product>
+            {
+                Data = [.. result.Data], // Assuming result.Data is IEnumerable<Product>
+                CurrentPage = curPage,
+                CurrentItemCount = result.Data.Count,
+                TotalPageCount = result.PageCount,
+                TotalItemCount = result.RowCount
+            };
+
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
