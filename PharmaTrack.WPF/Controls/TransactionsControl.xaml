@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="PharmaTrack.WPF.Controls.InventoryControl"
+﻿<UserControl x:Class="PharmaTrack.WPF.Controls.TransactionsControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -24,21 +24,20 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <DataGrid Grid.Row="0" ItemsSource="{Binding Products}" AutoGenerateColumns="False" Margin="1" 
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch"
-                      CanUserAddRows="False" 
-                      CanUserDeleteRows="False"
-                      IsReadOnly="True">
+            <DataGrid Grid.Row="0" ItemsSource="{Binding Transactions}" AutoGenerateColumns="False" Margin="1" 
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  CanUserAddRows="False" 
+                  CanUserDeleteRows="False"
+                  IsReadOnly="True">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="UPC" Binding="{Binding UPC}" Width="auto"/>
-                    <DataGridTextColumn Header="NPN" Binding="{Binding NPN}" />
-                    <DataGridTextColumn Header="DIN" Binding="{Binding DIN}" />
-                    <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="auto"/>
-                    <DataGridTextColumn Header="Brand" Binding="{Binding Brand}" Width="auto"/>
+                    <DataGridTextColumn Header="In/Out" Binding="{Binding Type}" />
+                    <DataGridTextColumn Header="UPC" Binding="{Binding Product.UPC}" />
+                    <DataGridTextColumn Header="Product" Binding="{Binding Product.Name}" />
+                    <DataGridTextColumn Header="Brand" Binding="{Binding Product.Brand}" />
                     <DataGridTextColumn Header="#" Binding="{Binding Quantity}" />
-                    <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt}" />
-                    <DataGridTextColumn Header="Updated At" Binding="{Binding UpdatedAt}" />
+                    <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" />
+                    <DataGridTextColumn Header="Created By" Binding="{Binding CreatedBy}" />
                 </DataGrid.Columns>
             </DataGrid>
 
@@ -54,10 +53,10 @@
                     </Button.IsEnabled>
                     <Button.Content>
                         <bi:BootstrapIcon Icon="CaretLeftFill"
-              Margin="5"
-              Width="12"
-              Height="12"
-              Foreground="White" />
+                          Margin="5"
+                          Width="12"
+                          Height="12"
+                          Foreground="White" />
                     </Button.Content>
                 </Button>
 
@@ -75,10 +74,10 @@
                     </Button.IsEnabled>
                     <Button.Content>
                         <bi:BootstrapIcon Icon="CaretRightFill"
-              Margin="5"
-              Width="12"
-              Height="12"
-              Foreground="White" />
+                          Margin="5"
+                          Width="12"
+                          Height="12"
+                          Foreground="White" />
                     </Button.Content>
                 </Button>
             </StackPanel>

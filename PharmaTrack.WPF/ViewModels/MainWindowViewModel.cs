@@ -12,6 +12,7 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly CalendarControl _calendarControl = new();
         private readonly StockTransferControl _stockTransferControl;
         private readonly InventoryControl _inventoryControl;
+        private readonly TransactionsControl _transactionsControl;
         private object _currentContent = default!;
         private bool _isLoggedIn;
 
@@ -21,7 +22,7 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ShowMyScheduleCommand { get; }
         public ICommand ShowStockTransferCommand { get; }
         public ICommand ShowInventoryCommand { get; }
-
+        public ICommand ShowTransactionsCommand { get; }
         public object CurrentContent
         {
             get => _currentContent;
@@ -55,12 +56,13 @@ namespace PharmaTrack.WPF.ViewModels
             else
                 LoadLogin();
         }
-        public MainWindowViewModel(AuthService authService, LoginControl loginControl, StockTransferControl stockTransferControl, InventoryControl inventoryControl)
+        public MainWindowViewModel(AuthService authService, LoginControl loginControl, StockTransferControl stockTransferControl, InventoryControl inventoryControl, TransactionsControl transactionsControl)
         {
             _authService = authService;
             _loginControl = loginControl;
             _stockTransferControl = stockTransferControl;
             _inventoryControl = inventoryControl;
+            _transactionsControl = transactionsControl;
             InitializeAsync();
 
             // Subscribe to LoginViewModel's LoginSuccessful event
@@ -74,6 +76,7 @@ namespace PharmaTrack.WPF.ViewModels
             ShowMyScheduleCommand = new RelayCommand(_ => LoadMySchedule());
             ShowStockTransferCommand = new RelayCommand(_ => LoadStockTransfer());
             ShowInventoryCommand = new RelayCommand(_ => LoadInventory());
+            ShowTransactionsCommand = new RelayCommand(_ => LoadTransactions());
         }
 
         private async Task<bool> CheckAuth()
@@ -120,6 +123,10 @@ namespace PharmaTrack.WPF.ViewModels
             _calendarControl.MonthChanged += MyCalendar_MonthChanged;
             CurrentContent = _calendarControl;
             MyCalendar_MonthChanged(this, DateTime.Now);
+        }
+        private void LoadTransactions()
+        {
+            CurrentContent = _transactionsControl;
         }
         private void LoadInventory()
         {

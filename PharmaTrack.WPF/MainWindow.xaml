@@ -30,7 +30,7 @@
                         <bi:BootstrapIcon Icon="BoxSeam" Width="16" Height="16" />
                     </MenuItem.Icon>
                 </MenuItem>
-                <MenuItem Header="Transactions" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                <MenuItem Header="Transactions" Command="{Binding ShowTransactionsCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                     <MenuItem.Icon>
                         <bi:BootstrapIcon Icon="ArrowLeftRight" Width="16" Height="16" />
                     </MenuItem.Icon>

@@ -13,6 +13,7 @@ namespace PharmaTrack.WPF.Helpers
         private readonly string _stockTransferUrl;
         private readonly string _upcUrl;
         private readonly string _productsUrl;
+        private readonly string _transactionsUrl;
         public InventoryService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
@@ -23,7 +24,37 @@ namespace PharmaTrack.WPF.Helpers
                         ?? throw new ArgumentException("UPC URL is not configured in the application settings.", nameof(configuration));
             _productsUrl = configuration["InventoryUrls:Products"]
                         ?? throw new ArgumentException("Products URL is not configured in the application settings.", nameof(configuration));
+            _transactionsUrl = configuration["InventoryUrls:Transactions"]
+                        ?? throw new ArgumentException("Transactions URL is not configured in the application settings.", nameof(configuration));
         }
+
+        public async Task<PagedResponse<Transaction>?> GetTransactionsAsync(int curPage = 1)
+        {
+            string? accessToken = TokenStorage.LocalAccessToken;
+            if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
+
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            var response = await _httpClient.GetAsync($"{_transactionsUrl}?curPage={curPage}");
+            if (response.IsSuccessStatusCode)
+            {
+                // Parse the response (deserialize JSON into Product object)
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<PagedResponse<Transaction>>(responseData, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+
+            throw response.StatusCode switch
+            {
+                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
+            };
+        }
+
         public async Task<PagedResponse<Product>?> GetProductsAsync(int curPage = 1)
         {
             string? accessToken = TokenStorage.LocalAccessToken;
@@ -33,7 +64,8 @@ namespace PharmaTrack.WPF.Helpers
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
-            var response = await _httpClient.GetAsync(_productsUrl);
+            var response = await _httpClient.GetAsync($"{_productsUrl}?curPage={curPage}");
+
             if (response.IsSuccessStatusCode)
             {
                 // Parse the response (deserialize JSON into Product object)

@@ -55,10 +55,12 @@ namespace PharmaTrack.WPF
             services.AddSingleton<LoginViewModel>();
             services.AddSingleton<StockTransferViewModel>();
             services.AddSingleton<InventoryViewModel>();
+            services.AddSingleton<TransactionsViewModel>();
             // Register Controls
             services.AddSingleton<LoginControl>();
             services.AddSingleton<StockTransferControl>();
             services.AddSingleton<InventoryControl>();
+            services.AddSingleton<TransactionsControl>();
             // Register Main Window
             services.AddSingleton<MainWindow>();
         }

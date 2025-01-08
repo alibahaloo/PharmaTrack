@@ -264,10 +264,10 @@ namespace Gateway.API.Controllers
         }
 
         [HttpGet("transactions")]
-        public async Task<IActionResult> GetAllTransactions()
+        public async Task<IActionResult> GetAllTransactions(int curPage = 1)
         {
             // Define the Inventory API endpoint URL
-            var getTransactionsUrl = $"{_inventoryApiBaseUrl}/api/transactions";
+            var getTransactionsUrl = $"{_inventoryApiBaseUrl}/api/transactions?curPage={curPage}";
 
             try
             {
@@ -283,10 +283,10 @@ namespace Gateway.API.Controllers
                 // Deserialize the response JSON into a list of Transaction objects
                 var transactionsJson = await response.Content.ReadAsStringAsync();
 
-                List<Transaction>? transactions;
+                PagedResponse<Transaction>? transactions;
                 try
                 {
-                    transactions = JsonSerializer.Deserialize<List<Transaction>>(transactionsJson, new JsonSerializerOptions
+                    transactions = JsonSerializer.Deserialize<PagedResponse<Transaction>>(transactionsJson, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });

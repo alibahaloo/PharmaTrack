@@ -28,7 +28,7 @@ namespace Inventory.API.Controllers
 
             var response = new PagedResponse<Product>
             {
-                Data = [.. result.Data], // Assuming result.Data is IEnumerable<Product>
+                Data = [.. result.Data], 
                 CurrentPage = curPage,
                 CurrentItemCount = result.Data.Count,
                 TotalPageCount = result.PageCount,
