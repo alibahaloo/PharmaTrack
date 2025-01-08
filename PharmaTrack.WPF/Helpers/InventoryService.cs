@@ -30,7 +30,7 @@ namespace PharmaTrack.WPF.Helpers
 
         public async Task<PagedResponse<Transaction>?> GetTransactionsAsync(int curPage = 1)
         {
-            string? accessToken = TokenStorage.LocalAccessToken;
+            string? accessToken = TokenStorage.AccessToken;
             if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
 
             // Add the JWT to the headers
@@ -57,7 +57,7 @@ namespace PharmaTrack.WPF.Helpers
 
         public async Task<PagedResponse<Product>?> GetProductsAsync(int curPage = 1)
         {
-            string? accessToken = TokenStorage.LocalAccessToken;
+            string? accessToken = TokenStorage.AccessToken;
             if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
 
             // Add the JWT to the headers
@@ -91,7 +91,7 @@ namespace PharmaTrack.WPF.Helpers
 
             string apiUrl = $"{_upcUrl}/{UPC}";
 
-            string? accessToken = TokenStorage.LocalAccessToken;
+            string? accessToken = TokenStorage.AccessToken;
             if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
 
             // Add the JWT to the headers
@@ -127,7 +127,7 @@ namespace PharmaTrack.WPF.Helpers
             var jsonBody = JsonSerializer.Serialize(request);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
-            string? accessToken = TokenStorage.LocalAccessToken;
+            string? accessToken = TokenStorage.AccessToken;
             if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
 
             // Add the JWT to the headers

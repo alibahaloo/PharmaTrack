@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using PharmaTrack.Shared.APIModels;
-using PharmaTrack.WPF.ViewModels;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;

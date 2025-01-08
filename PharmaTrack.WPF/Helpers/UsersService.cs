@@ -24,7 +24,7 @@ namespace PharmaTrack.WPF.Helpers
 
         public async Task<PagedResponse<UserDto>?> GetUsersAsync(int curPage = 1)
         {
-            string? accessToken = TokenStorage.LocalAccessToken;
+            string? accessToken = TokenStorage.AccessToken;
             if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
 
             // Add the JWT to the headers

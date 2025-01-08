@@ -102,7 +102,7 @@ namespace PharmaTrack.WPF.ViewModels
                 if (response != null)
                 {
                     // Save tokens securely
-                    TokenStorage.SaveTokens(response.AccessToken, response.RefreshToken, response.UserName, RememberMe);
+                    TokenStorage.SaveTokens(response.AccessToken, response.RefreshToken, response.UserName, response.IsAdmin, RememberMe);
 
                     // Notify the parent ViewModel about successful login
                     LoginSuccessful?.Invoke();

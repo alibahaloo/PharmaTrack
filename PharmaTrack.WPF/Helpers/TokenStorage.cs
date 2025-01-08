@@ -1,5 +1,4 @@
 ﻿using Microsoft.Data.Sqlite;
-using PharmaTrack.Shared.DBModels;
 
 namespace PharmaTrack.WPF.Helpers
 {
@@ -8,7 +7,7 @@ namespace PharmaTrack.WPF.Helpers
         private static readonly string DatabasePath = "tokens.db";
         private static readonly string ConnectionString = $"Data Source={DatabasePath};";
 
-        public static string? LocalAccessToken
+        public static string? AccessToken
         {
             get { return App.Current.Properties.Contains("AccessToken")
                     ? App.Current.Properties["AccessToken"] as string
@@ -16,7 +15,7 @@ namespace PharmaTrack.WPF.Helpers
             set { App.Current.Properties["AccessToken"] = value; }
         }
 
-        public static string? LocalRefreshToken
+        public static string? RefreshToken
         {
             get { return App.Current.Properties.Contains("RefreshToken")
                     ? App.Current.Properties["RefreshToken"] as string
@@ -24,13 +23,30 @@ namespace PharmaTrack.WPF.Helpers
             set { App.Current.Properties["RefreshToken"] = value; }
         }
 
-        public static string? LocalUserName
+        public static string? UserName
         {
             get { return App.Current.Properties.Contains("UserName")
                     ? App.Current.Properties["UserName"] as string
                     : string.Empty; }
             set { App.Current.Properties["UserName"] = value; }
         }
+
+        public static bool IsUserAdmin
+        {
+            get
+            {
+                if (App.Current.Properties.Contains("IsAdmin") && App.Current.Properties["IsAdmin"] is bool value)
+                {
+                    return value;
+                }
+                return false; // Default to false if the property doesn't exist or isn't a bool
+            }
+            set
+            {
+                App.Current.Properties["IsAdmin"] = value;
+            }
+        }
+
 
         static TokenStorage()
         {
@@ -50,7 +66,8 @@ namespace PharmaTrack.WPF.Helpers
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     AccessToken TEXT NOT NULL,
                     RefreshToken TEXT NOT NULL,
-                    UserName TEXT NOT NULL
+                    UserName TEXT NOT NULL,
+                    IsUserAdmin BOOLEAN DEFAULT 0
                 );";
             using var command = new SqliteCommand(createTableQuery, connection);
             command.ExecuteNonQuery();
@@ -58,12 +75,13 @@ namespace PharmaTrack.WPF.Helpers
 
 
         // Save tokens to the database
-        public static void SaveTokens(string accessToken, string refreshToken, string userName, bool remember = false)
+        public static void SaveTokens(string accessToken, string refreshToken, string userName, bool isUserAdmin, bool remember = false)
         {
 
-            LocalAccessToken = accessToken;
-            LocalRefreshToken = refreshToken;
-            LocalUserName = userName;
+            AccessToken = accessToken;
+            RefreshToken = refreshToken;
+            UserName = userName;
+            IsUserAdmin = isUserAdmin;
 
             if (remember == false) return;
             //If remember is true, then save tokens persistently (in SQLite)
@@ -81,12 +99,13 @@ namespace PharmaTrack.WPF.Helpers
 
                 // Insert new tokens
                 string insertQuery = @"
-                    INSERT INTO Tokens (AccessToken, RefreshToken, UserName)
-                    VALUES (@AccessToken, @RefreshToken, @UserName);";
+                    INSERT INTO Tokens (AccessToken, RefreshToken, UserName, IsUserAdmin)
+                    VALUES (@AccessToken, @RefreshToken, @UserName, @IsUserAdmin);";
                 using var insertCommand = new SqliteCommand(insertQuery, connection);
                 insertCommand.Parameters.AddWithValue("@AccessToken", accessToken);
                 insertCommand.Parameters.AddWithValue("@RefreshToken", refreshToken);
                 insertCommand.Parameters.AddWithValue("@UserName", userName);
+                insertCommand.Parameters.AddWithValue("@IsUserAdmin", isUserAdmin);
 
                 insertCommand.ExecuteNonQuery();
             }
@@ -97,13 +116,13 @@ namespace PharmaTrack.WPF.Helpers
         }
 
         // Read tokens from the database
-        public static (string AccessToken, string RefreshToken, string UserName) ReadTokens()
+        public static (string AccessToken, string RefreshToken, string UserName, bool IsUserAdmin) ReadTokens()
         {
             try
             {
                 using var connection = new SqliteConnection(ConnectionString);
                 connection.Open();
-                string selectQuery = "SELECT AccessToken, RefreshToken, UserName FROM Tokens LIMIT 1;";
+                string selectQuery = "SELECT AccessToken, RefreshToken, UserName, IsUserAdmin FROM Tokens LIMIT 1;";
                 using var command = new SqliteCommand(selectQuery, connection);
                 using var reader = command.ExecuteReader();
                 if (reader.Read())
@@ -111,7 +130,8 @@ namespace PharmaTrack.WPF.Helpers
                     string accessToken = reader.GetString(0);
                     string refreshToken = reader.GetString(1);
                     string userName = reader.GetString(2);
-                    return (accessToken, refreshToken, userName);
+                    bool isUserAdmin = reader.GetBoolean(3);
+                    return (accessToken, refreshToken, userName, isUserAdmin);
                 }
             }
             catch (Exception ex)
@@ -120,7 +140,7 @@ namespace PharmaTrack.WPF.Helpers
             }
 
             // Return empty values if no tokens are found
-            return (string.Empty, string.Empty, string.Empty);
+            return (string.Empty, string.Empty, string.Empty, false);
         }
 
         //Delete token from the database
@@ -146,10 +166,14 @@ namespace PharmaTrack.WPF.Helpers
                 if (App.Current.Properties.Contains("UserName"))
                     App.Current.Properties.Remove("UserName");
 
+                if (App.Current.Properties.Contains("IsAdmin"))
+                    App.Current.Properties.Remove("IsAdmin");
+
                 // Set the static properties to null or empty
-                LocalAccessToken = null;
-                LocalRefreshToken = null;
-                LocalUserName = null;
+                AccessToken = null;
+                RefreshToken = null;
+                UserName = null;
+                IsUserAdmin = false;
             }
             catch (Exception ex)
             {

@@ -91,7 +91,7 @@ namespace PharmaTrack.WPF.ViewModels
 
         private async Task<bool> CheckAuth()
         {
-            var (accessToken, refreshToken, userName) = TokenStorage.ReadTokens();
+            var (accessToken, refreshToken, userName, isUserAdmin) = TokenStorage.ReadTokens();
             if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(refreshToken))
             {
                 try
@@ -113,7 +113,7 @@ namespace PharmaTrack.WPF.ViewModels
 
         private async Task LogoutAsync()
         {
-            var refreshToken = TokenStorage.LocalRefreshToken;
+            var refreshToken = TokenStorage.RefreshToken;
             if (refreshToken != null)
             {
                 var response = await _authService.LogoutAsync(refreshToken);
