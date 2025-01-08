@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace PharmaTrack.WPF.ViewModels
 {
-    public class InventoryViewModel
+    public class InventoryViewModel : INotifyPropertyChanged
     {
         private readonly InventoryService _inventoryService;
 
@@ -45,6 +45,19 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(TotalPages));
             }
         }
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading != value)
+                {
+                    _isLoading = value;
+                    OnPropertyChanged(nameof(IsLoading)); // Notify the UI
+                }
+            }
+        }
 
         public ICommand LoadProductsCommand { get; }
         public ICommand NextPageCommand { get; }
@@ -58,8 +71,14 @@ namespace PharmaTrack.WPF.ViewModels
             PreviousPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(-1));
         }
 
+        public void Try(object? parameter)
+        {
+            IsLoading = true;
+        }
+
         public async Task LoadProductsAsync()
         {
+            IsLoading = true;
             try
             {
                 var response = await _inventoryService.GetProductsAsync(CurrentPage);
@@ -83,6 +102,10 @@ namespace PharmaTrack.WPF.ViewModels
             catch (HttpRequestException ex)
             {
                 StatusMessage = $"Network error: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
