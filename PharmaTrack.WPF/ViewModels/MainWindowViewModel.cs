@@ -16,6 +16,7 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly UsersControl _usersControl;
         private object _currentContent = default!;
         private bool _isLoggedIn;
+        private bool _isUserAdmin = false;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public ICommand LoginCommand { get; }
@@ -34,7 +35,15 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(CurrentContent));
             }
         }
-
+        public bool IsUserAdmin
+        {
+            get => _isUserAdmin;
+            set
+            {
+                _isUserAdmin = value;
+                OnPropertyChanged(nameof(IsUserAdmin));
+            }
+        }
         public bool IsLoggedIn
         {
             get => _isLoggedIn;
@@ -99,7 +108,9 @@ namespace PharmaTrack.WPF.ViewModels
                     var response = await _authService.RefreshTokenAsync(refreshToken);
                     if (response != null)
                     {
-                        TokenStorage.SaveTokens(response.AccessToken, response.RefreshToken, response.UserName, true);
+                        if (response.IsAdmin) IsUserAdmin = true;
+
+                        TokenStorage.SaveTokens(response.AccessToken, response.RefreshToken, response.UserName, response.IsAdmin, true);
                         return true;
                     }
                 }
