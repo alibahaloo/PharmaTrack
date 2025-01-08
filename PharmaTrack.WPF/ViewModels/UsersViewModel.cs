@@ -1,4 +1,4 @@
-﻿using PharmaTrack.Shared.DBModels;
+﻿using PharmaTrack.Shared.APIModels;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -8,10 +8,10 @@ using System.Windows.Media;
 
 namespace PharmaTrack.WPF.ViewModels
 {
-    public class TransactionsViewModel : INotifyPropertyChanged
+    public class UsersViewModel : INotifyPropertyChanged
     {
-        private readonly InventoryService _inventoryService;
-        public ObservableCollection<Transaction> Transactions { get; set; }
+        private readonly UsersService _usersService;
+        public ObservableCollection<UserDto> Users { get; set; }
         private string _statusMessage = default!;
         public string StatusMessage
         {
@@ -65,37 +65,36 @@ namespace PharmaTrack.WPF.ViewModels
             set { _statusForeground = value; OnPropertyChanged(nameof(StatusForeground)); }
         }
 
-        public ICommand LoadTransactionsCommand { get; }
+        public ICommand LoadUsersCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
-
-        public TransactionsViewModel(InventoryService inventoryService)
+        public UsersViewModel(UsersService usersService)
         {
-            _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
-            Transactions = new ObservableCollection<Transaction>();
-            LoadTransactionsCommand = new AsyncRelayCommand(async _ => await LoadTransactionsAsync());
+            _usersService = usersService ?? throw new ArgumentNullException(nameof(usersService));
+            Users = new ObservableCollection<UserDto>();
+            LoadUsersCommand = new AsyncRelayCommand(async _ => await LoadUsersAsync());
             NextPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(1));
             PreviousPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(-1));
         }
 
-        public async Task LoadTransactionsAsync()
+        public async Task LoadUsersAsync()
         {
             IsLoading = true;
             try
             {
-                var response = await _inventoryService.GetTransactionsAsync(CurrentPage);
+                var response = await _usersService.GetUsersAsync(CurrentPage);
                 if (response != null)
                 {
-                    Transactions.Clear();
-                    foreach (var transaction in response.Data)
+                    Users.Clear();
+                    foreach (var user in response.Data)
                     {
-                        Transactions.Add(transaction);
+                        Users.Add(user);
                     }
 
                     CurrentPage = response.CurrentPage;
                     TotalPages = response.TotalPageCount;
                 }
-                StatusMessage = "Transactions loaded successfully.";
+                StatusMessage = "Users loaded successfully.";
                 StatusForeground = Brushes.Green;
             }
             catch (UnauthorizedAccessException ex)
@@ -118,7 +117,7 @@ namespace PharmaTrack.WPF.ViewModels
             if ((direction == -1 && CurrentPage > 1) || (direction == 1 && CurrentPage < TotalPages))
             {
                 CurrentPage += direction;
-                await LoadTransactionsAsync();
+                await LoadUsersAsync();
             }
         }
 

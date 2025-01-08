@@ -48,6 +48,7 @@ namespace PharmaTrack.WPF
             // Register HttpClient and AuthService
             services.AddHttpClient<AuthService>();
             services.AddHttpClient<InventoryService>();
+            services.AddHttpClient<UsersService>();
 
             services.AddSingleton<MainWindowViewModel>(); // Register MainWindowViewModel
 
@@ -56,11 +57,13 @@ namespace PharmaTrack.WPF
             services.AddSingleton<StockTransferViewModel>();
             services.AddSingleton<InventoryViewModel>();
             services.AddSingleton<TransactionsViewModel>();
+            services.AddSingleton<UsersViewModel>();
             // Register Controls
             services.AddSingleton<LoginControl>();
             services.AddSingleton<StockTransferControl>();
             services.AddSingleton<InventoryControl>();
             services.AddSingleton<TransactionsControl>();
+            services.AddSingleton<UsersControl>();
             // Register Main Window
             services.AddSingleton<MainWindow>();
         }

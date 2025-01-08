@@ -13,6 +13,7 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly StockTransferControl _stockTransferControl;
         private readonly InventoryControl _inventoryControl;
         private readonly TransactionsControl _transactionsControl;
+        private readonly UsersControl _usersControl;
         private object _currentContent = default!;
         private bool _isLoggedIn;
 
@@ -23,6 +24,7 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ShowStockTransferCommand { get; }
         public ICommand ShowInventoryCommand { get; }
         public ICommand ShowTransactionsCommand { get; }
+        public ICommand ShowUsersCommand { get; }
         public object CurrentContent
         {
             get => _currentContent;
@@ -56,13 +58,20 @@ namespace PharmaTrack.WPF.ViewModels
             else
                 LoadLogin();
         }
-        public MainWindowViewModel(AuthService authService, LoginControl loginControl, StockTransferControl stockTransferControl, InventoryControl inventoryControl, TransactionsControl transactionsControl)
+        public MainWindowViewModel(
+            AuthService authService, 
+            LoginControl loginControl, 
+            StockTransferControl stockTransferControl, 
+            InventoryControl inventoryControl, 
+            TransactionsControl transactionsControl,
+            UsersControl usersControl)
         {
             _authService = authService;
             _loginControl = loginControl;
             _stockTransferControl = stockTransferControl;
             _inventoryControl = inventoryControl;
             _transactionsControl = transactionsControl;
+            _usersControl = usersControl;
             InitializeAsync();
 
             // Subscribe to LoginViewModel's LoginSuccessful event
@@ -77,6 +86,7 @@ namespace PharmaTrack.WPF.ViewModels
             ShowStockTransferCommand = new RelayCommand(_ => LoadStockTransfer());
             ShowInventoryCommand = new RelayCommand(_ => LoadInventory());
             ShowTransactionsCommand = new RelayCommand(_ => LoadTransactions());
+            ShowUsersCommand = new RelayCommand(_ => LoadUsers());
         }
 
         private async Task<bool> CheckAuth()
@@ -123,6 +133,10 @@ namespace PharmaTrack.WPF.ViewModels
             _calendarControl.MonthChanged += MyCalendar_MonthChanged;
             CurrentContent = _calendarControl;
             MyCalendar_MonthChanged(this, DateTime.Now);
+        }
+        private void LoadUsers()
+        {
+            CurrentContent = _usersControl;
         }
         private void LoadTransactions()
         {
