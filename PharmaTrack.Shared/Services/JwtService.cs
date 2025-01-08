@@ -115,10 +115,10 @@ namespace PharmaTrack.Shared.Services
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
 
                 // Extract the "userId" claim
-                var userIdClaim = principal.FindFirst("userId"); // Ensure "userId" is added as a claim when issuing the token
-                var userId = userIdClaim?.Value;
+                var usernameClaim = principal.FindFirst(ClaimTypes.Name); // ClaimTypes.Name is used for the username
+                var username = usernameClaim?.Value;
 
-                return (true, userId);
+                return (true, username);
             }
             catch (Exception)
             {
