@@ -1,6 +1,5 @@
 ﻿using PharmaTrack.WPF.Helpers;
 using System.ComponentModel;
-using System.Text.Json.Serialization;
 using System.Windows.Input;
 
 namespace PharmaTrack.WPF.ViewModels
@@ -100,10 +99,10 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 var response = await _authService.LoginAsync(Username, Password);
 
-                if (response != null && response.Success)
+                if (response != null)
                 {
                     // Save tokens securely
-                    TokenStorage.SaveTokens(response.Content.AccessToken, response.Content.RefreshToken, response.Content.UserName, RememberMe);
+                    TokenStorage.SaveTokens(response.AccessToken, response.RefreshToken, response.UserName, RememberMe);
 
                     // Notify the parent ViewModel about successful login
                     LoginSuccessful?.Invoke();
@@ -128,26 +127,5 @@ namespace PharmaTrack.WPF.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-    }
-
-    public class ApiResponse
-    {
-        [JsonPropertyName("success")]
-        public bool Success { get; set; }
-
-        [JsonPropertyName("content")]
-        public Content Content { get; set; } = new();
-    }
-
-    public class Content
-    {
-        [JsonPropertyName("accessToken")]
-        public string AccessToken { get; set; } = string.Empty;
-
-        [JsonPropertyName("refreshToken")]
-        public string RefreshToken { get; set; } = string.Empty;
-
-        [JsonPropertyName("userName")]
-        public string UserName { get; set; } = string.Empty;
     }
 }

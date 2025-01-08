@@ -5,6 +5,7 @@ using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.Services;
 using Microsoft.EntityFrameworkCore;
 using Auth.API.Data;
+using Azure.Core;
 
 namespace Auth.API.Controllers
 {
@@ -82,7 +83,7 @@ namespace Auth.API.Controllers
                     if (user == null || string.IsNullOrEmpty(user.UserName))
                     {
                         _logger.LogWarning("Login failed: User '{Username}' not found.", model.Username);
-                        return Unauthorized(new { Success = false, Message = "User not found." });
+                        return Unauthorized();
                     }
 
                     var accessToken = _jwtService.GenerateJwtToken(user.Id, user.UserName);
@@ -92,7 +93,13 @@ namespace Auth.API.Controllers
                     // Store the Refresh Token in the database
                     await AddRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
 
-                    return Ok(new { Success = true, Content = new { accessToken, refreshToken, user.UserName } });
+                    return Ok(new AuthDto
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = refreshToken,
+                        UserName = user.UserName,
+                        IsAdmin = user.IsAdmin,
+                    });
                 }
                 else
                 {
@@ -104,7 +111,7 @@ namespace Auth.API.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during user registration '{Username}'.", model.Username);
-                return Unauthorized();
+                return BadRequest(ex.Message);
             }
         }
         public async Task AddRefreshTokenAsync(string userId, string token, DateTime expiryDate)
@@ -136,14 +143,14 @@ namespace Auth.API.Controllers
                 if (!signInResult.Succeeded)
                 {
                     _logger.LogWarning("Login failed: Invalid credentials for username '{Username}'.", model.Username);
-                    return Unauthorized(new { Success = false, Content = "Invalid credentials." });
+                    return Unauthorized();
                 }
 
                 var user = await _userManager.FindByNameAsync(model.Username);
                 if (user == null || string.IsNullOrEmpty(user.UserName))
                 {
                     _logger.LogWarning("Login failed: User '{Username}' not found.", model.Username);
-                    return Unauthorized(new { Success = false, Content = "User not found." });
+                    return Unauthorized();
                 }
 
                 var accessToken = _jwtService.GenerateJwtToken(user.Id, user.UserName);
@@ -153,12 +160,18 @@ namespace Auth.API.Controllers
                 // Store the Refresh Token in the database
                 await AddRefreshTokenAsync(user.Id, refreshToken, refreshTokenExpiry);
 
-                return Ok(new { Success = true, Content = new { accessToken, refreshToken, user.UserName } });
+                return Ok(new AuthDto
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken,
+                    UserName = user.UserName,
+                    IsAdmin = user.IsAdmin,
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during login for user '{Username}'.", model.Username);
-                return Unauthorized();
+                return BadRequest(ex.Message);
             }
         }
         public async Task<RefreshToken?> ValidateRefreshTokenAsync(string refreshToken)
@@ -172,7 +185,7 @@ namespace Auth.API.Controllers
 
             return tokenEntity;
         }
-        public async Task UpdateRefreshTokenAsync(RefreshToken tokenEntity)
+        private async Task UpdateRefreshTokenAsync(RefreshToken tokenEntity)
         {
             _dbContext.RefreshTokens.Update(tokenEntity);
             await _dbContext.SaveChangesAsync();
@@ -188,7 +201,7 @@ namespace Auth.API.Controllers
                 if (tokenEntity == null)
                 {
                     _logger.LogWarning("Invalid refresh token.");
-                    return Unauthorized(new { Success = false, Message = "Invalid or expired refresh token." });
+                    return Unauthorized();
                 }
 
                 //Find user based on UserID
@@ -196,7 +209,7 @@ namespace Auth.API.Controllers
 
                 if (user == null || string.IsNullOrEmpty(user.UserName)) {
                     _logger.LogWarning("User not found.");
-                    return Unauthorized(new { Success = false, Message = "User not found." });
+                    return Unauthorized();
                 }
 
                 // Step 2: Generate a new Access Token
@@ -209,21 +222,18 @@ namespace Auth.API.Controllers
                 await UpdateRefreshTokenAsync(tokenEntity);
 
                 // Step 4: Return the new tokens
-                return Ok(new
+                return Ok(new AuthDto
                 {
-                    Success = true,
-                    Content = new
-                    {
-                        AccessToken = newAccessToken,
-                        RefreshToken = newRefreshToken,
-                        user.UserName
-                    }
+                    AccessToken = newAccessToken,
+                    RefreshToken = newRefreshToken,
+                    UserName = user.UserName,
+                    IsAdmin = user.IsAdmin,
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while refreshing the token.");
-                return BadRequest(new { Success = false, Message = "An error occurred. Please try again." });
+                return BadRequest(ex.Message);
             }
         }
 
@@ -238,7 +248,7 @@ namespace Auth.API.Controllers
                 if (tokenEntity == null)
                 {
                     _logger.LogWarning("Invalid refresh token provided for logout.");
-                    return Unauthorized(new { Success = false, Message = "Invalid or expired refresh token." });
+                    return Unauthorized();
                 }
 
                 // Remove the refresh token from the database
@@ -246,12 +256,12 @@ namespace Auth.API.Controllers
                 await _dbContext.SaveChangesAsync();
 
                 // Respond with success
-                return Ok(new { Success = true, Message = "Logged out successfully." });
+                return Ok();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during logout.");
-                return BadRequest(new { Success = false, Message = "An error occurred while logging out. Please try again." });
+                return BadRequest(ex.Message);
             }
         }
 

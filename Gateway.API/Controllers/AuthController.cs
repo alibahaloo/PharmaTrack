@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Shared.DBModels;
+using System.Text.Json;
 
 namespace Gateway.API.Controllers
 {
@@ -26,18 +28,31 @@ namespace Gateway.API.Controllers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    return StatusCode((int)response.StatusCode, errorContent);
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
                 }
 
                 // Parse the response from Auth API
-                var result = await response.Content.ReadFromJsonAsync<object>();
-                return Ok(result);
+                var result = await response.Content.ReadAsStringAsync();
+
+                AuthDto? authDto;
+                try
+                {
+                    authDto = JsonSerializer.Deserialize<AuthDto>(result, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing data: {jsonEx.Message}");
+                }
+
+                return Ok(authDto);
             }
             catch (Exception ex)
             {
                 // Log error and return 500 status code
-                return StatusCode(500, new { Success = false, Message = "An error occurred while logging in.", Details = ex.Message });
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
             }
         }
 
@@ -52,18 +67,31 @@ namespace Gateway.API.Controllers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    return StatusCode((int)response.StatusCode, errorContent);
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
                 }
 
                 // Parse the response from Auth API
-                var result = await response.Content.ReadFromJsonAsync<object>();
-                return Ok(result);
+                var result = await response.Content.ReadAsStringAsync();
+
+                AuthDto? authDto;
+                try
+                {
+                    authDto = JsonSerializer.Deserialize<AuthDto>(result, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing data: {jsonEx.Message}");
+                }
+
+                return Ok(authDto);
             }
             catch (Exception ex)
             {
                 // Log error and return 500 status code
-                return StatusCode(500, new { Success = false, Message = "An error occurred while registering.", Details = ex.Message });
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
             }
         }
 
@@ -79,18 +107,31 @@ namespace Gateway.API.Controllers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    return StatusCode((int)response.StatusCode, errorContent);
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
                 }
 
                 // Parse the response from Auth API
-                var result = await response.Content.ReadFromJsonAsync<object>();
-                return Ok(result);
+                var result = await response.Content.ReadAsStringAsync();
+
+                AuthDto? authDto;
+                try
+                {
+                    authDto = JsonSerializer.Deserialize<AuthDto>(result, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing data: {jsonEx.Message}");
+                }
+
+                return Ok(authDto);
             }
             catch (Exception ex)
             {
                 // Log error and return 500 status code
-                return StatusCode(500, new { Success = false, Message = "An error occurred while refreshing the token.", Details = ex.Message });
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
             }
         }
 
@@ -105,16 +146,15 @@ namespace Gateway.API.Controllers
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    return StatusCode((int)response.StatusCode, errorContent);
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
                 }
 
-                return Ok(new { Success = true, Message = "Logged out successfully." });
+                return Ok();
             }
             catch (Exception ex)
             {
                 // Log error and return 500 status code
-                return StatusCode(500, new { Success = false, Message = "An error occurred while logging out.", Details = ex.Message });
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
             }
         }
     }

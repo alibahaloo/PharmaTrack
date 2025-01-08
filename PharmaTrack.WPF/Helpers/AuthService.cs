@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using PharmaTrack.Shared.APIModels;
 using PharmaTrack.WPF.ViewModels;
 using System.Net.Http;
 using System.Text;
@@ -25,7 +26,7 @@ namespace PharmaTrack.WPF.Helpers
                         ?? throw new ArgumentException("Logout URL is not configured in the application settings.", nameof(configuration));
         }
 
-        public async Task<ApiResponse?> LoginAsync(string username, string password)
+        public async Task<AuthDto?> LoginAsync(string username, string password)
         {
             var payload = new { username, password };
             string json = JsonSerializer.Serialize(payload);
@@ -35,8 +36,21 @@ namespace PharmaTrack.WPF.Helpers
 
             if (response.IsSuccessStatusCode)
             {
-                string responseContent = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<ApiResponse>(responseContent);
+                var result = await response.Content.ReadAsStringAsync();
+                AuthDto? authDto;
+                try
+                {
+                    authDto = JsonSerializer.Deserialize<AuthDto>(result, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return authDto;
+                }
+                catch (Exception jsonEx)
+                {
+                    throw new JsonException($"Error deserializing data: {jsonEx.Message}");
+                }
             }
 
             throw response.StatusCode switch
@@ -46,7 +60,7 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
-        public async Task<ApiResponse?> RefreshTokenAsync(string refreshToken)
+        public async Task<AuthDto?> RefreshTokenAsync(string refreshToken)
         {
             var payload = new { refreshToken };
             string json = JsonSerializer.Serialize(payload);
@@ -56,8 +70,21 @@ namespace PharmaTrack.WPF.Helpers
 
             if (response.IsSuccessStatusCode)
             {
-                string responseContent = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<ApiResponse>(responseContent);
+                var result = await response.Content.ReadAsStringAsync();
+                AuthDto? authDto;
+                try
+                {
+                    authDto = JsonSerializer.Deserialize<AuthDto>(result, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    return authDto;
+                }
+                catch (Exception jsonEx)
+                {
+                    throw new JsonException($"Error deserializing data: {jsonEx.Message}");
+                }
             }
 
             throw response.StatusCode switch

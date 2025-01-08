@@ -97,9 +97,9 @@ namespace PharmaTrack.WPF.ViewModels
                 try
                 {
                     var response = await _authService.RefreshTokenAsync(refreshToken);
-                    if (response != null && response.Success)
+                    if (response != null)
                     {
-                        TokenStorage.SaveTokens(response.Content.AccessToken, response.Content.RefreshToken, response.Content.UserName, true);
+                        TokenStorage.SaveTokens(response.AccessToken, response.RefreshToken, response.UserName, true);
                         return true;
                     }
                 }
