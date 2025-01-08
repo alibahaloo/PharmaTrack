@@ -15,21 +15,16 @@
             </StatusBarItem>
             <Separator/>
             <StatusBarItem HorizontalContentAlignment="Left">
-                
-                <TextBlock Text="{Binding StatusMessage}" Foreground="Red" Margin="1" />
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{Binding StatusForeground}" Margin="1" />
             </StatusBarItem>
         </StatusBar>
         <!-- Main Content -->
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-
-            <TextBlock Text="{Binding StatusMessage}" Foreground="Red" Margin="1" />
-
-            <DataGrid Grid.Row="1" ItemsSource="{Binding Products}" AutoGenerateColumns="False" Margin="1" 
+            <DataGrid Grid.Row="0" ItemsSource="{Binding Products}" AutoGenerateColumns="False" Margin="1" 
                       HorizontalAlignment="Stretch"
                       VerticalAlignment="Stretch"
                       CanUserAddRows="False" 
@@ -48,7 +43,7 @@
             </DataGrid>
 
             <!-- Pagination Controls -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
                 <Button Command="{Binding PreviousPageCommand}" 
                         IsEnabled="{Binding CurrentPage, Converter={StaticResource GreaterThanOneConverter}}">
                     <Button.Content>

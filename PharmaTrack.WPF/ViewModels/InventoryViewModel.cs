@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net.Http;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PharmaTrack.WPF.ViewModels
 {
@@ -59,6 +60,12 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
+        private Brush _statusForeground = default!;
+        public Brush StatusForeground
+        {
+            get => _statusForeground;
+            set { _statusForeground = value; OnPropertyChanged(nameof(StatusForeground)); }
+        }
         public ICommand LoadProductsCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
@@ -70,12 +77,6 @@ namespace PharmaTrack.WPF.ViewModels
             NextPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(1));
             PreviousPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(-1));
         }
-
-        public void Try(object? parameter)
-        {
-            IsLoading = true;
-        }
-
         public async Task LoadProductsAsync()
         {
             IsLoading = true;
@@ -94,14 +95,17 @@ namespace PharmaTrack.WPF.ViewModels
                     TotalPages = response.TotalPageCount;
                 }
                 StatusMessage = "Products loaded successfully.";
+                StatusForeground = Brushes.Green;
             }
             catch (UnauthorizedAccessException ex)
             {
                 StatusMessage = $"Authorization error: {ex.Message}";
+                StatusForeground = Brushes.Red;
             }
             catch (HttpRequestException ex)
             {
                 StatusMessage = $"Network error: {ex.Message}";
+                StatusForeground = Brushes.Red;
             }
             finally
             {
