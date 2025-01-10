@@ -28,49 +28,43 @@
             <!-- Navigation Buttons -->
             <StackPanel Orientation="Horizontal" Grid.Row="0" HorizontalAlignment="Center" Margin="0,5">
                 <Button x:Name="PrevMonthButton" 
+                        Margin="5"
                         Background="Green"
                         Foreground="White"
-                        Click="PrevMonthButton_Click" 
-                        Padding="5"
-                        Margin="5">
+                        Click="PrevMonthButton_Click" >
                     <Button.Content>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <bi:BootstrapIcon Icon="CaretLeftFill"
-                                              Margin="5"
-                                              Width="20"
-                                              Height="20"
                                               Foreground="White" />
+                            <TextBlock Text="Previous"
+                                       FontSize="16"
+                                       FontWeight="Bold"
+                                       Padding="5"/>
                         </StackPanel>
                     </Button.Content>
                 </Button>
                 <Button x:Name="TodayButton" 
+                        Margin="5"
                         Click="TodayButton_Click" 
                         Background="Green"
                         Foreground="White"
-                        Padding="5"
-                        Margin="5">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <bi:BootstrapIcon Icon="CircleFill"
-                                              Margin="5"
-                                              Width="20"
-                                              Height="20"
-                                              Foreground="White" />
-                        </StackPanel>
-                    </Button.Content>
+                        Content="Today"
+                        FontWeight="bold"
+                        FontSize="16"
+                        Padding="5">
                 </Button>
                 <Button x:Name="NextMonthButton" 
+                        Margin="5"
                         Click="NextMonthButton_Click" 
                         Background="Green"
-                        Foreground="White"
-                        Padding="5"
-                        Margin="5" >
+                        Foreground="White">
                     <Button.Content>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="Next"
+                                       FontSize="16"
+                                       FontWeight="Bold"
+                                       Padding="5"/>
                             <bi:BootstrapIcon Icon="CaretRightFill"
-                                              Margin="5"
-                                              Width="20"
-                                              Height="20"
                                               Foreground="White" />
                         </StackPanel>
                     </Button.Content>
