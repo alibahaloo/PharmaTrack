@@ -9,7 +9,7 @@
         Title="PharmaTrack" MinHeight="600" MinWidth="800" Height="600" Width="800">
     <DockPanel>
         <!-- Top Menu -->
-        <Grid DockPanel.Dock="Top" Background="#FFF0F0F0" >
+        <Grid DockPanel.Dock="Top" Background="#FFF0F0F0" Visibility="{Binding IsLoaded, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="80*" />
                 <ColumnDefinition Width="20*" />

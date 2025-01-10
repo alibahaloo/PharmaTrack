@@ -14,9 +14,11 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly InventoryControl _inventoryControl;
         private readonly TransactionsControl _transactionsControl;
         private readonly UsersControl _usersControl;
+        private readonly LoadingControl _loadingControl = new();
         private object _currentContent = default!;
         private bool _isLoggedIn;
         private bool _isUserAdmin = false;
+        private bool _isLoaded = false;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         public ICommand LoginCommand { get; }
@@ -26,6 +28,15 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ShowInventoryCommand { get; }
         public ICommand ShowTransactionsCommand { get; }
         public ICommand ShowUsersCommand { get; }
+        public bool IsLoaded
+        {
+            get => _isLoaded;
+            set
+            {
+                _isLoaded = value;
+                OnPropertyChanged(nameof(IsLoaded));
+            }
+        }
         public object CurrentContent
         {
             get => _currentContent;
@@ -61,6 +72,8 @@ namespace PharmaTrack.WPF.ViewModels
         private async void InitializeAsync()
         {
             IsLoggedIn = await CheckAuth();
+
+            if (!IsLoaded) return;
 
             if (IsLoggedIn)
                 LoadMySchedule();
@@ -100,6 +113,34 @@ namespace PharmaTrack.WPF.ViewModels
 
         private async Task<bool> CheckAuth()
         {
+            CurrentContent = _loadingControl;
+            bool result = false;
+            try
+            {
+                var (accessToken, refreshToken, userName, isUserAdmin) = TokenStorage.ReadTokens();
+                if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(refreshToken))
+                {
+                    var response = await _authService.RefreshTokenAsync(refreshToken);
+                    if (response != null)
+                    {
+                        if (response.IsAdmin) IsUserAdmin = true;
+
+                        TokenStorage.SaveTokens(response.AccessToken, response.RefreshToken, response.UserName, response.IsAdmin, true);
+                        result = true;
+                    }
+                }
+
+                IsLoaded = true;
+            }
+            catch (Exception ex)
+            {
+                _loadingControl.SetErrorMessage(ex.Message);
+                IsLoaded = false;
+            } 
+
+            return result;
+
+            /*
             var (accessToken, refreshToken, userName, isUserAdmin) = TokenStorage.ReadTokens();
             if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(refreshToken))
             {
@@ -120,6 +161,7 @@ namespace PharmaTrack.WPF.ViewModels
                 }
             }
             return false;
+            */
         }
 
         private async Task LogoutAsync()
