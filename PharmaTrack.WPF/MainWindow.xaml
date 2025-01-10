@@ -15,7 +15,7 @@
                 <ColumnDefinition Width="20*" />
             </Grid.ColumnDefinitions>
             <Menu Grid.Column="0" FontSize="16" >
-                <MenuItem Header="Calendar" >
+                <MenuItem Header="Calendar" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                     <MenuItem.Icon>
                         <bi:BootstrapIcon Icon="Calendar" />
                     </MenuItem.Icon>
