@@ -34,7 +34,7 @@
 
                 <MenuItem Header="Inventory" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                     <MenuItem.Icon>
-                        <bi:BootstrapIcon Icon="BoxSeam" />
+                        <bi:BootstrapIcon Icon="CardList" />
                     </MenuItem.Icon>
                     <MenuItem Header="Stock Transfer" Command="{Binding ShowStockTransferCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                         <MenuItem.Icon>
@@ -44,7 +44,7 @@
                     <Separator/>
                     <MenuItem Header="Products" Command="{Binding ShowInventoryCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                         <MenuItem.Icon>
-                            <bi:BootstrapIcon Icon="BoxSeam" />
+                            <bi:BootstrapIcon Icon="Box" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator/>
@@ -63,9 +63,9 @@
                 </MenuItem>
             </Menu>
             <Menu Grid.Column="1" HorizontalAlignment="Right" FontSize="16">
-                <MenuItem Header="Profile">
+                <MenuItem Header="Settings">
                     <MenuItem.Icon>
-                        <bi:BootstrapIcon Icon="Person" />
+                        <bi:BootstrapIcon Icon="Gear" />
                     </MenuItem.Icon>
                     <MenuItem Header="Login" Command="{Binding LoginCommand}" Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=true}">
                         <MenuItem.Icon>
