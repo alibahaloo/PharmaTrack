@@ -146,29 +146,6 @@ namespace PharmaTrack.WPF.ViewModels
             } 
 
             return result;
-
-            /*
-            var (accessToken, refreshToken, userName, isUserAdmin) = TokenStorage.ReadTokens();
-            if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(refreshToken))
-            {
-                try
-                {
-                    var response = await _authService.RefreshTokenAsync(refreshToken);
-                    if (response != null)
-                    {
-                        if (response.IsAdmin) IsUserAdmin = true;
-
-                        TokenStorage.SaveTokens(response.AccessToken, response.RefreshToken, response.UserName, response.IsAdmin, true);
-                        return true;
-                    }
-                }
-                catch
-                {
-                    // Handle exceptions
-                }
-            }
-            return false;
-            */
         }
 
         private async Task LogoutAsync()
