@@ -9,5 +9,6 @@
         <converters:BooleanInverterConverter x:Key="BooleanInverterConverter" />
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:PageNavigationConverter x:Key="PageNavigationConverter" />
+        <converters:MonthColorConverter x:Key="MonthColorConverter" />
     </Application.Resources>
 </Application>

@@ -9,7 +9,8 @@ namespace PharmaTrack.WPF.ViewModels
     {
         private readonly AuthService _authService;
         private readonly LoginControl _loginControl;
-        private readonly CalendarControl _calendarControl = new();
+        private readonly CalendarControl _calendarControl;
+        private readonly CalendarControlViewModel _calendarViewModel;
         private readonly StockTransferControl _stockTransferControl;
         private readonly InventoryControl _inventoryControl;
         private readonly TransactionsControl _transactionsControl;
@@ -21,6 +22,7 @@ namespace PharmaTrack.WPF.ViewModels
         private bool _isLoaded = false;
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
         public ICommand LoginCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand ShowMyScheduleCommand { get; }
@@ -29,6 +31,7 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ShowTransactionsCommand { get; }
         public ICommand ShowUsersCommand { get; }
         public ICommand RetryCommand { get; }
+
         public bool IsLoaded
         {
             get => _isLoaded;
@@ -38,6 +41,7 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(IsLoaded));
             }
         }
+
         public object CurrentContent
         {
             get => _currentContent;
@@ -47,6 +51,7 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(CurrentContent));
             }
         }
+
         public bool IsUserAdmin
         {
             get => _isUserAdmin;
@@ -56,6 +61,7 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(IsUserAdmin));
             }
         }
+
         public bool IsLoggedIn
         {
             get => _isLoggedIn;
@@ -65,11 +71,13 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(IsLoggedIn));
             }
         }
+
         private void OnLoginSuccessful()
         {
             IsLoggedIn = true;
             LoadMySchedule();
         }
+
         private async void InitializeAsync()
         {
             IsLoggedIn = await CheckAuth();
@@ -81,20 +89,29 @@ namespace PharmaTrack.WPF.ViewModels
             else
                 LoadLogin();
         }
+
         public MainWindowViewModel(
-            AuthService authService, 
-            LoginControl loginControl, 
-            StockTransferControl stockTransferControl, 
-            InventoryControl inventoryControl, 
+            AuthService authService,
+            LoginControl loginControl,
+            CalendarControl calendarControl,
+            CalendarControlViewModel calendarViewModel,
+            StockTransferControl stockTransferControl,
+            InventoryControl inventoryControl,
             TransactionsControl transactionsControl,
             UsersControl usersControl)
         {
             _authService = authService;
             _loginControl = loginControl;
+            _calendarControl = calendarControl;
+            _calendarViewModel = calendarViewModel;
             _stockTransferControl = stockTransferControl;
             _inventoryControl = inventoryControl;
             _transactionsControl = transactionsControl;
             _usersControl = usersControl;
+
+            // Set the CalendarControl's ViewModel
+            _calendarControl.DataContext = _calendarViewModel;
+
             InitializeAsync();
 
             // Subscribe to LoginViewModel's LoginSuccessful event
@@ -143,7 +160,7 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 _loadingControl.SetErrorMessage(ex.Message);
                 IsLoaded = false;
-            } 
+            }
 
             return result;
         }
@@ -165,24 +182,24 @@ namespace PharmaTrack.WPF.ViewModels
 
         private void LoadMySchedule()
         {
-            _calendarControl.Mode = CalendarMode.SingleUser;
-            _calendarControl.MonthChanged -= MyCalendar_MonthChanged;
-            _calendarControl.MonthChanged += MyCalendar_MonthChanged;
             CurrentContent = _calendarControl;
-            MyCalendar_MonthChanged(this, DateTime.Now);
         }
+
         private void LoadUsers()
         {
             CurrentContent = _usersControl;
         }
+
         private void LoadTransactions()
         {
             CurrentContent = _transactionsControl;
         }
+
         private void LoadInventory()
         {
             CurrentContent = _inventoryControl;
         }
+
         private void LoadLogin()
         {
             CurrentContent = _loginControl;
@@ -191,20 +208,6 @@ namespace PharmaTrack.WPF.ViewModels
         private void LoadStockTransfer()
         {
             CurrentContent = _stockTransferControl;
-        }
-
-        private void MyCalendar_MonthChanged(object? sender, DateTime selectedMonth)
-        {
-            _calendarControl.LoadEventsForMonth(month =>
-            {
-                return new Dictionary<DateTime, string>
-                {
-                    { new DateTime(month.Year, month.Month, 5), "Meeting" },
-                    { new DateTime(month.Year, month.Month, 15), "Birthday" },
-                    { new DateTime(month.Year, month.Month, 25), "Holiday" },
-                    { new DateTime(month.Year, month.Month, 24), string.Empty }
-                };
-            });
         }
 
         protected void OnPropertyChanged(string propertyName)
