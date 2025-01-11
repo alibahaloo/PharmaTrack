@@ -10,5 +10,10 @@
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:PageNavigationConverter x:Key="PageNavigationConverter" />
         <converters:MonthColorConverter x:Key="MonthColorConverter" />
+        <Style x:Key="GlobalDataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+        </Style>
     </Application.Resources>
 </Application>

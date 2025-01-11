@@ -42,12 +42,15 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <DataGrid Grid.Row="0" ItemsSource="{Binding Transactions}" AutoGenerateColumns="False" Margin="1" 
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch"
-                  CanUserAddRows="False" 
-                  CanUserDeleteRows="False"
-                  IsReadOnly="True">
+            <DataGrid Grid.Row="0" 
+                      ItemsSource="{Binding Transactions}" 
+                      AutoGenerateColumns="False" Margin="1" 
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsReadOnly="True"
+                      ColumnHeaderStyle="{StaticResource GlobalDataGridHeaderStyle}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="In/Out" Binding="{Binding Type}" />
                     <DataGridTextColumn Header="UPC" Binding="{Binding Product.UPC}" />

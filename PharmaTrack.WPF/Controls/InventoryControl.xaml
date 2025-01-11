@@ -49,7 +49,8 @@
                       VerticalAlignment="Stretch"
                       CanUserAddRows="False" 
                       CanUserDeleteRows="False"
-                      IsReadOnly="True">
+                      IsReadOnly="True"
+                      ColumnHeaderStyle="{StaticResource GlobalDataGridHeaderStyle}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="UPC" Binding="{Binding UPC}" Width="auto"/>
                     <DataGridTextColumn Header="NPN" Binding="{Binding NPN}" />

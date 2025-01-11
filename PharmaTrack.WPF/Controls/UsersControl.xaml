@@ -42,12 +42,15 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <DataGrid Grid.Row="0" ItemsSource="{Binding Users}" AutoGenerateColumns="False" Margin="1" 
-              HorizontalAlignment="Stretch"
-              VerticalAlignment="Stretch"
-              CanUserAddRows="False" 
-              CanUserDeleteRows="False"
-              IsReadOnly="True">
+            <DataGrid Grid.Row="0" 
+                      ItemsSource="{Binding Users}" 
+                      AutoGenerateColumns="False" Margin="1" 
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsReadOnly="True"
+                      ColumnHeaderStyle="{StaticResource GlobalDataGridHeaderStyle}">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="ID" Binding="{Binding Id}" />
                     <DataGridTextColumn Header="Username" Binding="{Binding UserName}" />
