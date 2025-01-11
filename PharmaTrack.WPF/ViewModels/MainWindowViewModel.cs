@@ -28,6 +28,7 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ShowInventoryCommand { get; }
         public ICommand ShowTransactionsCommand { get; }
         public ICommand ShowUsersCommand { get; }
+        public ICommand RetryCommand { get; }
         public bool IsLoaded
         {
             get => _isLoaded;
@@ -109,6 +110,12 @@ namespace PharmaTrack.WPF.ViewModels
             ShowInventoryCommand = new RelayCommand(_ => LoadInventory());
             ShowTransactionsCommand = new RelayCommand(_ => LoadTransactions());
             ShowUsersCommand = new RelayCommand(_ => LoadUsers());
+            RetryCommand = new RelayCommand(_ => Retry());
+        }
+
+        private void Retry()
+        {
+            InitializeAsync();
         }
 
         private async Task<bool> CheckAuth()

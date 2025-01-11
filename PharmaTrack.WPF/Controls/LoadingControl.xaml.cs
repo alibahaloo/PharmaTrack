@@ -18,6 +18,14 @@ namespace PharmaTrack.WPF.Controls
             ProgressBar.IsIndeterminate = false;
             ErrorMessage.Text = message;
             ErrorMessage.Visibility = Visibility.Visible;
+            RetryButton.Visibility = Visibility.Visible;
+        }
+
+        private void RetryButton_Click(object sender, RoutedEventArgs e)
+        {
+            RetryButton.Visibility = Visibility.Hidden;
+            ProgressBar.IsIndeterminate = true;
+            ErrorMessage.Text = string.Empty;
         }
     }
 }
