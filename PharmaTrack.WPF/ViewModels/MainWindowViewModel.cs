@@ -109,9 +109,6 @@ namespace PharmaTrack.WPF.ViewModels
             _transactionsControl = transactionsControl;
             _usersControl = usersControl;
 
-            // Set the CalendarControl's ViewModel
-            _calendarControl.DataContext = _calendarViewModel;
-
             InitializeAsync();
 
             // Subscribe to LoginViewModel's LoginSuccessful event
