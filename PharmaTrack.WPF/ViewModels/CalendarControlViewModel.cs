@@ -9,8 +9,18 @@ namespace PharmaTrack.WPF.ViewModels
         private DateTime _currentMonth;
         private Dictionary<DateTime, string> _highlightedDates = new();
         private ObservableCollection<CalendarDay> _calendarDays = new();
-
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        private bool _isLoading = true;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged(nameof(IsLoading));
+            }
+        }
 
         public DateTime CurrentMonth
         {
@@ -70,13 +80,17 @@ namespace PharmaTrack.WPF.ViewModels
         // Method to simulate fetching events for a specific month
         private async Task<Dictionary<DateTime, string>> FetchEventsForMonthAsync(DateTime month)
         {
+            IsLoading = true;
             await Task.Delay(500); // Simulate API delay
-            return new Dictionary<DateTime, string>
+
+            var dates = new Dictionary<DateTime, string>
             {
                 { new DateTime(month.Year, month.Month, 5), "Meeting" },
                 { new DateTime(month.Year, month.Month, 15), "Birthday" },
                 { new DateTime(month.Year, month.Month, 25), "Holiday" }
             };
+            IsLoading = false;
+            return dates;
         }
 
         private void GenerateCalendarDays()
