@@ -61,6 +61,7 @@
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Date.Day}" FontSize="16" FontWeight="Bold" />
                             <TextBlock Text="{Binding HighlightedEvent}" 
+                                       Visibility="{Binding HighlightedEvent, Converter={StaticResource StringToVisibilityConverter}}"
                                        FontSize="12" 
                                        Foreground="Green"
                                        Cursor="Hand"
