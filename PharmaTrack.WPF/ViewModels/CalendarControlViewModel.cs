@@ -67,19 +67,28 @@ namespace PharmaTrack.WPF.ViewModels
 
         public ICommand LoadDetailsCommand { get; }
 
-        private async void ExecuteLoadDetailsCommand()
+        private async void ExecuteLoadDetailsCommand(object? parameter)
         {
-            DisplayMode = Mode.Loading;
-            await Task.Delay(500); // Simulate API delay
+            if (parameter is DateTime selectedDate)
+            {
+                DisplayMode = Mode.Loading;
 
-            DisplayMode = Mode.Details;
+                // Simulate API delay
+                await Task.Delay(500);
+
+                // Use the selected date for your logic
+                Console.WriteLine($"Selected Date: {selectedDate}");
+
+                DisplayMode = Mode.Details;
+            }
         }
+
 
         public CalendarControlViewModel()
         {
             CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             LoadHighlightedDatesAsync();
-            LoadDetailsCommand = new RelayCommand(_ => ExecuteLoadDetailsCommand());
+            LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
         }
 
         private async void LoadHighlightedDatesAsync()
@@ -132,14 +141,16 @@ namespace PharmaTrack.WPF.ViewModels
             for (int i = startDayOfWeek - 1; i >= 0; i--)
             {
                 DateTime date = new DateTime(previousMonth.Year, previousMonth.Month, daysInPreviousMonth - i);
-                days.Add(new CalendarDay(date, isCurrentMonth: false));
+                days.Add(new CalendarDay(date, isCurrentMonth: false, loadDetailsCommand: LoadDetailsCommand));
             }
 
             // Fill in the current month's days
             for (int day = 1; day <= daysInMonth; day++)
             {
                 DateTime date = new DateTime(CurrentMonth.Year, CurrentMonth.Month, day);
-                days.Add(new CalendarDay(date, isCurrentMonth: true, HighlightedDates.ContainsKey(date) ? HighlightedDates[date] : null));
+                days.Add(new CalendarDay(date, isCurrentMonth: true,
+                    HighlightedDates.ContainsKey(date) ? HighlightedDates[date] : null,
+                    LoadDetailsCommand));
             }
 
             // Fill in the remaining days of the week after the last day of the month
@@ -149,12 +160,13 @@ namespace PharmaTrack.WPF.ViewModels
             for (int i = 1; i <= remainingDays; i++)
             {
                 DateTime date = new DateTime(nextMonth.Year, nextMonth.Month, i);
-                days.Add(new CalendarDay(date, isCurrentMonth: false));
+                days.Add(new CalendarDay(date, isCurrentMonth: false, loadDetailsCommand: LoadDetailsCommand));
             }
 
             // Update the CalendarDays property
             CalendarDays = days;
         }
+
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
@@ -167,12 +179,15 @@ namespace PharmaTrack.WPF.ViewModels
         public DateTime Date { get; }
         public bool IsCurrentMonth { get; }
         public string? HighlightedEvent { get; }
+        public ICommand? LoadDetailsCommand { get; }
 
-        public CalendarDay(DateTime date, bool isCurrentMonth, string? highlightedEvent = null)
+        public CalendarDay(DateTime date, bool isCurrentMonth, string? highlightedEvent = null, ICommand? loadDetailsCommand = null)
         {
             Date = date;
             IsCurrentMonth = isCurrentMonth;
             HighlightedEvent = highlightedEvent;
+            LoadDetailsCommand = loadDetailsCommand;
         }
     }
+
 }

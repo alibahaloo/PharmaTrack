@@ -64,9 +64,12 @@
                                        Visibility="{Binding HighlightedEvent, Converter={StaticResource StringToVisibilityConverter}}"
                                        FontSize="12" 
                                        Foreground="Green"
-                                       Cursor="Hand"
-                                       MouseLeftButtonUp="TextBlock_MouseLeftButtonUp">
+                                       Cursor="Hand">
                             </TextBlock>
+                            <Button Content="CLICK ME"
+        Command="{Binding LoadDetailsCommand}" 
+        CommandParameter="{Binding Date}" />
+
                         </StackPanel>
                     </Border>
                 </DataTemplate>
