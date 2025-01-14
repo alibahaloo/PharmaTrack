@@ -54,7 +54,7 @@
                     Visibility="{Binding DisplayMode, 
                              Converter={StaticResource EnumToVisibilityConverter}, 
                              ConverterParameter=Details}">
-            <TextBlock Text="THIS IS A DATE" />
+            <TextBlock Text="{Binding SelectedDate}" />
         </StackPanel>
 
         <!-- Calendar Grid -->

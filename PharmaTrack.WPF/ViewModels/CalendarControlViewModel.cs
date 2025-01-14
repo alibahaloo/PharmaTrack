@@ -19,6 +19,20 @@ namespace PharmaTrack.WPF.ViewModels
         private ObservableCollection<CalendarDay> _calendarDays = new();
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        private DateTime _selectedDate;
+        public DateTime SelectedDate
+        {
+            get => _selectedDate;
+            set
+            {
+                if (_selectedDate != value)
+                {
+                    _selectedDate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private Mode _displayMode = Mode.Loading;
         public Mode DisplayMode
         {
@@ -73,6 +87,8 @@ namespace PharmaTrack.WPF.ViewModels
             if (parameter is DateTime selectedDate)
             {
                 DisplayMode = Mode.Loading;
+
+                SelectedDate = selectedDate;
 
                 // Simulate API delay
                 await Task.Delay(500);
