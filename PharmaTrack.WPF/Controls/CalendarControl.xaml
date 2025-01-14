@@ -30,7 +30,7 @@
         <StackPanel Grid.Row="2" 
                     VerticalAlignment="Center"
                     Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
-            <ProgressBar  IsIndeterminate="True" Width="100" Height="10"/>
+            <local:LoadingControl />
         </StackPanel>
 
         <!-- Calendar Grid -->
