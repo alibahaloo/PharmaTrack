@@ -25,18 +25,31 @@
             <Button Content="Previous" Click="PrevMonthButton_Click" Margin="5" />
             <Button Content="Today" Click="TodayButton_Click" Margin="5" />
             <Button Content="Next" Click="NextMonthButton_Click" Margin="5" />
+            <Button Content="Back" x:Name="BackToCalendar" Margin="5" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" 
+                VerticalAlignment="Center"
+                Visibility="{Binding DisplayMode, 
+                             Converter={StaticResource EnumToVisibilityConverter}, 
+                             ConverterParameter=Loading}">
+            <local:LoadingControl />
         </StackPanel>
 
         <StackPanel Grid.Row="2" 
                     VerticalAlignment="Center"
-                    Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
-            <local:LoadingControl />
+                    Visibility="{Binding DisplayMode, 
+                             Converter={StaticResource EnumToVisibilityConverter}, 
+                             ConverterParameter=Details}">
+            <TextBlock Text="THIS IS A DATE" />
         </StackPanel>
 
         <!-- Calendar Grid -->
         <ItemsControl Grid.Row="2" 
                       ItemsSource="{Binding CalendarDays}"
-                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=true}">
+                      Visibility="{Binding DisplayMode, 
+                               Converter={StaticResource EnumToVisibilityConverter}, 
+                               ConverterParameter=Calendar}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Rows="6" Columns="7" />
@@ -47,7 +60,12 @@
                     <Border BorderThickness="1" BorderBrush="Gray" Background="{Binding IsCurrentMonth, Converter={StaticResource MonthColorConverter}}">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Date.Day}" FontSize="16" FontWeight="Bold" />
-                            <TextBlock Text="{Binding HighlightedEvent}" FontSize="12" Foreground="Green" />
+                            <TextBlock Text="{Binding HighlightedEvent}" 
+                                       FontSize="12" 
+                                       Foreground="Green"
+                                       Cursor="Hand"
+                                       MouseLeftButtonUp="TextBlock_MouseLeftButtonUp">
+                            </TextBlock>
                         </StackPanel>
                     </Border>
                 </DataTemplate>

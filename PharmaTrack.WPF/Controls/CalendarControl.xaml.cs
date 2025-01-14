@@ -35,5 +35,13 @@ namespace PharmaTrack.WPF.Controls
         {
             ViewModel.CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
         }
+
+        private async void TextBlock_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            ViewModel.DisplayMode = Mode.Loading;
+            await Task.Delay(500); // Simulate API delay
+
+            ViewModel.DisplayMode = Mode.Details;
+        }
     }
 }

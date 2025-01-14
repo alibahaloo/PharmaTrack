@@ -1,9 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 namespace PharmaTrack.WPF.ViewModels
 {
+    public enum Mode
+    {
+        Loading,
+        Calendar,
+        Details,
+    }
     public class CalendarControlViewModel : INotifyPropertyChanged
     {
         private DateTime _currentMonth;
@@ -11,14 +18,14 @@ namespace PharmaTrack.WPF.ViewModels
         private ObservableCollection<CalendarDay> _calendarDays = new();
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private bool _isLoading = true;
-        public bool IsLoading
+        private Mode _displayMode = Mode.Loading;
+        public Mode DisplayMode
         {
-            get => _isLoading;
+            get => _displayMode;
             set
             {
-                _isLoading = value;
-                OnPropertyChanged(nameof(IsLoading));
+                _displayMode = value;
+                OnPropertyChanged(nameof(DisplayMode));
             }
         }
 
@@ -57,10 +64,21 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
+        public ICommand LoadDetailsCommand { get; }
+
+        private async void ExecuteLoadDetailsCommand()
+        {
+            DisplayMode = Mode.Loading;
+            await Task.Delay(500); // Simulate API delay
+
+            DisplayMode = Mode.Details;
+        }
+
         public CalendarControlViewModel()
         {
             CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             LoadHighlightedDatesAsync();
+            LoadDetailsCommand = new RelayCommand(_ => ExecuteLoadDetailsCommand());
         }
 
         private async void LoadHighlightedDatesAsync()
@@ -80,7 +98,8 @@ namespace PharmaTrack.WPF.ViewModels
         // Method to simulate fetching events for a specific month
         private async Task<Dictionary<DateTime, string>> FetchEventsForMonthAsync(DateTime month)
         {
-            IsLoading = true;
+            //IsLoading = true;
+            DisplayMode = Mode.Loading;
             await Task.Delay(500); // Simulate API delay
 
             var dates = new Dictionary<DateTime, string>
@@ -89,7 +108,7 @@ namespace PharmaTrack.WPF.ViewModels
                 { new DateTime(month.Year, month.Month, 15), "Birthday" },
                 { new DateTime(month.Year, month.Month, 25), "Holiday" }
             };
-            IsLoading = false;
+            DisplayMode = Mode.Calendar;
             return dates;
         }
 
