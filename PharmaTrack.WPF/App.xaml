@@ -11,6 +11,7 @@
         <converters:PageNavigationConverter x:Key="PageNavigationConverter" />
         <converters:MonthColorConverter x:Key="MonthColorConverter" />
         <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
+        <converters:TodayDateToColorConverter x:Key="TodayDateToColorConverter" />
         <Style x:Key="GlobalDataGridHeaderStyle" TargetType="DataGridColumnHeader">
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="FontSize" Value="12" />

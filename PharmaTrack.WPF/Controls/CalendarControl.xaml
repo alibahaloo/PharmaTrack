@@ -58,8 +58,11 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border BorderThickness="1" BorderBrush="Gray" Background="{Binding IsCurrentMonth, Converter={StaticResource MonthColorConverter}}">
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Date.Day}" FontSize="16" FontWeight="Bold" />
+                        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2">
+                            <TextBlock Text="{Binding Date.Day}" 
+                                       Foreground="{Binding Date, Converter={StaticResource TodayDateToColorConverter}}"
+                                       FontSize="16" 
+                                       FontWeight="Bold" />
                             <TextBlock Text="{Binding HighlightedEvent}" 
                                        Visibility="{Binding HighlightedEvent, Converter={StaticResource StringToVisibilityConverter}}"
                                        FontSize="12" 
@@ -67,8 +70,8 @@
                                        Cursor="Hand">
                             </TextBlock>
                             <Button Content="CLICK ME"
-        Command="{Binding LoadDetailsCommand}" 
-        CommandParameter="{Binding Date}" />
+                                    Command="{Binding LoadDetailsCommand}" 
+                                    CommandParameter="{Binding Date}" />
 
                         </StackPanel>
                     </Border>
