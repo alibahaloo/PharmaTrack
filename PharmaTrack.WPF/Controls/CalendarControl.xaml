@@ -25,7 +25,10 @@
             <Button Content="Previous" Click="PrevMonthButton_Click" Margin="5" />
             <Button Content="Today" Click="TodayButton_Click" Margin="5" />
             <Button Content="Next" Click="NextMonthButton_Click" Margin="5" />
-            <Button Content="Back" x:Name="BackToCalendar" Margin="5" />
+            <Button Content="Back" 
+                    x:Name="BackToCalendar" 
+                    Command="{Binding LoadCalendarCommand}" 
+                    Margin="5" />
         </StackPanel>
 
         <StackPanel Grid.Row="2" 
@@ -57,7 +60,14 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderThickness="1" BorderBrush="Gray" Background="{Binding IsCurrentMonth, Converter={StaticResource MonthColorConverter}}">
+                    <Border BorderThickness="1" BorderBrush="Gray" 
+                            Cursor="Hand"
+                            Background="{Binding IsCurrentMonth, Converter={StaticResource MonthColorConverter}}">
+                        <Border.InputBindings>
+                            <MouseBinding Gesture="LeftClick"
+                                          Command="{Binding LoadDetailsCommand}" 
+                                          CommandParameter="{Binding Date}" />
+                        </Border.InputBindings>
                         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2">
                             <TextBlock Text="{Binding Date.Day}" 
                                        Foreground="{Binding Date, Converter={StaticResource TodayDateToColorConverter}}"
@@ -66,13 +76,8 @@
                             <TextBlock Text="{Binding HighlightedEvent}" 
                                        Visibility="{Binding HighlightedEvent, Converter={StaticResource StringToVisibilityConverter}}"
                                        FontSize="12" 
-                                       Foreground="Green"
-                                       Cursor="Hand">
+                                       Foreground="Green">
                             </TextBlock>
-                            <Button Content="CLICK ME"
-                                    Command="{Binding LoadDetailsCommand}" 
-                                    CommandParameter="{Binding Date}" />
-
                         </StackPanel>
                     </Border>
                 </DataTemplate>
