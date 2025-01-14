@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using PharmaTrack.WPF.Helpers;
 
 namespace PharmaTrack.WPF.ViewModels
 {

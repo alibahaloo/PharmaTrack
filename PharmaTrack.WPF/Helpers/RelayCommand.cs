@@ -1,7 +1,6 @@
-﻿using System;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 
-namespace PharmaTrack.WPF.ViewModels
+namespace PharmaTrack.WPF.Helpers
 {
     public class AsyncRelayCommand : ICommand
     {
