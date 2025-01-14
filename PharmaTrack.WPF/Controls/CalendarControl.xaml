@@ -16,9 +16,17 @@
         <!-- Month Header -->
         <TextBlock Grid.Row="0" 
                    Text="{Binding CurrentMonth, StringFormat={}{0:MMMM yyyy}}" 
+                   Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
                    HorizontalAlignment="Center" 
                    FontSize="20" 
                    FontWeight="Bold" />
+
+        <TextBlock Text="{Binding SelectedDate, StringFormat={}{0:dd MMMM yyyy}}"
+                   Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}"
+                   VerticalAlignment="Top"
+                   HorizontalAlignment="Center"
+                   FontSize="20" 
+                   FontWeight="Bold"/>
 
         <!-- Navigation Buttons -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
@@ -50,11 +58,7 @@
         </StackPanel>
 
         <StackPanel Grid.Row="2" 
-                    VerticalAlignment="Center"
-                    Visibility="{Binding DisplayMode, 
-                             Converter={StaticResource EnumToVisibilityConverter}, 
-                             ConverterParameter=Details}">
-            <TextBlock Text="{Binding SelectedDate}" />
+                    Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}">
         </StackPanel>
 
         <!-- Calendar Grid -->
