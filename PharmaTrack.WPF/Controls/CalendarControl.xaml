@@ -22,11 +22,21 @@
 
         <!-- Navigation Buttons -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
-            <Button Content="Previous" Click="PrevMonthButton_Click" Margin="5" />
-            <Button Content="Today" Click="TodayButton_Click" Margin="5" />
-            <Button Content="Next" Click="NextMonthButton_Click" Margin="5" />
+            <Button Content="Previous" 
+                    Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
+                    Click="PrevMonthButton_Click" 
+                    Margin="5" />
+            <Button Content="Today" 
+                    Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
+                    Click="TodayButton_Click" 
+                    Margin="5" />
+            <Button Content="Next" 
+                    Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
+                    Click="NextMonthButton_Click" 
+                    Margin="5" />
             <Button Content="Back" 
                     x:Name="BackToCalendar" 
+                    Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}"
                     Command="{Binding LoadCalendarCommand}" 
                     Margin="5" />
         </StackPanel>
