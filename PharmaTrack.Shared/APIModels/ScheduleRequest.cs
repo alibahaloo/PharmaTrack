@@ -2,7 +2,7 @@
 
 namespace PharmaTrack.Shared.APIModels
 {
-    public class ScheduleIntegration
+    public class ScheduleRequest
     {
         [Required]
         public string UserName { get; set; } = default!;
