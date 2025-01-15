@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auth.API", "Auth.API\Auth.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmaTrack.WPF", "PharmaTrack.WPF\PharmaTrack.WPF.csproj", "{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Schedule.API", "Schedule.API\Schedule.API.csproj", "{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -92,6 +94,18 @@ Global
 		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Release|x64.Build.0 = Release|Any CPU
 		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Release|x86.ActiveCfg = Release|Any CPU
 		{DB40DA93-2A2E-4CB4-9C8C-F652016BC1F0}.Release|x86.Build.0 = Release|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Debug|x64.Build.0 = Debug|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Debug|x86.Build.0 = Debug|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Release|ARM64.Build.0 = Release|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Release|x64.ActiveCfg = Release|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Release|x64.Build.0 = Release|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Release|x86.ActiveCfg = Release|Any CPU
+		{E36D1FD5-8C98-430D-BA8C-DB7885C775A3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
