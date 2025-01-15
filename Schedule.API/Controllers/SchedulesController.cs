@@ -18,14 +18,14 @@ namespace Schedule.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetSchedulesTasks(DateTime month)
+        public async Task<IActionResult> GetScheduleTasks(DateTime month)
         {
             var result = await _context.ScheduleTasks.Where(st => st.Start.Date >= month.Date && st.End.Date <= month.Date).ToListAsync();
             return Ok(result);
         }
 
         [HttpGet("user/{userName}")]
-        public async Task<IActionResult> GetSchedulesTasksForUser(DateTime month, string userName)
+        public async Task<IActionResult> GetUserScheduleTasks(DateTime month, string userName)
         {
             var result = await _context.ScheduleTasks.Where(st => st.Start.Date >= month.Date && st.End.Date <= month.Date && st.UserName == userName).ToListAsync();
             return Ok(result);
