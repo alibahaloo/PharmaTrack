@@ -1,15 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PharmaTrack.Shared.DBModels
+namespace PharmaTrack.Shared.APIModels
 {
-    public class Schedule
+    public class ScheduleTaskRequest
     {
-        [Key]
-        public int Id { get; set; }
         [Required]
         public string UserName { get; set; } = default!;
         [Required]
-        public DateTime Start {  get; set; }
+        public DateTime Start { get; set; }
         [Required]
         public DateTime End { get; set; }
         [Required]
