@@ -81,6 +81,21 @@ namespace PharmaTrack.WPF.ViewModels
 
         public ICommand LoadDetailsCommand { get; }
         public ICommand LoadCalendarCommand { get; }
+        public ICommand TodayCommand { get; }
+        private void ExecuteTodayCommand(object? parameter)
+        {
+            CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        }
+        public ICommand NextMonthCommand { get; }
+        private void ExecuteNextMonthCommand(object? parameter)
+        {
+            CurrentMonth = CurrentMonth.AddMonths(1);
+        }
+        public ICommand PreviousMonthCommand { get; }
+        private void ExecutePreviousMonthCommand(object? parameter)
+        {
+            CurrentMonth = CurrentMonth.AddMonths(-1);
+        }
 
         private async void ExecuteLoadDetailsCommand(object? parameter)
         {
@@ -111,6 +126,9 @@ namespace PharmaTrack.WPF.ViewModels
             LoadHighlightedDatesAsync();
             LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
             LoadCalendarCommand = new RelayCommand(ExecuteLoadCalendarCommand);
+            TodayCommand = new RelayCommand(ExecuteTodayCommand);
+            NextMonthCommand = new RelayCommand(ExecuteNextMonthCommand);
+            PreviousMonthCommand = new RelayCommand(ExecutePreviousMonthCommand);
 
         }
 

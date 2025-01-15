@@ -32,24 +32,19 @@
         <!-- Navigation Buttons -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
             <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
-                    Click="PrevMonthButton_Click" 
+                    Command="{Binding PreviousMonthCommand}"
                     FontWeight="Bold"
                     Margin="5">
                 <Button.Content>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <bi:BootstrapIcon Icon="ArrowLeft"
-                                          Width="20"
-                                          Margin="5"
-                                          Height="20" />
-                        <TextBlock Text="Previous" 
-                                   Margin="5"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <bi:BootstrapIcon Icon="ArrowLeft"
+                                      Width="20"
+                                      Margin="5"
+                                      Height="20" />
                 </Button.Content>
             </Button>
             
             <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
-                    Click="TodayButton_Click" 
+                    Command="{Binding TodayCommand}"
                     FontWeight="Bold"
                     Margin="5" >
                 <Button.Content>
@@ -66,19 +61,14 @@
             </Button>
             
             <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
-                    Click="NextMonthButton_Click" 
+                    Command="{Binding NextMonthCommand}"
                     FontWeight="Bold"
                     Margin="5">
                 <Button.Content>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="Today" 
-                                   Margin="5"
-                                   VerticalAlignment="Center"/>
-                        <bi:BootstrapIcon Icon="ArrowRight"
-                                          Margin="5"
-                                          Width="20"
-                                          Height="20" />
-                    </StackPanel>
+                    <bi:BootstrapIcon Icon="ArrowRight"
+                                      Margin="5"
+                                      Width="20"
+                                      Height="20" />
                 </Button.Content>
             </Button>
             
@@ -89,11 +79,11 @@
                     Margin="5">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <bi:BootstrapIcon Icon="ArrowLeft"
+                        <bi:BootstrapIcon Icon="CalendarWeek"
                                           Margin="5"
                                           Width="20"
                                           Height="20" />
-                        <TextBlock Text=" Back" 
+                        <TextBlock Text="Back to Calendar" 
                                    Margin="5"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
