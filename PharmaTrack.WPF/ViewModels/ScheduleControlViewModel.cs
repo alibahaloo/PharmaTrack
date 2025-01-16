@@ -1,5 +1,6 @@
 ﻿using PharmaTrack.Shared.APIModels;
 using PharmaTrack.WPF.Helpers;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -33,7 +34,7 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 if (_startTime != value)
                 {
-                    _startTime = value;
+                    _startTime = ValidateAndCorrectTime(value);
                     OnPropertyChanged();
                 }
             }
@@ -46,11 +47,23 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 if (_endTime != value)
                 {
-                    _endTime = value;
+                    _endTime = ValidateAndCorrectTime(value);
                     OnPropertyChanged();
                 }
             }
         }
+
+        private TimeSpan ValidateAndCorrectTime(TimeSpan time)
+        {
+            if (time < TimeSpan.Zero)
+                return TimeSpan.Zero;
+
+            if (time > new TimeSpan(23, 59, 0))
+                return new TimeSpan(23, 59, 0);
+
+            return time;
+        }
+
 
         public string Description
         {
@@ -72,9 +85,15 @@ namespace PharmaTrack.WPF.ViewModels
             SubmitCommand = new RelayCommand(Submit, CanSubmit);
         }
 
+        private TimeSpan ClampTime(TimeSpan time)
+        {
+            if (time < TimeSpan.Zero) return TimeSpan.Zero;
+            if (time > new TimeSpan(23, 59, 0)) return new TimeSpan(23, 59, 0);
+            return time;
+        }
+
         private void Submit(object? parameter)
         {
-            // Logic to process the input data
             var scheduleTask = new ScheduleTaskRequest
             {
                 UserName = Environment.UserName,

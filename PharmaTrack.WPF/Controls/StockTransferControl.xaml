@@ -22,7 +22,7 @@
             </StatusBarItem>
         </StatusBar>
         <!-- Main Content -->
-        <StackPanel>
+        <StackPanel Margin="10">
             <TextBlock Text="Stock Transfer" FontSize="32" Margin="5"></TextBlock>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                 <Button FontWeight="Regular"
