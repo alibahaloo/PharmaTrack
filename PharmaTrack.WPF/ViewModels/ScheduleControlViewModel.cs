@@ -1,6 +1,5 @@
 ﻿using PharmaTrack.Shared.APIModels;
 using PharmaTrack.WPF.Helpers;
-using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -16,6 +15,16 @@ namespace PharmaTrack.WPF.ViewModels
         private string _description = string.Empty;
         private string _statusText = default!;
         private Brush _statusForeground = default!;
+        private bool _isLoading = false;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                OnPropertyChanged(); // Notify UI of changes
+            }
+        }
         public string StatusText
         {
             get => _statusText;
@@ -99,12 +108,6 @@ namespace PharmaTrack.WPF.ViewModels
             SubmitCommand = new RelayCommand(Submit, CanSubmit);
         }
 
-        private TimeSpan ClampTime(TimeSpan time)
-        {
-            if (time < TimeSpan.Zero) return TimeSpan.Zero;
-            if (time > new TimeSpan(23, 59, 0)) return new TimeSpan(23, 59, 0);
-            return time;
-        }
 
         private void Submit(object? parameter)
         {
@@ -137,7 +140,6 @@ namespace PharmaTrack.WPF.ViewModels
             StatusText = "Ready to save schedule";
             StatusForeground = Brushes.Green;
             return true;
-            //return !string.IsNullOrEmpty(Description) && EndTime > StartTime;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
