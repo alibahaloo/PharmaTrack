@@ -72,7 +72,7 @@ namespace Gateway.API.Controllers
         [HttpGet("user/{userName}")]
         public async Task<IActionResult> GetUserSchedules(DateTime month, string userName)
         {
-            var scheduleApiUrl = $"{_scheduleApiBaseUrl}/api/schedules/user/{userName}"; // Ensure the correct endpoint
+            var scheduleApiUrl = $"{_scheduleApiBaseUrl}/api/schedules/user/{userName}?month={month}"; // Ensure the correct endpoint
 
             try
             {
