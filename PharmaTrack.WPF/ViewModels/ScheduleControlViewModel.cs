@@ -198,7 +198,7 @@ namespace PharmaTrack.WPF.ViewModels
         {
             var scheduleTask = new ScheduleTaskRequest
             {
-                UserName = Environment.UserName,
+                UserName = SelectedUser,
                 Start = SelectedDate.Add(StartTime),
                 End = SelectedDate.Add(EndTime),
                 Description = Description
@@ -230,7 +230,7 @@ namespace PharmaTrack.WPF.ViewModels
                 return false;
             }
 
-            StatusText = "Ready to save schedule";
+            StatusText = "Ready to save schedule.";
             StatusForeground = Brushes.Green;
             return true;
         }
