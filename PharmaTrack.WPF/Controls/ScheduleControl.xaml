@@ -34,7 +34,7 @@
                     Width="120" 
                     HorizontalAlignment="Left" 
                     Margin="5"
-                    Padding="4"/>
+                    Padding="5"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" >
                 <TextBlock Text="From:" 
@@ -46,7 +46,7 @@
                  LostFocus="TimeInput_LostFocus" 
                  MaxLength="5"
                  Margin="5"
-                 Padding="4"/>
+                 Padding="5"/>
 
                 <TextBlock Text="To:" 
                    FontSize="14" FontWeight="Bold"
@@ -57,7 +57,7 @@
                  LostFocus="TimeInput_LostFocus" 
                  MaxLength="5"
                  Margin="5"
-                 Padding="4"/>
+                 Padding="5"/>
 
                 <TextBlock Text="Format: (HH:MM) 24 hours"
                    VerticalAlignment="Center"
@@ -68,10 +68,11 @@
             <TextBlock Text="Task Description:" 
                FontSize="14" FontWeight="Bold"
                Margin="5"/>
-            <TextBox Text="{Binding Description}"
-             Margin="5"
-             AcceptsReturn="True" 
-             Height="100" />
+            <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" 
+                     AcceptsReturn="True" 
+                     Height="100"
+                     Margin="5"
+                     Padding="5"/>
 
             <Button FontWeight="Bold" 
             FontSize="16"
@@ -80,7 +81,7 @@
             Padding="5"
             Background="Blue"
             Foreground="White"
-            HorizontalAlignment="Center"
+            HorizontalAlignment="Left"
             VerticalAlignment="Center">
                 <Button.Content>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">

@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PharmaTrack.WPF.ViewModels
 {
@@ -13,6 +14,19 @@ namespace PharmaTrack.WPF.ViewModels
         private TimeSpan _startTime;
         private TimeSpan _endTime;
         private string _description = string.Empty;
+        private string _statusText = default!;
+        private Brush _statusForeground = default!;
+        public string StatusText
+        {
+            get => _statusText;
+            set { _statusText = value; OnPropertyChanged(); }
+        }
+
+        public Brush StatusForeground
+        {
+            get => _statusForeground;
+            set { _statusForeground = value; OnPropertyChanged(); }
+        }
 
         public DateTime SelectedDate
         {
@@ -106,7 +120,24 @@ namespace PharmaTrack.WPF.ViewModels
 
         private bool CanSubmit(object? parameter)
         {
-            return !string.IsNullOrEmpty(Description) && EndTime > StartTime;
+            if (EndTime <= StartTime)
+            {
+                StatusText = "End time cannot be before or at start time!";
+                StatusForeground = Brushes.Red;
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(Description))
+            {
+                StatusText = "Description cannot be empty!";
+                StatusForeground = Brushes.Red;
+                return false;
+            }
+
+            StatusText = "Ready to save schedule";
+            StatusForeground = Brushes.Green;
+            return true;
+            //return !string.IsNullOrEmpty(Description) && EndTime > StartTime;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
