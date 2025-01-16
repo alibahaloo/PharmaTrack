@@ -24,7 +24,7 @@ namespace Gateway.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSchedules(DateTime month)
         {
-            var scheduleApiUrl = $"{_scheduleApiBaseUrl}/api/schedules"; // Ensure the correct endpoint
+            var scheduleApiUrl = $"{_scheduleApiBaseUrl}/api/schedules?month={month}"; 
 
             try
             {

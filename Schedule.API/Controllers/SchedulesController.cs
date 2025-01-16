@@ -20,7 +20,15 @@ namespace Schedule.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetScheduleTasks(DateTime month)
         {
-            var result = await _context.ScheduleTasks.Where(st => st.Start.Date >= month.Date && st.End.Date <= month.Date).ToListAsync();
+            // Determine the start and end dates for the given month
+            var startOfMonth = new DateTime(month.Year, month.Month, 1);
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1); // Last day of the month
+
+            // Fetch tasks that overlap with the month
+            var result = await _context.ScheduleTasks
+                .Where(st => st.Start.Date <= endOfMonth && st.End.Date >= startOfMonth)
+                .ToListAsync();
+
             return Ok(result);
         }
 
