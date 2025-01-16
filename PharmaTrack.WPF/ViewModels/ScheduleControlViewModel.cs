@@ -177,6 +177,7 @@ namespace PharmaTrack.WPF.ViewModels
 
         public async Task LoadUsersAsync()
         {
+            IsLoading = true;
             // Simulate an API call with a delay
             await Task.Delay(500);
 
@@ -191,6 +192,7 @@ namespace PharmaTrack.WPF.ViewModels
 
             // Refresh filtered users
             UpdateFilteredUsers();
+            IsLoading = false;
         }
         private void Submit(object? parameter)
         {
