@@ -10,12 +10,12 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly AuthService _authService;
         private readonly LoginControl _loginControl;
         private readonly CalendarControl _calendarControl;
-        private readonly CalendarControlViewModel _calendarViewModel;
         private readonly StockTransferControl _stockTransferControl;
         private readonly InventoryControl _inventoryControl;
         private readonly TransactionsControl _transactionsControl;
         private readonly UsersControl _usersControl;
         private readonly LoadingControl _loadingControl = new();
+        private readonly ScheduleControl _scheduleControl;
         private object _currentContent = default!;
         private bool _isLoggedIn;
         private bool _isUserAdmin = false;
@@ -23,6 +23,7 @@ namespace PharmaTrack.WPF.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        public ICommand ShowCreateTaskCommand { get; }
         public ICommand LoginCommand { get; }
         public ICommand LogoutCommand { get; }
         public ICommand ShowMyScheduleCommand { get; }
@@ -94,20 +95,20 @@ namespace PharmaTrack.WPF.ViewModels
             AuthService authService,
             LoginControl loginControl,
             CalendarControl calendarControl,
-            CalendarControlViewModel calendarViewModel,
             StockTransferControl stockTransferControl,
             InventoryControl inventoryControl,
             TransactionsControl transactionsControl,
-            UsersControl usersControl)
+            UsersControl usersControl,
+            ScheduleControl scheduleControl)
         {
             _authService = authService;
             _loginControl = loginControl;
             _calendarControl = calendarControl;
-            _calendarViewModel = calendarViewModel;
             _stockTransferControl = stockTransferControl;
             _inventoryControl = inventoryControl;
             _transactionsControl = transactionsControl;
             _usersControl = usersControl;
+            _scheduleControl = scheduleControl;
 
             InitializeAsync();
 
@@ -118,6 +119,7 @@ namespace PharmaTrack.WPF.ViewModels
             }
 
             LoginCommand = new RelayCommand(_ => LoadLogin());
+            ShowCreateTaskCommand = new RelayCommand(_ => LoadCreateTask());
             LogoutCommand = new RelayCommand(async _ => await LogoutAsync());
             ShowMyScheduleCommand = new RelayCommand(_ => LoadMySchedule());
             ShowStockTransferCommand = new RelayCommand(_ => LoadStockTransfer());
@@ -176,7 +178,10 @@ namespace PharmaTrack.WPF.ViewModels
                 }
             }
         }
-
+        private void LoadCreateTask()
+        {
+            CurrentContent = _scheduleControl;
+        }
         private void LoadMySchedule()
         {
             CurrentContent = _calendarControl;

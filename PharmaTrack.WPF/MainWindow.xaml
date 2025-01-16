@@ -36,6 +36,14 @@
                             <bi:BootstrapIcon Icon="CalendarWeek" />
                         </MenuItem.Icon>
                     </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="Create Task" 
+                              Command="{Binding ShowCreateTaskCommand}"
+                              Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                        <MenuItem.Icon>
+                            <bi:BootstrapIcon Icon="CalendarPlus" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
 
                 <MenuItem Header="Inventory" 
