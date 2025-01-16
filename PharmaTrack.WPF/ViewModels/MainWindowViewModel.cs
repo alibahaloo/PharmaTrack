@@ -155,6 +155,10 @@ namespace PharmaTrack.WPF.ViewModels
 
                 IsLoaded = true;
             }
+            catch (UnauthorizedAccessException)
+            {
+                IsLoaded = true;
+            }
             catch (Exception ex)
             {
                 _loadingControl.SetErrorMessage(ex.Message);
