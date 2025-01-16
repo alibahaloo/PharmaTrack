@@ -1,5 +1,6 @@
 ﻿using PharmaTrack.Shared.APIModels;
 using PharmaTrack.WPF.Helpers;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -15,6 +16,40 @@ namespace PharmaTrack.WPF.ViewModels
         private string _description = string.Empty;
         private string _statusText = default!;
         private Brush _statusForeground = default!;
+
+        private string _selectedUser = string.Empty;
+        private ObservableCollection<string> _filteredUsers = [];
+
+        public ObservableCollection<string> Users { get; } = [];
+
+        public ObservableCollection<string> FilteredUsers
+        {
+            get => _filteredUsers;
+            set
+            {
+                _filteredUsers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SelectedUser
+        {
+            get => _selectedUser;
+            set
+            {
+                if (_selectedUser != value)
+                {
+                    _selectedUser = value;
+                    OnPropertyChanged();
+                    UpdateFilteredUsers();
+
+                    // Open dropdown when typing
+                    IsDropDownOpen = !string.IsNullOrWhiteSpace(_selectedUser);
+                }
+            }
+        }
+
+
         private bool _isLoading = false;
         public bool IsLoading
         {
@@ -87,6 +122,20 @@ namespace PharmaTrack.WPF.ViewModels
             return time;
         }
 
+        private bool _isDropDownOpen;
+
+        public bool IsDropDownOpen
+        {
+            get => _isDropDownOpen;
+            set
+            {
+                if (_isDropDownOpen != value)
+                {
+                    _isDropDownOpen = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         public string Description
         {
@@ -105,10 +154,44 @@ namespace PharmaTrack.WPF.ViewModels
 
         public ScheduleControlViewModel()
         {
+            // Initialize with all users
+            FilteredUsers = new ObservableCollection<string>(Users);
             SubmitCommand = new RelayCommand(Submit, CanSubmit);
         }
 
+        private void UpdateFilteredUsers()
+        {
+            if (string.IsNullOrWhiteSpace(SelectedUser))
+            {
+                FilteredUsers = new ObservableCollection<string>(Users);
+            }
+            else
+            {
+                var filtered = Users
+                    .Where(user => user.ToLower().Contains(SelectedUser.ToLower()))
+                    .ToList();
 
+                FilteredUsers = new ObservableCollection<string>(filtered);
+            }
+        }
+
+        public async Task LoadUsersAsync()
+        {
+            // Simulate an API call with a delay
+            await Task.Delay(500);
+
+            // Replace this with API call logic
+            var dummyUsers = new[] { "Alice", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Helen" };
+
+            Users.Clear();
+            foreach (var user in dummyUsers)
+            {
+                Users.Add(user);
+            }
+
+            // Refresh filtered users
+            UpdateFilteredUsers();
+        }
         private void Submit(object? parameter)
         {
             var scheduleTask = new ScheduleTaskRequest
@@ -123,6 +206,14 @@ namespace PharmaTrack.WPF.ViewModels
 
         private bool CanSubmit(object? parameter)
         {
+            //Check if a user is selected
+            if (string.IsNullOrEmpty(SelectedUser) || !Users.Contains(SelectedUser))
+            {
+                StatusText = "Please select a valid user!";
+                StatusForeground = Brushes.Red;
+                return false;
+            }
+
             if (EndTime <= StartTime)
             {
                 StatusText = "End time cannot be before or at start time!";

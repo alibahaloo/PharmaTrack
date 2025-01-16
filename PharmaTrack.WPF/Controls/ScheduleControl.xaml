@@ -27,7 +27,23 @@
                FontSize="32" Margin="5" />
 
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="Select Date:" 
+                <TextBlock Text="User:" 
+                           FontSize="14" FontWeight="Bold"
+                           VerticalAlignment="Center" Margin="5"/>
+                <ComboBox IsEditable="True"
+                          ItemsSource="{Binding FilteredUsers}" 
+                          Text="{Binding SelectedUser, UpdateSourceTrigger=PropertyChanged}" 
+                          StaysOpenOnEdit="True" 
+                          IsTextSearchEnabled="False"
+                          IsDropDownOpen="{Binding IsDropDownOpen}" 
+                          VerticalAlignment="Top" 
+                          Width="200"
+                          Margin="5"
+                          Padding="5"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Date:" 
                    FontSize="14" FontWeight="Bold"
                    VerticalAlignment="Center" Margin="5"/>
                 <DatePicker SelectedDate="{Binding SelectedDate}" 
@@ -37,7 +53,7 @@
                     Padding="5"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" >
-                <TextBlock Text="From:" 
+                <TextBlock Text="Start Time:" 
                    FontSize="14" FontWeight="Bold"
                    VerticalAlignment="Center" Margin="5"/>
                 <TextBox Text="{Binding StartTime, UpdateSourceTrigger=PropertyChanged, StringFormat=hh\\:mm}" 
@@ -48,7 +64,7 @@
                  Margin="5"
                  Padding="5"/>
 
-                <TextBlock Text="To:" 
+                <TextBlock Text="End Time:" 
                    FontSize="14" FontWeight="Bold"
                    VerticalAlignment="Center" Margin="5"/>
                 <TextBox Text="{Binding EndTime, UpdateSourceTrigger=PropertyChanged, StringFormat=hh\\:mm}" 

@@ -16,6 +16,8 @@ namespace PharmaTrack.WPF.Controls
         {
             InitializeComponent();
             DataContext = viewModel;
+
+            Loaded += async (s, e) => await viewModel.LoadUsersAsync();
         }
 
         private void TimeInput_PreviewTextInput(object sender, TextCompositionEventArgs e)
