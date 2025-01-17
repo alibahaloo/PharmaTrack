@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Helpers;
 
 namespace PharmaTrack.WPF.ViewModels
@@ -124,7 +126,7 @@ namespace PharmaTrack.WPF.ViewModels
         {
             _scheduleService = scheduleService;
             CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            LoadHighlightedDatesAsync();
+            //LoadHighlightedDatesAsync();
             LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
             LoadCalendarCommand = new RelayCommand(ExecuteLoadCalendarCommand);
             TodayCommand = new RelayCommand(ExecuteTodayCommand);
@@ -152,9 +154,18 @@ namespace PharmaTrack.WPF.ViewModels
             DisplayMode = Mode.Loading;
             await Task.Delay(500); // Simulate API delay
 
+            var scheduleTasks = await _scheduleService.GetScheduleTasksAsync(month);
+
+            // Transform into the desired Dictionary<DateTime, string>
+            /*var formattedSchedule = scheduleTasks.ToDictionary(
+                task => task.Start, // Key: Start DateTime
+                task => $"{task.Start.ToString("HH:mm", CultureInfo.InvariantCulture)} - {task.End.ToString("HH:mm", CultureInfo.InvariantCulture)} : {task.Description}" // Value: Formatted string
+            );*/
+            
             var dates = new Dictionary<DateTime, string>
             {
                 { new DateTime(month.Year, month.Month, 5), "Meeting" },
+                //{ new DateTime(month.Year, month.Month, 5), "Task" },
                 { new DateTime(month.Year, month.Month, 15), "Birthday" },
                 { new DateTime(month.Year, month.Month, 25), "Holiday" }
             };
