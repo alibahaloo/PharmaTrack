@@ -151,9 +151,10 @@ namespace PharmaTrack.WPF.ViewModels
         }
 
         public ICommand SubmitCommand { get; }
-
-        public ScheduleControlViewModel()
+        private readonly UsersService _usersService;
+        public ScheduleControlViewModel(UsersService usersService)
         {
+            _usersService = usersService;
             // Initialize with all users
             FilteredUsers = new ObservableCollection<string>(Users);
             SubmitCommand = new RelayCommand(Submit, CanSubmit);
@@ -182,16 +183,20 @@ namespace PharmaTrack.WPF.ViewModels
             await Task.Delay(500);
 
             // Replace this with API call logic
-            var dummyUsers = new[] { "Alice", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Helen" };
+            //var dummyUsers = new[] { "Alice", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Helen" };
+            var users = await _usersService.GetUsernamesAsync();
 
             Users.Clear();
-            foreach (var user in dummyUsers)
-            {
-                Users.Add(user);
-            }
+            if (users != null) {
+                foreach (var user in users)
+                {
+                    Users.Add(user);
+                }
 
-            // Refresh filtered users
-            UpdateFilteredUsers();
+                // Refresh filtered users
+                UpdateFilteredUsers();
+            }
+            
             IsLoading = false;
         }
         private void Submit(object? parameter)
