@@ -1,10 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using PharmaTrack.WPF.Helpers;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using PharmaTrack.Shared.DBModels;
-using PharmaTrack.WPF.Helpers;
 
 namespace PharmaTrack.WPF.ViewModels
 {
@@ -17,7 +15,7 @@ namespace PharmaTrack.WPF.ViewModels
     public class CalendarControlViewModel : INotifyPropertyChanged
     {
         private DateTime _currentMonth;
-        private Dictionary<DateTime, string> _highlightedDates = new();
+        private Dictionary<DateTime, List<string>> _highlightedDates = new();
         private ObservableCollection<CalendarDay> _calendarDays = new();
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -60,7 +58,7 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
-        public Dictionary<DateTime, string> HighlightedDates
+        public Dictionary<DateTime, List<string>> HighlightedDates
         {
             get => _highlightedDates;
             set
@@ -126,7 +124,6 @@ namespace PharmaTrack.WPF.ViewModels
         {
             _scheduleService = scheduleService;
             CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            //LoadHighlightedDatesAsync();
             LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
             LoadCalendarCommand = new RelayCommand(ExecuteLoadCalendarCommand);
             TodayCommand = new RelayCommand(ExecuteTodayCommand);
@@ -144,35 +141,11 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 // Handle exceptions (e.g., logging or displaying an error message)
                 Console.WriteLine($"Error loading highlighted dates: {ex.Message}");
-                HighlightedDates = new Dictionary<DateTime, string>(); // Clear data on failure
+                HighlightedDates = [];  // Clear data on failure
             }
         }
 
         // Method to simulate fetching events for a specific month
-        private async Task<Dictionary<DateTime, string>> FetchEventsForMonthAsync(DateTime month)
-        {
-            DisplayMode = Mode.Loading;
-            await Task.Delay(500); // Simulate API delay
-
-            var scheduleTasks = await _scheduleService.GetScheduleTasksAsync(month);
-
-            // Transform into the desired Dictionary<DateTime, string>
-            /*var formattedSchedule = scheduleTasks.ToDictionary(
-                task => task.Start, // Key: Start DateTime
-                task => $"{task.Start.ToString("HH:mm", CultureInfo.InvariantCulture)} - {task.End.ToString("HH:mm", CultureInfo.InvariantCulture)} : {task.Description}" // Value: Formatted string
-            );*/
-            
-            var dates = new Dictionary<DateTime, string>
-            {
-                { new DateTime(month.Year, month.Month, 5), "Meeting" },
-                //{ new DateTime(month.Year, month.Month, 5), "Task" },
-                { new DateTime(month.Year, month.Month, 15), "Birthday" },
-                { new DateTime(month.Year, month.Month, 25), "Holiday" }
-            };
-            DisplayMode = Mode.Calendar;
-            return dates;
-        }
-
         private void GenerateCalendarDays()
         {
             var days = new ObservableCollection<CalendarDay>();
@@ -192,16 +165,22 @@ namespace PharmaTrack.WPF.ViewModels
             for (int i = startDayOfWeek - 1; i >= 0; i--)
             {
                 DateTime date = new DateTime(previousMonth.Year, previousMonth.Month, daysInPreviousMonth - i);
-                days.Add(new CalendarDay(date, isCurrentMonth: false, loadDetailsCommand: LoadDetailsCommand));
+                days.Add(new CalendarDay(date, isCurrentMonth: false, highlightedEvent: null, loadDetailsCommand: LoadDetailsCommand));
             }
 
             // Fill in the current month's days
             for (int day = 1; day <= daysInMonth; day++)
             {
                 DateTime date = new DateTime(CurrentMonth.Year, CurrentMonth.Month, day);
-                days.Add(new CalendarDay(date, isCurrentMonth: true,
-                    HighlightedDates.ContainsKey(date) ? HighlightedDates[date] : null,
-                    LoadDetailsCommand));
+                string? highlightedEvent = null;
+
+                if (HighlightedDates.ContainsKey(date))
+                {
+                    // Concatenate events with line breaks
+                    highlightedEvent = string.Join("\n", HighlightedDates[date]);
+                }
+
+                days.Add(new CalendarDay(date, isCurrentMonth: true, highlightedEvent: highlightedEvent, loadDetailsCommand: LoadDetailsCommand));
             }
 
             // Fill in the remaining days of the week after the last day of the month
@@ -211,12 +190,30 @@ namespace PharmaTrack.WPF.ViewModels
             for (int i = 1; i <= remainingDays; i++)
             {
                 DateTime date = new DateTime(nextMonth.Year, nextMonth.Month, i);
-                days.Add(new CalendarDay(date, isCurrentMonth: false, loadDetailsCommand: LoadDetailsCommand));
+                days.Add(new CalendarDay(date, isCurrentMonth: false, highlightedEvent: null, loadDetailsCommand: LoadDetailsCommand));
             }
 
             // Update the CalendarDays property
             CalendarDays = days;
         }
+
+
+        private async Task<Dictionary<DateTime, List<string>>> FetchEventsForMonthAsync(DateTime month)
+        {
+            DisplayMode = Mode.Loading;
+            await Task.Delay(500); // Simulate API delay
+
+            var events = new Dictionary<DateTime, List<string>>
+        {
+            { new DateTime(month.Year, month.Month, 5), new List<string> { "Meeting", "Task" } },
+            { new DateTime(month.Year, month.Month, 15), new List<string> { "Birthday" } },
+            { new DateTime(month.Year, month.Month, 25), new List<string> { "Holiday" } }
+        };
+
+            DisplayMode = Mode.Calendar;
+            return events;
+        }
+
 
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
