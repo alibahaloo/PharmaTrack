@@ -1,5 +1,6 @@
 ﻿using Auth.API.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
 using PharmaTrack.Shared.Services;
@@ -15,6 +16,15 @@ namespace Auth.API.Controllers
         public UsersController(AuthDBContext context)
         {
             _context = context;
+        }
+
+        [HttpGet("usernames")]
+        public async Task<IActionResult> GetUsernames()
+        {
+            var usernames = await _context.ApplicationUsers
+                                  .Select(u => u.UserName)
+                                  .ToListAsync();
+            return Ok(usernames);
         }
 
         [HttpGet]
