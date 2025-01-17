@@ -2,6 +2,7 @@
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -152,9 +153,11 @@ namespace PharmaTrack.WPF.ViewModels
 
         public ICommand SubmitCommand { get; }
         private readonly UsersService _usersService;
-        public ScheduleControlViewModel(UsersService usersService)
+        private readonly ScheduleService _scheduleService;
+        public ScheduleControlViewModel(UsersService usersService, ScheduleService scheduleService)
         {
             _usersService = usersService;
+            _scheduleService = scheduleService;
             // Initialize with all users
             FilteredUsers = new ObservableCollection<string>(Users);
             SubmitCommand = new RelayCommand(Submit, CanSubmit);
@@ -199,16 +202,36 @@ namespace PharmaTrack.WPF.ViewModels
             
             IsLoading = false;
         }
-        private void Submit(object? parameter)
+        private async void Submit(object? parameter)
         {
-            var scheduleTask = new ScheduleTaskRequest
+            IsLoading = true;
+            bool result = false;
+            try
             {
-                UserName = SelectedUser,
-                Start = SelectedDate.Add(StartTime),
-                End = SelectedDate.Add(EndTime),
-                Description = Description
-            };
-            // Submit scheduleTask to a service or further processing
+                var scheduleTask = new ScheduleTaskRequest
+                {
+                    UserName = SelectedUser,
+                    Start = SelectedDate.Add(StartTime),
+                    End = SelectedDate.Add(EndTime),
+                    Description = Description
+                };
+                // Submit scheduleTask to a service or further processing
+                result = await _scheduleService.CreateScheduleAsync(scheduleTask);
+
+                if (result) {
+                    StatusText = "Schedule Task saved successfully!";
+                    StatusForeground = Brushes.Green;
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusText = ex.Message;
+                StatusForeground = Brushes.Red;
+            }
+            finally
+            {
+                IsLoading = false;
+            }            
         }
 
         private bool CanSubmit(object? parameter)
