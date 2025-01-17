@@ -2,7 +2,6 @@
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -17,6 +16,8 @@ namespace PharmaTrack.WPF.ViewModels
         private string _description = string.Empty;
         private string _statusText = default!;
         private Brush _statusForeground = default!;
+        private bool _isLoading = false;
+        private bool _isDropDownOpen;
 
         private string _selectedUser = string.Empty;
         private ObservableCollection<string> _filteredUsers = [];
@@ -50,8 +51,6 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
-
-        private bool _isLoading = false;
         public bool IsLoading
         {
             get => _isLoading;
@@ -85,7 +84,6 @@ namespace PharmaTrack.WPF.ViewModels
                 }
             }
         }
-
         public TimeSpan StartTime
         {
             get => _startTime;
@@ -111,7 +109,6 @@ namespace PharmaTrack.WPF.ViewModels
                 }
             }
         }
-
         private TimeSpan ValidateAndCorrectTime(TimeSpan time)
         {
             if (time < TimeSpan.Zero)
@@ -122,8 +119,6 @@ namespace PharmaTrack.WPF.ViewModels
 
             return time;
         }
-
-        private bool _isDropDownOpen;
 
         public bool IsDropDownOpen
         {
@@ -158,7 +153,6 @@ namespace PharmaTrack.WPF.ViewModels
         {
             _usersService = usersService;
             _scheduleService = scheduleService;
-            // Initialize with all users
             FilteredUsers = new ObservableCollection<string>(Users);
             SubmitCommand = new RelayCommand(Submit, CanSubmit);
         }
@@ -182,11 +176,7 @@ namespace PharmaTrack.WPF.ViewModels
         public async Task LoadUsersAsync()
         {
             IsLoading = true;
-            // Simulate an API call with a delay
-            await Task.Delay(500);
-
-            // Replace this with API call logic
-            //var dummyUsers = new[] { "Alice", "Bob", "Charlie", "David", "Eva", "Frank", "Grace", "Helen" };
+            //await Task.Delay(500);
             var users = await _usersService.GetUsernamesAsync();
 
             Users.Clear();
@@ -205,7 +195,6 @@ namespace PharmaTrack.WPF.ViewModels
         private async void Submit(object? parameter)
         {
             IsLoading = true;
-            bool result = false;
             try
             {
                 var scheduleTask = new ScheduleTaskRequest
@@ -215,10 +204,8 @@ namespace PharmaTrack.WPF.ViewModels
                     End = SelectedDate.Add(EndTime),
                     Description = Description
                 };
-                // Submit scheduleTask to a service or further processing
-                result = await _scheduleService.CreateScheduleAsync(scheduleTask);
 
-                if (result) {
+                if (await _scheduleService.CreateScheduleAsync(scheduleTask)) {
                     StatusText = "Schedule Task saved successfully!";
                     StatusForeground = Brushes.Green;
                 }

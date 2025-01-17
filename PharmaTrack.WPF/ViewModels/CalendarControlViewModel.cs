@@ -119,9 +119,10 @@ namespace PharmaTrack.WPF.ViewModels
         {
             DisplayMode = Mode.Calendar;
         }
-
-        public CalendarControlViewModel()
+        private readonly ScheduleService _scheduleService;
+        public CalendarControlViewModel(ScheduleService scheduleService)
         {
+            _scheduleService = scheduleService;
             CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             LoadHighlightedDatesAsync();
             LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
@@ -129,7 +130,6 @@ namespace PharmaTrack.WPF.ViewModels
             TodayCommand = new RelayCommand(ExecuteTodayCommand);
             NextMonthCommand = new RelayCommand(ExecuteNextMonthCommand);
             PreviousMonthCommand = new RelayCommand(ExecutePreviousMonthCommand);
-
         }
 
         private async void LoadHighlightedDatesAsync()
