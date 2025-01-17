@@ -149,7 +149,6 @@ namespace PharmaTrack.WPF.ViewModels
         // Method to simulate fetching events for a specific month
         private async Task<Dictionary<DateTime, string>> FetchEventsForMonthAsync(DateTime month)
         {
-            //IsLoading = true;
             DisplayMode = Mode.Loading;
             await Task.Delay(500); // Simulate API delay
 

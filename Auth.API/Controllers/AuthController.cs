@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Auth.API.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using PharmaTrack.Shared.DBModels;
-using PharmaTrack.Shared.APIModels;
-using PharmaTrack.Shared.Services;
 using Microsoft.EntityFrameworkCore;
-using Auth.API.Data;
-using Azure.Core;
+using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Shared.Services;
 
 namespace Auth.API.Controllers
 {
@@ -86,7 +85,7 @@ namespace Auth.API.Controllers
                         return Unauthorized();
                     }
 
-                    var accessToken = _jwtService.GenerateJwtToken(user.Id, user.UserName);
+                    var accessToken = _jwtService.GenerateJwtToken(user.Id, user.UserName, user.IsAdmin);
                     var refreshToken = _jwtService.GenerateSecureRefreshToken();
                     var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
@@ -153,7 +152,7 @@ namespace Auth.API.Controllers
                     return Unauthorized();
                 }
 
-                var accessToken = _jwtService.GenerateJwtToken(user.Id, user.UserName);
+                var accessToken = _jwtService.GenerateJwtToken(user.Id, user.UserName, user.IsAdmin);
                 var refreshToken = _jwtService.GenerateSecureRefreshToken();
                 var refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
 
@@ -213,9 +212,9 @@ namespace Auth.API.Controllers
                 }
 
                 // Step 2: Generate a new Access Token
-                var newAccessToken = _jwtService.GenerateJwtToken(tokenEntity.UserId, user.UserName); // Replace with actual username if needed
+                var newAccessToken = _jwtService.GenerateJwtToken(tokenEntity.UserId, user.UserName, user.IsAdmin); 
 
-                // Step 3: (Optional) Generate a new Refresh Token and replace the old one
+                // Step 3: Generate a new Refresh Token and replace the old one
                 var newRefreshToken = _jwtService.GenerateSecureRefreshToken();
                 tokenEntity.Token = newRefreshToken;
                 tokenEntity.ExpiryDate = DateTime.UtcNow.AddDays(7); // Update expiry

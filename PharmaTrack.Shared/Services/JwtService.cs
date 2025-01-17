@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -23,46 +25,6 @@ namespace PharmaTrack.Shared.Services
             _jwtSettings = jwtSettings.Value;
         }
 
-        public string RefreshToken(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_jwtSettings.SecretKey)),
-                ValidateIssuer = false,
-                ValidateAudience = false
-            };
-
-            ClaimsPrincipal claimsPrincipal;
-            try
-            {
-                claimsPrincipal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var validatedToken);
-            }
-            catch (SecurityTokenException)
-            {
-                throw new Exception("Invalid or expired token.");
-            }
-
-            if (claimsPrincipal == null)
-            {
-                throw new Exception("Invalid or expired token.");
-            }
-
-            // Extract userId from the token claims
-            var userIdClaim = claimsPrincipal.Claims.FirstOrDefault(c => c.Type == "userId");
-            var userId = userIdClaim?.Value;
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                throw new Exception("User ID not found in token.");
-            }
-
-            // Generate a new token with the same userId
-            var username = claimsPrincipal.Identity?.Name ?? string.Empty;
-            return GenerateJwtToken(userId, username);
-        }
-
         public string GenerateSecureRefreshToken(int size = 64)
         {
             var randomNumber = new byte[size];
@@ -74,7 +36,7 @@ namespace PharmaTrack.Shared.Services
         }
 
 
-        public string GenerateJwtToken(string userId, string username)
+        public string GenerateJwtToken(string userId, string username, bool isAdmin)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.SecretKey);
@@ -83,7 +45,8 @@ namespace PharmaTrack.Shared.Services
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim(ClaimTypes.Name, username),
-                    new Claim("userId", userId) // Add userId as a claim
+                    new Claim("userId", userId), // Add userId as a claim
+                    new Claim(ClaimTypes.Role, isAdmin ? "admin" : "user")
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(15), // Short-lived token (15 minutes)
                 Issuer = _jwtSettings.Issuer,
@@ -94,7 +57,7 @@ namespace PharmaTrack.Shared.Services
             return tokenHandler.WriteToken(token);
         }
 
-        public (bool IsValid, string? UserId) ValidateAccessToken(string token)
+        public (bool IsValid, string? Username, bool IsAdmin) ValidateAccessToken(string token)
         {
             try
             {
@@ -114,17 +77,53 @@ namespace PharmaTrack.Shared.Services
                 // Validate the token and get the principal
                 var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
 
-                // Extract the "userId" claim
+                // Extract the "username" claim
                 var usernameClaim = principal.FindFirst(ClaimTypes.Name); // ClaimTypes.Name is used for the username
                 var username = usernameClaim?.Value;
 
-                return (true, username);
+                var userRoleClaim = principal.FindFirst(ClaimTypes.Role);
+                var isAdmin = (userRoleClaim?.Value) switch
+                {
+                    "admin" => true,
+                    _ => false,
+                };
+                return (true, username, isAdmin);
             }
             catch (Exception)
             {
-                // Return false with null userId if validation fails
-                return (false, null);
+                // Return false with null username if validation fails
+                return (false, null, false);
             }
+        }
+        public (IActionResult? ValidationResult, string? Username, bool IsAdmin) ValidateAuthorizationHeader(HttpRequest request)
+        {
+            if (!request.Headers.TryGetValue("Authorization", out var authHeader))
+            {
+                return (new ObjectResult(new { Success = false, Message = "Authorization header is missing." })
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized
+                }, null, false);
+            }
+
+            var token = authHeader.ToString().Replace("Bearer ", string.Empty);
+            if (string.IsNullOrEmpty(token))
+            {
+                return (new ObjectResult(new { Success = false, Message = "Token is missing." })
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized
+                }, null, false);
+            }
+
+            var (isValid, username, isAdmin) = ValidateAccessToken(token);
+            if (!isValid || string.IsNullOrEmpty(username))
+            {
+                return (new ObjectResult(new { Success = false, Message = "Invalid or expired token." })
+                {
+                    StatusCode = StatusCodes.Status401Unauthorized
+                }, null, false);
+            }
+
+            return (null, username, isAdmin);
         }
 
     }

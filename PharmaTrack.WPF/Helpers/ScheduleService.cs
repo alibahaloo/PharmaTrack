@@ -53,6 +53,35 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
+        public async Task<List<ScheduleTask>?> GetMyScheduleTasksAsync(DateTime month)
+        {
+            string? accessToken = TokenStorage.AccessToken;
+            string? userName = TokenStorage.UserName;
+            if (accessToken == null || userName == null) { throw new UnauthorizedAccessException(accessToken); }
+
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            var response = await _httpClient.GetAsync($"{_userScheduleUrl}/{userName}?month={month}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Parse the response (deserialize JSON into Product object)
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<ScheduleTask>>(responseData, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+
+            throw response.StatusCode switch
+            {
+                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
+            };
+        }
+
         public async Task<List<ScheduleTask>?> GetScheduleTasksAsync(DateTime month)
         {
             string? accessToken = TokenStorage.AccessToken;

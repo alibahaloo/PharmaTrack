@@ -22,33 +22,6 @@ namespace Gateway.API.Controllers
             _inventoryApiBaseUrl = configuration["InventoryApi:BaseUrl"] ?? throw new ArgumentNullException("InventoryApi:BaseUrl", "The base URL for the Inventory API is not configured.");
         }
 
-        private (IActionResult? ValidationResult, string? UserId) ValidateAuthorizationHeader()
-        {
-            // Extract the Authorization header
-            if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
-            {
-                return (Unauthorized(new { Success = false, Message = "Authorization header is missing." }), null);
-            }
-
-            var token = authHeader.ToString().Replace("Bearer ", string.Empty);
-            if (string.IsNullOrEmpty(token))
-            {
-                return (Unauthorized(new { Success = false, Message = "Token is missing." }), null);
-            }
-
-            // Validate the token and extract user ID
-            var (isValid, userId) = _jwtService.ValidateAccessToken(token);
-            if (!isValid || string.IsNullOrEmpty(userId))
-            {
-                return (Unauthorized(new { Success = false, Message = "Invalid or expired token." }), null);
-            }
-
-            // Return null for validation result if validation succeeds, along with the extracted userId
-            return (null, userId);
-        }
-
-
-
         [HttpGet]
         public async Task<IActionResult> GetAllProducts(int curPage = 1)
         {
@@ -58,7 +31,7 @@ namespace Gateway.API.Controllers
             try
             {
                 // Step 1: Validate Authorization Header
-                var (validationResult, userId) = ValidateAuthorizationHeader();
+                var (validationResult, username, isAdmin) = _jwtService.ValidateAuthorizationHeader(Request);
                 if (validationResult != null)
                 {
                     return validationResult; // Return if validation fails
@@ -367,13 +340,13 @@ namespace Gateway.API.Controllers
             try
             {
                 // Step 1: Validate Authorization Header
-                var (validationResult, userId) = ValidateAuthorizationHeader();
+                var (validationResult, username, isAdmin) = _jwtService.ValidateAuthorizationHeader(Request);
                 if (validationResult != null)
                 {
                     return validationResult; // Return if validation fails
                 }
 
-                request.UserId = userId;
+                request.Username = username;
 
                 var stockTransferUrl = $"{_inventoryApiBaseUrl}/api/inventory/stock-transfer";
                 var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
