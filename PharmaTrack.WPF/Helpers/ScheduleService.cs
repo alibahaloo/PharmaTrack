@@ -55,9 +55,8 @@ namespace PharmaTrack.WPF.Helpers
 
         public async Task<List<ScheduleTask>?> GetMyScheduleTasksAsync(DateTime month)
         {
-            string? accessToken = TokenStorage.AccessToken;
-            string? userName = TokenStorage.UserName;
-            if (accessToken == null || userName == null) { throw new UnauthorizedAccessException(accessToken); }
+            string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
+            string? userName = !string.IsNullOrEmpty(TokenStorage.UserName) ? TokenStorage.UserName : throw new UnauthorizedAccessException(TokenStorage.UserName);
 
             // Add the JWT to the headers
             _httpClient.DefaultRequestHeaders.Clear();
@@ -84,8 +83,7 @@ namespace PharmaTrack.WPF.Helpers
 
         public async Task<List<ScheduleTask>?> GetScheduleTasksAsync(DateTime month)
         {
-            string? accessToken = TokenStorage.AccessToken;
-            if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
+            string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
 
             // Add the JWT to the headers
             _httpClient.DefaultRequestHeaders.Clear();
@@ -112,8 +110,7 @@ namespace PharmaTrack.WPF.Helpers
 
         public async Task<List<ScheduleTask>?> GetUserScheduleTasksAsync(DateTime month, string userName)
         {
-            string? accessToken = TokenStorage.AccessToken;
-            if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
+            string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
 
             // Add the JWT to the headers
             _httpClient.DefaultRequestHeaders.Clear();

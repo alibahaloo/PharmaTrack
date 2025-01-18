@@ -123,13 +123,22 @@ namespace PharmaTrack.WPF.ViewModels
         public CalendarControlViewModel(ScheduleService scheduleService)
         {
             _scheduleService = scheduleService;
-            CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            //CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
             LoadCalendarCommand = new RelayCommand(ExecuteLoadCalendarCommand);
             TodayCommand = new RelayCommand(ExecuteTodayCommand);
             NextMonthCommand = new RelayCommand(ExecuteNextMonthCommand);
             PreviousMonthCommand = new RelayCommand(ExecutePreviousMonthCommand);
+
+           
         }
+
+        public void OnViewModelLoaded()
+        {
+            // Logic to execute after the view model is fully loaded
+            CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        }
+
 
         private async void LoadHighlightedDatesAsync()
         {
@@ -201,9 +210,9 @@ namespace PharmaTrack.WPF.ViewModels
         private async Task<Dictionary<DateTime, List<string>>> FetchEventsForMonthAsync(DateTime month)
         {
             DisplayMode = Mode.Loading;
-            await Task.Delay(500); // Simulate API delay
+            //await Task.Delay(500); // Simulate API delay
 
-            var schedules = await _scheduleService.GetScheduleTasksAsync(month);
+            var schedules = await _scheduleService.GetMyScheduleTasksAsync(month);
 
             Dictionary<DateTime, List<string>>? groupedSchedules;
 
