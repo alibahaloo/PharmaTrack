@@ -212,7 +212,8 @@ namespace PharmaTrack.WPF.ViewModels
                 .GroupBy(task => task.Start.Date) // Group by the date portion of Start
                 .ToDictionary(
                     group => group.Key,
-                    group => group.Select(task => task.Description).ToList()
+                    group => group.Select(task =>
+                $"{task.UserName} - {task.Start:HH:mm} - {task.End:HH:mm} - {task.Description}").ToList()
                 );
 
             /*

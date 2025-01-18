@@ -130,9 +130,12 @@
                                        FontSize="16" 
                                        FontWeight="Bold" />
                             <TextBlock Text="{Binding HighlightedEvent}" 
+                                       Padding="2"
+                                       TextWrapping="Wrap"
+                                       Background="LightGreen"
                                        Visibility="{Binding HighlightedEvent, Converter={StaticResource StringToVisibilityConverter}}"
                                        FontSize="12" 
-                                       Foreground="Green">
+                                       Foreground="Black">
                             </TextBlock>
                         </StackPanel>
                     </Border>
