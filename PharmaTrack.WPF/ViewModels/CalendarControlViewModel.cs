@@ -203,15 +203,28 @@ namespace PharmaTrack.WPF.ViewModels
             DisplayMode = Mode.Loading;
             await Task.Delay(500); // Simulate API delay
 
+            var schedules = await _scheduleService.GetScheduleTasksAsync(month);
+
+            Dictionary<DateTime, List<string>>? groupedSchedules;
+
+            // Group tasks by the date part of the 'Start' property
+            groupedSchedules = schedules?
+                .GroupBy(task => task.Start.Date) // Group by the date portion of Start
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Select(task => task.Description).ToList()
+                );
+
+            /*
             var events = new Dictionary<DateTime, List<string>>
-        {
-            { new DateTime(month.Year, month.Month, 5), new List<string> { "Meeting", "Task" } },
-            { new DateTime(month.Year, month.Month, 15), new List<string> { "Birthday" } },
-            { new DateTime(month.Year, month.Month, 25), new List<string> { "Holiday" } }
-        };
+            {
+                { new DateTime(month.Year, month.Month, 5), new List<string> { "Meeting", "Task" } },
+                { new DateTime(month.Year, month.Month, 15), new List<string> { "Birthday" } },
+                { new DateTime(month.Year, month.Month, 25), new List<string> { "Holiday" } }
+            };*/
 
             DisplayMode = Mode.Calendar;
-            return events;
+            return groupedSchedules ?? [];
         }
 
 
