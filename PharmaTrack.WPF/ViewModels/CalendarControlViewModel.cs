@@ -116,6 +116,12 @@ namespace PharmaTrack.WPF.ViewModels
             CurrentMonth = CurrentMonth.AddMonths(-1);
         }
 
+        public ICommand ChangeDataMode { get; }
+        private  void ExecuteChangeDataMode(object? parameter)
+        {
+            LoadHighlightedDatesAsync();
+        }
+
         private async void ExecuteLoadDetailsCommand(object? parameter)
         {
             if (parameter is DateTime selectedDate)
@@ -147,6 +153,7 @@ namespace PharmaTrack.WPF.ViewModels
             TodayCommand = new RelayCommand(ExecuteTodayCommand);
             NextMonthCommand = new RelayCommand(ExecuteNextMonthCommand);
             PreviousMonthCommand = new RelayCommand(ExecutePreviousMonthCommand);
+            ChangeDataMode = new RelayCommand(ExecuteChangeDataMode);
         }
 
         public void OnViewModelLoaded()
