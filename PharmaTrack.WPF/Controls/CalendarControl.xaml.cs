@@ -9,7 +9,6 @@ namespace PharmaTrack.WPF.Controls
         {
             InitializeComponent();
             DataContext = viewModel;
-            //Loaded += OnLoaded;
             Loaded += (_, _) => viewModel.OnViewModelLoaded();
         }
     }

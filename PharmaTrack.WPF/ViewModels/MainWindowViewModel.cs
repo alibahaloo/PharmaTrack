@@ -79,7 +79,7 @@ namespace PharmaTrack.WPF.ViewModels
             LoadMySchedule();
         }
 
-        private async void InitializeAsync()
+        public async Task InitializeAsync()
         {
             IsLoggedIn = await CheckAuth();
 
@@ -110,8 +110,6 @@ namespace PharmaTrack.WPF.ViewModels
             _usersControl = usersControl;
             _scheduleControl = scheduleControl;
 
-            InitializeAsync();
-
             // Subscribe to LoginViewModel's LoginSuccessful event
             if (_loginControl.DataContext is LoginViewModel loginViewModel)
             {
@@ -129,9 +127,9 @@ namespace PharmaTrack.WPF.ViewModels
             RetryCommand = new RelayCommand(_ => Retry());
         }
 
-        private void Retry()
+        private async void Retry()
         {
-            InitializeAsync();
+            await InitializeAsync();
         }
 
         private async Task<bool> CheckAuth()

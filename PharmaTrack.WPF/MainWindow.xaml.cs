@@ -1,6 +1,4 @@
-﻿using PharmaTrack.WPF.Controls;
-using PharmaTrack.WPF.Helpers;
-using PharmaTrack.WPF.ViewModels;
+﻿using PharmaTrack.WPF.ViewModels;
 using System.Windows;
 
 namespace PharmaTrack.WPF
@@ -10,12 +8,11 @@ namespace PharmaTrack.WPF
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow(MainWindowViewModel mainWindowViewModel)
+        public MainWindow(MainWindowViewModel viewModel)
         {
             InitializeComponent();
-
-            // Set the DataContext to the injected ViewModel
-            DataContext = mainWindowViewModel;
+            DataContext = viewModel;
+            Loaded += async (_, _) => await viewModel.InitializeAsync();
         }
     }
 }

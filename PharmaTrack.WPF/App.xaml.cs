@@ -1,11 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Windows;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PharmaTrack.WPF.Controls;
 using PharmaTrack.WPF.Helpers;
 using PharmaTrack.WPF.ViewModels;
+using System.IO;
+using System.Windows;
 
 namespace PharmaTrack.WPF
 {
