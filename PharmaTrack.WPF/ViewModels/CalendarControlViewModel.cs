@@ -12,12 +12,31 @@ namespace PharmaTrack.WPF.ViewModels
         Calendar,
         Details,
     }
+    public enum DataMode
+    {
+        MySchedule,
+        TeamSchedule
+    }
     public class CalendarControlViewModel : INotifyPropertyChanged
     {
         private DateTime _currentMonth;
         private Dictionary<DateTime, List<string>> _highlightedDates = new();
         private ObservableCollection<CalendarDay> _calendarDays = new();
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        private DataMode _dataMode;
+        public DataMode DataMode
+        {
+            get => _dataMode;
+            set
+            {
+                if (_dataMode != value)
+                {
+                    _dataMode = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         private DateTime _selectedDate;
         public DateTime SelectedDate
@@ -123,22 +142,19 @@ namespace PharmaTrack.WPF.ViewModels
         public CalendarControlViewModel(ScheduleService scheduleService)
         {
             _scheduleService = scheduleService;
-            //CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
             LoadCalendarCommand = new RelayCommand(ExecuteLoadCalendarCommand);
             TodayCommand = new RelayCommand(ExecuteTodayCommand);
             NextMonthCommand = new RelayCommand(ExecuteNextMonthCommand);
             PreviousMonthCommand = new RelayCommand(ExecutePreviousMonthCommand);
-
-           
         }
 
         public void OnViewModelLoaded()
         {
             // Logic to execute after the view model is fully loaded
             CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            DataMode = DataMode.MySchedule;
         }
-
 
         private async void LoadHighlightedDatesAsync()
         {
