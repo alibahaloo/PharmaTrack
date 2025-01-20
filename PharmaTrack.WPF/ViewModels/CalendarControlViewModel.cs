@@ -1,4 +1,5 @@
-﻿using PharmaTrack.WPF.Helpers;
+﻿using PharmaTrack.Shared.DBModels;
+using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -235,32 +236,36 @@ namespace PharmaTrack.WPF.ViewModels
             DisplayMode = Mode.Loading;
             //await Task.Delay(500); // Simulate API delay
 
-            var schedules = await _scheduleService.GetMyScheduleTasksAsync(month);
+            List<ScheduleTask>? scheduleTasks = null;
+
+            switch (DataMode)
+            {
+                case DataMode.MySchedule:
+                    scheduleTasks = await _scheduleService.GetMyScheduleTasksAsync(month);
+                    break;
+                case DataMode.TeamSchedule:
+                    scheduleTasks = await _scheduleService.GetScheduleTasksAsync(month);
+                    break;
+                default:
+                    throw new InvalidOperationException("Unsupported DataMode");
+            }
 
             Dictionary<DateTime, List<string>>? groupedSchedules;
 
-            // Group tasks by the date part of the 'Start' property
-            groupedSchedules = schedules?
+            groupedSchedules = scheduleTasks?
                 .GroupBy(task => task.Start.Date) // Group by the date portion of Start
                 .ToDictionary(
                     group => group.Key,
                     group => group.Select(task =>
-                $"{task.UserName} - {task.Start:HH:mm} - {task.End:HH:mm} - {task.Description}").ToList()
+                        DataMode == DataMode.TeamSchedule
+                            ? $"{task.UserName} - {task.Start:HH:mm} - {task.End:HH:mm} - {task.Description}"
+                            : $"{task.Start:HH:mm} - {task.End:HH:mm} - {task.Description}"
+                    ).ToList()
                 );
-
-            /*
-            var events = new Dictionary<DateTime, List<string>>
-            {
-                { new DateTime(month.Year, month.Month, 5), new List<string> { "Meeting", "Task" } },
-                { new DateTime(month.Year, month.Month, 15), new List<string> { "Birthday" } },
-                { new DateTime(month.Year, month.Month, 25), new List<string> { "Holiday" } }
-            };*/
 
             DisplayMode = Mode.Calendar;
             return groupedSchedules ?? [];
         }
-
-
 
         protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
