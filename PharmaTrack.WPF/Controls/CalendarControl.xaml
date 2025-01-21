@@ -168,14 +168,18 @@
                                        Foreground="{Binding Date, Converter={StaticResource TodayDateToColorConverter}}"
                                        FontSize="16" 
                                        FontWeight="Bold" />
-                            <TextBlock Text="{Binding HighlightedEvent}" 
-                                       Padding="2"
-                                       TextWrapping="Wrap"
-                                       Background="LightGreen"
-                                       Visibility="{Binding HighlightedEvent, Converter={StaticResource StringToVisibilityConverter}}"
-                                       FontSize="12" 
-                                       Foreground="Black">
-                            </TextBlock>
+                            <ItemsControl ItemsSource="{Binding HighlightedEvents}" Margin="2">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" 
+                       Padding="2"
+                       TextWrapping="Wrap"
+                       Background="LightGreen"
+                       FontSize="12" 
+                       Foreground="Black" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </Border>
                 </DataTemplate>
