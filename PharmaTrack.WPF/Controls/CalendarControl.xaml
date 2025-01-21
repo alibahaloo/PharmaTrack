@@ -4,15 +4,12 @@
              xmlns:bi="https://github.com/helluvamatt/BootstrapIcons.Wpf/"
              xmlns:local="clr-namespace:PharmaTrack.WPF.Controls">
     <Grid>
-        <!-- Define the calendar layout -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-
-
-        <!-- Navigation Buttons -->
+        <!-- Navigation Pange -->
         <StackPanel Grid.Row="0" Margin="5">
 
             <Grid>
@@ -130,7 +127,8 @@
             </Grid>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" 
+        <!-- Loading Section -->
+        <StackPanel Grid.Row="1" 
                 VerticalAlignment="Center"
                 Visibility="{Binding DisplayMode, 
                              Converter={StaticResource EnumToVisibilityConverter}, 
@@ -138,7 +136,8 @@
             <local:LoadingControl />
         </StackPanel>
 
-        <StackPanel Grid.Row="2" 
+        <!-- Details Grid -->
+        <StackPanel Grid.Row="1" 
                     Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}">
         </StackPanel>
 
@@ -174,14 +173,21 @@
                                 <ItemsControl ItemsSource="{Binding HighlightedEvents}" Margin="2">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding}" 
-                                                   Padding="2"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   TextWrapping="NoWrap"
-                                                   Background="LightGreen"
-                                                   FontSize="10" 
-                                                   Foreground="Black" />
-                                    </DataTemplate>
+                                            <TextBlock Text="{Binding}" 
+                                                       Padding="2"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       TextWrapping="NoWrap"
+                                                       Background="LightGreen"
+                                                       FontSize="10" 
+                                                       Foreground="Black">
+                            <!-- MouseBinding for Triggering Parent Command -->
+                                                <TextBlock.InputBindings>
+                                                    <MouseBinding Gesture="LeftClick"
+                                                                  Command="{Binding DataContext.LoadDetailsCommand, RelativeSource={RelativeSource AncestorType=Border}}"
+                                                                  CommandParameter="{Binding DataContext.Date, RelativeSource={RelativeSource AncestorType=Border}}" />
+                                                </TextBlock.InputBindings>
+                                            </TextBlock>
+                                        </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                             </ScrollViewer>
