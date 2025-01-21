@@ -168,18 +168,23 @@
                                        Foreground="{Binding Date, Converter={StaticResource TodayDateToColorConverter}}"
                                        FontSize="16" 
                                        FontWeight="Bold" />
-                            <ItemsControl ItemsSource="{Binding HighlightedEvents}" Margin="2">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}, Converter={StaticResource ParentHeightConverter}}">
+                                <ItemsControl ItemsSource="{Binding HighlightedEvents}" Margin="2">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding}" 
-                       Padding="2"
-                       TextWrapping="Wrap"
-                       Background="LightGreen"
-                       FontSize="12" 
-                       Foreground="Black" />
+                                                   Padding="2"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   TextWrapping="NoWrap"
+                                                   Background="LightGreen"
+                                                   FontSize="10" 
+                                                   Foreground="Black" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+                            </ScrollViewer>
                         </StackPanel>
                     </Border>
                 </DataTemplate>

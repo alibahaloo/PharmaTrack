@@ -253,8 +253,8 @@ namespace PharmaTrack.WPF.ViewModels
                     group => group.Key,
                     group => group.Select(task =>
                         DataMode == DataMode.TeamSchedule
-                            ? $"{task.UserName} - {task.Start:HH:mm} - {task.End:HH:mm}"
-                            : $"{task.Start:HH:mm} - {task.End:HH:mm} - {task.Description}"
+                            ? $"{task.Start:HH:mm} - {task.End:HH:mm} : {task.UserName}"
+                            : $"{task.Start:HH:mm} - {task.End:HH:mm} : {task.Description}"
                     ).ToList()
                 );
 
