@@ -21,10 +21,10 @@ namespace Gateway.API.Controllers
             _scheduleApiBaseUrl = configuration["ScheduleApi:BaseUrl"] ?? throw new ArgumentNullException("ScheduleApi:BaseUrl", "The base URL for the Schedule API is not configured.");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetSchedules(DateTime month)
+        [HttpGet("daily")]
+        public async Task<IActionResult> GetDailySchedules(DateTime date)
         {
-            var scheduleApiUrl = $"{_scheduleApiBaseUrl}/api/schedules?month={month}"; 
+            var scheduleApiUrl = $"{_scheduleApiBaseUrl}/api/schedules/daily?date={date}";
 
             try
             {
@@ -69,10 +69,105 @@ namespace Gateway.API.Controllers
             }
         }
 
-        [HttpGet("user/{userName}")]
-        public async Task<IActionResult> GetUserSchedules(DateTime month, string userName)
+        [HttpGet("daily/user/{userName}")]
+        public async Task<IActionResult> GetDailySchedulesForUser(DateTime date, string userName)
         {
-            var scheduleApiUrl = $"{_scheduleApiBaseUrl}/api/schedules/user/{userName}?month={month}"; // Ensure the correct endpoint
+            var scheduleApiUrl = $"{_scheduleApiBaseUrl}/api/schedules/daily/user/{userName}?date={date}";
+            try
+            {
+                // Step 1: Validate Authorization Header
+
+                // Send GET request to the Inventory API
+                var response = await _httpClient.GetAsync(scheduleApiUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Return the error response from the Inventory API
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                // Deserialize the response JSON into a list of Product objects
+                var productsJson = await response.Content.ReadAsStringAsync();
+
+                List<ScheduleTask>? apiResponse;
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<List<ScheduleTask>>(productsJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing: {jsonEx.Message}");
+                }
+
+                return Ok(apiResponse);
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle HTTP request errors
+                return StatusCode(500, $"Error communicating with API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("monthly")]
+        public async Task<IActionResult> GetMonthlySchedules(DateTime month)
+        {
+            var scheduleApiUrl = $"{_scheduleApiBaseUrl}/api/schedules/monthly?month={month}";
+
+            try
+            {
+                // Step 1: Validate Authorization Header
+
+                // Send GET request to the Inventory API
+                var response = await _httpClient.GetAsync(scheduleApiUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Return the error response from the Inventory API
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                // Deserialize the response JSON into a list of Product objects
+                var productsJson = await response.Content.ReadAsStringAsync();
+
+                List<ScheduleTask>? apiResponse;
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<List<ScheduleTask>>(productsJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing: {jsonEx.Message}");
+                }
+
+                return Ok(apiResponse);
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle HTTP request errors
+                return StatusCode(500, $"Error communicating with API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("monthly/user/{userName}")]
+        public async Task<IActionResult> GetMonthlySchedulesForUser(DateTime month, string userName)
+        {
+            var scheduleApiUrl = $"{_scheduleApiBaseUrl}/api/schedules/monthly/user/{userName}?month={month}";
 
             try
             {

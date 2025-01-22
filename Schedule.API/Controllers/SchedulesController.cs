@@ -17,8 +17,38 @@ namespace Schedule.API.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetScheduleTasks(DateTime month)
+        [HttpGet("daily")]
+        public async Task<IActionResult> GetDailySchedules (DateTime date)
+        {
+            // Get the start and end of the specific day
+            var startOfDay = date.Date; // Start of the day at 00:00:00
+            var endOfDay = startOfDay.AddDays(1).AddTicks(-1); // End of the day at 23:59:59.9999999
+
+            // Fetch tasks that overlap with the day
+            var result = await _context.ScheduleTasks
+                .Where(st => st.Start <= endOfDay && st.End >= startOfDay)
+                .ToListAsync();
+
+            return Ok(result);
+        }
+
+        [HttpGet("daily/user/{userName}")]
+        public async Task<IActionResult> GetDailySchedulesForUser(DateTime date, string userName)
+        {
+            // Get the start and end of the specific day
+            var startOfDay = date.Date; // Start of the day at 00:00:00
+            var endOfDay = startOfDay.AddDays(1).AddTicks(-1); // End of the day at 23:59:59.9999999
+
+            // Fetch tasks that overlap with the day
+            var result = await _context.ScheduleTasks
+                .Where(st => st.Start <= endOfDay && st.End >= startOfDay && st.UserName == userName)
+                .ToListAsync();
+
+            return Ok(result);
+        }
+
+        [HttpGet("monthly")]
+        public async Task<IActionResult> GetMonthlySchedules(DateTime month)
         {
             // Determine the start and end dates for the given month
             var startOfMonth = new DateTime(month.Year, month.Month, 1);
@@ -32,8 +62,8 @@ namespace Schedule.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("user/{userName}")]
-        public async Task<IActionResult> GetUserScheduleTasks(DateTime month, string userName)
+        [HttpGet("monthly/user/{userName}")]
+        public async Task<IActionResult> GetMonthlySchedulesForUser(DateTime month, string userName)
         {
             // Determine the start and end dates for the given month
             var startOfMonth = new DateTime(month.Year, month.Month, 1);
