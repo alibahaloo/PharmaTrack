@@ -10,17 +10,17 @@ namespace PharmaTrack.WPF.Helpers
     public class ScheduleService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _schedulesUrl;
-        private readonly string _userScheduleUrl;
+        private readonly string _monthlyForTeamURL;
+        private readonly string _monthlyForUserURL;
 
         public ScheduleService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
             // Safely handle null or empty configuration value
-            _schedulesUrl = configuration["SchedulesUrls:Schedules"]
-                        ?? throw new ArgumentException("Schedules URL is not configured in the application settings.", nameof(configuration));
-            _userScheduleUrl = configuration["SchedulesUrls:UserSchedules"]
-                        ?? throw new ArgumentException("UserSchedules URL is not configured in the application settings.", nameof(configuration));
+            _monthlyForTeamURL = configuration["SchedulesUrls:Monthly"]
+                        ?? throw new ArgumentException("Monthly URL is not configured in the application settings.", nameof(configuration));
+            _monthlyForUserURL = configuration["SchedulesUrls:MonthlyUser"]
+                        ?? throw new ArgumentException("MonthlyUser URL is not configured in the application settings.", nameof(configuration));
         }
         public async Task<bool> CreateScheduleAsync(ScheduleTaskRequest request)
         {
@@ -41,7 +41,7 @@ namespace PharmaTrack.WPF.Helpers
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
             // Make the POST request
-            var response = await _httpClient.PostAsync(_schedulesUrl, content);
+            var response = await _httpClient.PostAsync(_monthlyForTeamURL, content);
             if (response.IsSuccessStatusCode)
             {
                 return true;
@@ -62,7 +62,7 @@ namespace PharmaTrack.WPF.Helpers
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
-            var response = await _httpClient.GetAsync($"{_userScheduleUrl}/{userName}?month={month}");
+            var response = await _httpClient.GetAsync($"{_monthlyForUserURL}/{userName}?month={month}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -89,7 +89,7 @@ namespace PharmaTrack.WPF.Helpers
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
-            var response = await _httpClient.GetAsync($"{_schedulesUrl}?month={month}");
+            var response = await _httpClient.GetAsync($"{_monthlyForTeamURL}?month={month}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -116,7 +116,7 @@ namespace PharmaTrack.WPF.Helpers
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
-            var response = await _httpClient.GetAsync($"{_userScheduleUrl}/{userName}?month={month}");
+            var response = await _httpClient.GetAsync($"{_monthlyForUserURL}/{userName}?month={month}");
 
             if (response.IsSuccessStatusCode)
             {
