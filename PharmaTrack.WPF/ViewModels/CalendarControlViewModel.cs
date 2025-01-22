@@ -137,6 +137,8 @@ namespace PharmaTrack.WPF.ViewModels
                 // Use the selected date for your logic
                 Console.WriteLine($"Selected Date: {selectedDate}");
 
+                var schedules = await _scheduleService.GetMyDailyScheduleTasksAsync(SelectedDate);
+
                 DisplayMode = Mode.Details;
             }
         }
@@ -236,10 +238,10 @@ namespace PharmaTrack.WPF.ViewModels
             switch (DataMode)
             {
                 case DataMode.MySchedule:
-                    scheduleTasks = await _scheduleService.GetMyScheduleTasksAsync(month);
+                    scheduleTasks = await _scheduleService.GetMyMonthlyScheduleTasksAsync(month);
                     break;
                 case DataMode.TeamSchedule:
-                    scheduleTasks = await _scheduleService.GetScheduleTasksAsync(month);
+                    scheduleTasks = await _scheduleService.GetMonthlyScheduleTasksAsync(month);
                     break;
                 default:
                     throw new InvalidOperationException("Unsupported DataMode");

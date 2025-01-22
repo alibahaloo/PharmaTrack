@@ -12,6 +12,8 @@ namespace PharmaTrack.WPF.Helpers
         private readonly HttpClient _httpClient;
         private readonly string _monthlyForTeamURL;
         private readonly string _monthlyForUserURL;
+        private readonly string _dailyForTeamURL;
+        private readonly string _dailyForUserURL;
 
         public ScheduleService(HttpClient httpClient, IConfiguration configuration)
         {
@@ -21,6 +23,10 @@ namespace PharmaTrack.WPF.Helpers
                         ?? throw new ArgumentException("Monthly URL is not configured in the application settings.", nameof(configuration));
             _monthlyForUserURL = configuration["SchedulesUrls:MonthlyUser"]
                         ?? throw new ArgumentException("MonthlyUser URL is not configured in the application settings.", nameof(configuration));
+            _dailyForTeamURL = configuration["SchedulesUrls:Daily"]
+                        ?? throw new ArgumentException("Daily URL is not configured in the application settings.", nameof(configuration));
+            _dailyForUserURL = configuration["SchedulesUrls:DailyUser"]
+                        ?? throw new ArgumentException("DailyUser URL is not configured in the application settings.", nameof(configuration));
         }
         public async Task<bool> CreateScheduleAsync(ScheduleTaskRequest request)
         {
@@ -53,7 +59,7 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
-        public async Task<List<ScheduleTask>?> GetMyScheduleTasksAsync(DateTime month)
+        public async Task<List<ScheduleTask>?> GetMyMonthlyScheduleTasksAsync(DateTime month)
         {
             string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
             string? userName = !string.IsNullOrEmpty(TokenStorage.UserName) ? TokenStorage.UserName : throw new UnauthorizedAccessException(TokenStorage.UserName);
@@ -81,7 +87,35 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
-        public async Task<List<ScheduleTask>?> GetScheduleTasksAsync(DateTime month)
+        public async Task<List<ScheduleTask>?> GetMyDailyScheduleTasksAsync(DateTime date)
+        {
+            string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
+            string? userName = !string.IsNullOrEmpty(TokenStorage.UserName) ? TokenStorage.UserName : throw new UnauthorizedAccessException(TokenStorage.UserName);
+
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            var response = await _httpClient.GetAsync($"{_dailyForUserURL}/{userName}?date={date}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Parse the response (deserialize JSON into Product object)
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<ScheduleTask>>(responseData, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+
+            throw response.StatusCode switch
+            {
+                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
+            };
+        }
+
+        public async Task<List<ScheduleTask>?> GetMonthlyScheduleTasksAsync(DateTime month)
         {
             string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
 
