@@ -138,31 +138,30 @@
 
         <!-- Details Grid -->
         <StackPanel Grid.Row="1" 
-                    Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}">
-            <ListView ItemsSource="{Binding DailySchedules}" Margin="10">
-                <ListView.ItemTemplate>
+            Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}">
+            <ItemsControl ItemsSource="{Binding DailySchedules}" Margin="10">
+                <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Margin="5">
+                            <!-- Row for Start and End -->
                             <StackPanel Orientation="Horizontal">
-                                <!-- Row for Start and End -->
                                 <TextBlock Text="{Binding Start, StringFormat='{}{0:HH:mm}'}" 
-                                           FontWeight="Bold"
-                                           Foreground="Gray" />
-                                <TextBlock Text=" - " FontWeight="Bold" Foreground="Gray" />
+                                   FontWeight="Bold"
+                                   Foreground="Gray" />
+                                <TextBlock Text=" to " FontWeight="Bold" Foreground="Gray" />
                                 <TextBlock Text="{Binding End, StringFormat='{}{0:HH:mm}'}" 
-                                           FontWeight="Bold"
-                                           Foreground="Gray" />
+                                   FontWeight="Bold"
+                                   Foreground="Gray" />
                             </StackPanel>
-                          
+
                             <!-- Row for Description -->
                             <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="5,2,0,0" />
-                            <Separator/>
                         </StackPanel>
-                        
                     </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </StackPanel>
+
 
         <!-- Calendar Grid -->
         <ItemsControl Grid.Row="1" 
