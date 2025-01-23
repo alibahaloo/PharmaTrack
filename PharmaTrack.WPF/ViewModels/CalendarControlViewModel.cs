@@ -122,7 +122,7 @@ namespace PharmaTrack.WPF.ViewModels
         {
             LoadHighlightedDatesAsync();
         }
-
+        public ObservableCollection<ScheduleTask> DailySchedules { get; } = new();
         private async void ExecuteLoadDetailsCommand(object? parameter)
         {
             if (parameter is DateTime selectedDate)
@@ -138,6 +138,15 @@ namespace PharmaTrack.WPF.ViewModels
                 Console.WriteLine($"Selected Date: {selectedDate}");
 
                 var schedules = await _scheduleService.GetMyDailyScheduleTasksAsync(SelectedDate);
+
+                if (schedules != null)
+                {
+                    DailySchedules.Clear();
+                    foreach (var schedule in schedules)
+                    {
+                        DailySchedules.Add(schedule);
+                    }
+                }
 
                 DisplayMode = Mode.Details;
             }
