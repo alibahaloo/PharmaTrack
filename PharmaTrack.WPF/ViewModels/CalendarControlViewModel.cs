@@ -118,7 +118,7 @@ namespace PharmaTrack.WPF.ViewModels
         }
 
         public ICommand ChangeDataMode { get; }
-        private  void ExecuteChangeDataMode(object? parameter)
+        private void ExecuteChangeDataMode(object? parameter)
         {
             LoadHighlightedDatesAsync();
         }
@@ -132,17 +132,18 @@ namespace PharmaTrack.WPF.ViewModels
                 SelectedDate = selectedDate;
 
                 // Simulate API delay
-                await Task.Delay(500);
+                //await Task.Delay(500);
 
-                // Use the selected date for your logic
-                Console.WriteLine($"Selected Date: {selectedDate}");
+                List<ScheduleTask>? scheduleTasks = DataMode switch
+                {
+                    DataMode.MySchedule => await _scheduleService.GetMyDailyScheduleTasksAsync(SelectedDate),
+                    _ => await _scheduleService.GetDailyScheduleTasksAsync(SelectedDate),
+                };
 
-                var schedules = await _scheduleService.GetMyDailyScheduleTasksAsync(SelectedDate);
-
-                if (schedules != null)
+                if (scheduleTasks != null)
                 {
                     DailySchedules.Clear();
-                    foreach (var schedule in schedules)
+                    foreach (var schedule in scheduleTasks)
                     {
                         DailySchedules.Add(schedule);
                     }

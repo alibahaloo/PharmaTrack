@@ -142,6 +142,34 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
+        public async Task<List<ScheduleTask>?> GetDailyScheduleTasksAsync(DateTime date)
+        {
+            string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
+            string? userName = !string.IsNullOrEmpty(TokenStorage.UserName) ? TokenStorage.UserName : throw new UnauthorizedAccessException(TokenStorage.UserName);
+
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            var response = await _httpClient.GetAsync($"{_dailyForTeamURL}?date={date}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Parse the response (deserialize JSON into Product object)
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<ScheduleTask>>(responseData, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+
+            throw response.StatusCode switch
+            {
+                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
+            };
+        }
+
         public async Task<List<ScheduleTask>?> GetUserScheduleTasksAsync(DateTime month, string userName)
         {
             string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
