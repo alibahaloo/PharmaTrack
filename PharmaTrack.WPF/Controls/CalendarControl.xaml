@@ -10,9 +10,9 @@
         </Grid.RowDefinitions>
 
         <!-- Navigation Pange -->
-        <StackPanel Grid.Row="0" Margin="5">
+        <StackPanel Grid.Row="0">
 
-            <Grid Height="50">
+            <Grid Height="60">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
@@ -57,23 +57,43 @@
                             </Button.Content>
                         </Button>
                     </StackPanel>
-                    
-                    <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
-                            Command="{Binding TodayCommand}"
-                            FontWeight="Bold"
-                            Margin="5" >
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <bi:BootstrapIcon Icon="CalendarMinus"
-                                                  Margin="5"
-                                                  Width="20"
-                                                  Height="20" />
-                                <TextBlock Text="Today" 
-                                           Margin="5"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
+
+                    <StackPanel>
+                        <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
+        Command="{Binding TodayCommand}"
+        FontWeight="Bold"
+        Margin="5" >
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <bi:BootstrapIcon Icon="CalendarMinus"
+                              Margin="5"
+                              Width="20"
+                              Height="20" />
+                                    <TextBlock Text="Today" 
+                       Margin="5"
+                       VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <Button x:Name="BackToCalendar" 
+                                Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}"
+                                Command="{Binding LoadCalendarCommand}" 
+                                FontWeight="Bold"
+                                Margin="5">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <bi:BootstrapIcon Icon="CalendarWeek"
+                                                      Margin="5"
+                                                      Width="20"
+                                                      Height="20" />
+                                    <TextBlock Text="Back to Calendar" 
+                                               Margin="5"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
 
                     <StackPanel Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
                         <Button Command="{Binding NextWeekCommand}"
@@ -93,64 +113,71 @@
                                 Margin="5">
                             <Button.Content>
                                 <bi:BootstrapIcon Icon="ArrowRight"
-                          Margin="5"
-                          Width="20"
-                          Height="20" />
+                                                  Margin="5"
+                                                  Width="20"
+                                                  Height="20" />
                             </Button.Content>
                         </Button>
                     </StackPanel>
 
-                    <Button x:Name="BackToCalendar" 
-                            Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}"
-                            Command="{Binding LoadCalendarCommand}" 
-                            FontWeight="Bold"
-                            Margin="5">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <bi:BootstrapIcon Icon="CalendarWeek"
-                                                  Margin="5"
-                                                  Width="20"
-                                                  Height="20" />
-                                <TextBlock Text="Back to Calendar" 
-                                           Margin="5"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
+                    
                 </StackPanel>
                 <!-- Data Mode Selector -->
                 <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Right"
                             Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Monthly View"
-                                Command="{Binding ViewMonthlyCommand}"
-                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}" />
+                    
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Command="{Binding ViewMonthlyCommand}"
+                                ToolTip="Monthly View"
+                                Margin="5"
+                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}">
+                            <Button.Content>
+                                <bi:BootstrapIcon Icon="CalendarMonth" />
+                            </Button.Content>
+                        </Button>
 
-                        <Button Content="Weekly View"
-                                Command="{Binding ViewWeeklyCommand}"
-                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}" />
+                        <Button Command="{Binding ViewWeeklyCommand}"
+                                ToolTip="Weekly View"
+                                Margin="5"
+                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}">
+                            <Button.Content>
+                                <bi:BootstrapIcon Icon="CalendarWeek" />
+                            </Button.Content>
+                        </Button>
 
 
-                        <Button Content="My Schedule"
-                                Visibility="{Binding DataMode, Converter={StaticResource DataModeToVisibilityConverter}, ConverterParameter=MySchedule}"
-                                Command="{Binding ViewMyScheduleCommand}" />
+                        <Button Visibility="{Binding DataMode, Converter={StaticResource DataModeToVisibilityConverter}, ConverterParameter=MySchedule}"
+                                Margin="5"
+                                ToolTip="My Schedule"
+                                Command="{Binding ViewMyScheduleCommand}" >
+                            <Button.Content>
+                                <bi:BootstrapIcon Icon="Person" />
+                            </Button.Content>
+                        </Button>
 
-                        <Button Content="Team Schedule"
-                                Visibility="{Binding DataMode, Converter={StaticResource DataModeToVisibilityConverter}, ConverterParameter=TeamSchedule}"
-                                Command="{Binding ViewTeamScheduleCommand}" />
+                        <Button Visibility="{Binding DataMode, Converter={StaticResource DataModeToVisibilityConverter}, ConverterParameter=TeamSchedule}"
+                                Margin="5"
+                                ToolTip="Team Schedule"
+                                Command="{Binding ViewTeamScheduleCommand}">
+                            <Button.Content>
+                                <bi:BootstrapIcon Icon="People" />
+                            </Button.Content>
+                        </Button>
                     </StackPanel>
+                    
                     <StackPanel Orientation="Horizontal"
+                                Margin="0,0,5,5"
                                 Visibility="{Binding DataMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=TeamSchedule}">
                         <TextBlock Text="User:"
-                                   FontWeight="Bold"
-                                   VerticalAlignment="Center" Margin="5"/>
+                                   Margin="0,0,5,0"
+                                   VerticalAlignment="Center"
+                                   FontWeight="Bold"/>
                         <ComboBox IsEditable="True"
                                   ItemsSource="{Binding FilteredUsers}" 
                                   Text="{Binding SelectedUser, UpdateSourceTrigger=PropertyChanged}" 
                                   StaysOpenOnEdit="True" 
                                   IsTextSearchEnabled="False"
                                   IsDropDownOpen="{Binding IsDropDownOpen}" 
-                                  VerticalAlignment="Top" 
                                   Width="200"/>
                     </StackPanel>
                 </StackPanel>
