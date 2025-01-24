@@ -26,11 +26,11 @@ namespace PharmaTrack.WPF.ViewModels
     }
     public class CalendarControlViewModel : INotifyPropertyChanged
     {
-        private DateTime _currentMonth;
-        private Dictionary<DateTime, List<string>> _highlightedDates = new();
-        private ObservableCollection<CalendarDay> _calendarDays = new();
         public event PropertyChangedEventHandler? PropertyChanged;
-
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
         private CalendarMode _calendarMode;
         public CalendarMode CalendarMode
         {
@@ -87,6 +87,7 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
+        private DateTime _currentMonth;
         public DateTime CurrentMonth
         {
             get => _currentMonth;
@@ -101,6 +102,7 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
+        private Dictionary<DateTime, List<string>> _highlightedDates = new();
         public Dictionary<DateTime, List<string>> HighlightedDates
         {
             get => _highlightedDates;
@@ -112,6 +114,7 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
+        private ObservableCollection<CalendarDay> _calendarDays = new();
         public ObservableCollection<CalendarDay> CalendarDays
         {
             get => _calendarDays;
@@ -122,30 +125,48 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
+        public ObservableCollection<ScheduleTask> DailySchedules { get; } = new();
+
         public ICommand LoadDetailsCommand { get; }
         public ICommand LoadCalendarCommand { get; }
         public ICommand TodayCommand { get; }
-        private void ExecuteTodayCommand(object? parameter)
-        {
-            CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-        }
         public ICommand NextMonthCommand { get; }
-        private void ExecuteNextMonthCommand(object? parameter)
-        {
-            CurrentMonth = CurrentMonth.AddMonths(1);
-        }
         public ICommand PreviousMonthCommand { get; }
-        private void ExecutePreviousMonthCommand(object? parameter)
+        public ICommand PrevWeekCommand { get; }
+        public ICommand NextWeekCommand { get; }
+        public ICommand ViewMyScheduleCommand { get; }
+        public ICommand ViewTeamScheduleCommand { get; }
+        public ICommand ViewMonthlyCommand { get; }
+        public ICommand ViewWeeklyCommand { get; }
+
+        private readonly ScheduleService _scheduleService;
+        public CalendarControlViewModel(ScheduleService scheduleService)
         {
-            CurrentMonth = CurrentMonth.AddMonths(-1);
+            _scheduleService = scheduleService;
+            LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
+            LoadCalendarCommand = new RelayCommand(_ => DisplayMode = Mode.Calendar);
+
+            TodayCommand = new RelayCommand(_ => CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1));
+            NextMonthCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddMonths(1));
+            PreviousMonthCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddMonths(-1));
+
+            PrevWeekCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddDays(-7));
+            NextWeekCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddDays(7));
+
+            ViewMyScheduleCommand = new RelayCommand(_ => DataMode = DataMode.MySchedule);
+            ViewTeamScheduleCommand = new RelayCommand(_ => DataMode = DataMode.TeamSchedule);
+
+            ViewMonthlyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Monthly);
+            ViewWeeklyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Weekly);
         }
 
-        public ICommand ChangeDataMode { get; }
-        private void ExecuteChangeDataMode(object? parameter)
+        public void OnViewModelLoaded()
         {
-            LoadHighlightedDatesAsync();
+            // Logic to execute after the view model is fully loaded
+            CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            DataMode = DataMode.MySchedule;
+            CalendarMode = CalendarMode.Weekly;
         }
-        public ObservableCollection<ScheduleTask> DailySchedules { get; } = new();
         private async void ExecuteLoadDetailsCommand(object? parameter)
         {
             if (parameter is DateTime selectedDate)
@@ -175,46 +196,41 @@ namespace PharmaTrack.WPF.ViewModels
                 DisplayMode = Mode.Details;
             }
         }
-        public ICommand PrevWeekCommand { get; }
-        public ICommand NextWeekCommand { get; }
-        public ICommand ViewMyScheduleCommand { get; }
-        public ICommand ViewTeamScheduleCommand { get; }
-        public ICommand ViewMonthlyCommand { get; }
-        public ICommand ViewWeeklyCommand { get; }
-
-        private void ExecuteLoadCalendarCommand(object? parameter)
+        private async Task<Dictionary<DateTime, List<string>>> FetchEventsForMonthAsync(DateTime month)
         {
+            DisplayMode = Mode.Loading;
+            //await Task.Delay(500); // Simulate API delay
+
+            List<ScheduleTask>? scheduleTasks = null;
+
+            switch (DataMode)
+            {
+                case DataMode.MySchedule:
+                    scheduleTasks = await _scheduleService.GetMyMonthlyScheduleTasksAsync(month);
+                    break;
+                case DataMode.TeamSchedule:
+                    scheduleTasks = await _scheduleService.GetMonthlyScheduleTasksAsync(month);
+                    break;
+                default:
+                    throw new InvalidOperationException("Unsupported DataMode");
+            }
+
+            Dictionary<DateTime, List<string>>? groupedSchedules;
+
+            groupedSchedules = scheduleTasks?
+                .GroupBy(task => task.Start.Date) // Group by the date portion of Start
+                .ToDictionary(
+                    group => group.Key,
+                    group => group.Select(task =>
+                        DataMode == DataMode.TeamSchedule
+                            ? $"{task.Start:HH:mm} - {task.End:HH:mm} : {task.UserName}"
+                            : $"{task.Start:HH:mm} - {task.End:HH:mm} : {task.Description}"
+                    ).ToList()
+                );
+
             DisplayMode = Mode.Calendar;
+            return groupedSchedules ?? [];
         }
-        private readonly ScheduleService _scheduleService;
-        public CalendarControlViewModel(ScheduleService scheduleService)
-        {
-            _scheduleService = scheduleService;
-            LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
-            LoadCalendarCommand = new RelayCommand(ExecuteLoadCalendarCommand);
-            TodayCommand = new RelayCommand(ExecuteTodayCommand);
-            NextMonthCommand = new RelayCommand(ExecuteNextMonthCommand);
-            PreviousMonthCommand = new RelayCommand(ExecutePreviousMonthCommand);
-            ChangeDataMode = new RelayCommand(ExecuteChangeDataMode);
-
-            PrevWeekCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddDays(-7));
-            NextWeekCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddDays(7));
-
-            ViewMyScheduleCommand = new RelayCommand(_ => DataMode = DataMode.MySchedule);
-            ViewTeamScheduleCommand = new RelayCommand(_ => DataMode = DataMode.TeamSchedule);
-
-            ViewMonthlyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Monthly);
-            ViewWeeklyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Weekly);
-        }
-
-        public void OnViewModelLoaded()
-        {
-            // Logic to execute after the view model is fully loaded
-            CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
-            DataMode = DataMode.MySchedule;
-            CalendarMode = CalendarMode.Weekly;
-        }
-
         private async void LoadHighlightedDatesAsync()
         {
             try
@@ -295,57 +311,12 @@ namespace PharmaTrack.WPF.ViewModels
             CalendarDays = days;
         }
 
-
         private DateTime CurrentWeekStart()
         {
             DateTime today = CurrentMonth;
             int daysToSubtract = (int)today.DayOfWeek - 1; // Adjust for Monday as the first day
             daysToSubtract = daysToSubtract < 0 ? 6 : daysToSubtract; // Handle Sunday case
             return today.AddDays(-daysToSubtract);
-        }
-
-
-
-
-        private async Task<Dictionary<DateTime, List<string>>> FetchEventsForMonthAsync(DateTime month)
-        {
-            DisplayMode = Mode.Loading;
-            //await Task.Delay(500); // Simulate API delay
-
-            List<ScheduleTask>? scheduleTasks = null;
-
-            switch (DataMode)
-            {
-                case DataMode.MySchedule:
-                    scheduleTasks = await _scheduleService.GetMyMonthlyScheduleTasksAsync(month);
-                    break;
-                case DataMode.TeamSchedule:
-                    scheduleTasks = await _scheduleService.GetMonthlyScheduleTasksAsync(month);
-                    break;
-                default:
-                    throw new InvalidOperationException("Unsupported DataMode");
-            }
-
-            Dictionary<DateTime, List<string>>? groupedSchedules;
-
-            groupedSchedules = scheduleTasks?
-                .GroupBy(task => task.Start.Date) // Group by the date portion of Start
-                .ToDictionary(
-                    group => group.Key,
-                    group => group.Select(task =>
-                        DataMode == DataMode.TeamSchedule
-                            ? $"{task.Start:HH:mm} - {task.End:HH:mm} : {task.UserName}"
-                            : $"{task.Start:HH:mm} - {task.End:HH:mm} : {task.Description}"
-                    ).ToList()
-                );
-
-            DisplayMode = Mode.Calendar;
-            return groupedSchedules ?? [];
-        }
-
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 

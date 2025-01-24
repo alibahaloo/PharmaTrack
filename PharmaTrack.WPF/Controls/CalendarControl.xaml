@@ -32,18 +32,32 @@
                                FontWeight="Bold"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
-                            Command="{Binding PrevWeekCommand}"
-                            FontWeight="Bold"
-                            Margin="5">
-                        <Button.Content>
-                            <bi:BootstrapIcon Icon="ArrowLeft"
-                          Width="20"
-                          Margin="5"
-                          Height="20" />
-                        </Button.Content>
-                    </Button>
-
+                    <StackPanel Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
+                        
+                        <Button Command="{Binding PreviousMonthCommand}"
+                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}"
+                                FontWeight="Bold"
+                                Margin="5">
+                            <Button.Content>
+                                <bi:BootstrapIcon Icon="ArrowLeft"
+                                                  Width="20"
+                                                  Margin="5"
+                                                  Height="20" />
+                            </Button.Content>
+                        </Button>
+                        <Button Command="{Binding PrevWeekCommand}"
+                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}"
+                                FontWeight="Bold"
+                                Margin="5">
+                            <Button.Content>
+                                <bi:BootstrapIcon Icon="ArrowLeft"
+                                                  Width="20"
+                                                  Margin="5"
+                                                  Height="20" />
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
+                    
                     <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
                             Command="{Binding TodayCommand}"
                             FontWeight="Bold"
@@ -61,17 +75,30 @@
                         </Button.Content>
                     </Button>
 
-                    <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
-                            Command="{Binding NextWeekCommand}"
-                            FontWeight="Bold"
-                            Margin="5">
-                        <Button.Content>
-                            <bi:BootstrapIcon Icon="ArrowRight"
-                                              Margin="5"
-                                              Width="20"
-                                              Height="20" />
-                        </Button.Content>
-                    </Button>
+                    <StackPanel Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
+                        <Button Command="{Binding NextWeekCommand}"
+                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}"
+                                FontWeight="Bold"
+                                Margin="5">
+                            <Button.Content>
+                                <bi:BootstrapIcon Icon="ArrowRight"
+                                                  Margin="5"
+                                                  Width="20"
+                                                  Height="20" />
+                            </Button.Content>
+                        </Button>
+                        <Button Command="{Binding NextMonthCommand}"
+                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}"
+                                FontWeight="Bold"
+                                Margin="5">
+                            <Button.Content>
+                                <bi:BootstrapIcon Icon="ArrowRight"
+                          Margin="5"
+                          Width="20"
+                          Height="20" />
+                            </Button.Content>
+                        </Button>
+                    </StackPanel>
 
                     <Button x:Name="BackToCalendar" 
                             Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}"
