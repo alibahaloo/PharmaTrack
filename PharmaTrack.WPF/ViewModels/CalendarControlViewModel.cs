@@ -2,11 +2,17 @@
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace PharmaTrack.WPF.ViewModels
 {
+    public enum CalendarMode
+    {
+        Weekly,
+        Monthly
+    }
     public enum Mode
     {
         Loading,
@@ -25,6 +31,21 @@ namespace PharmaTrack.WPF.ViewModels
         private ObservableCollection<CalendarDay> _calendarDays = new();
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        private CalendarMode _calendarMode;
+        public CalendarMode CalendarMode
+        {
+            get => _calendarMode;
+            set
+            {
+                if (_calendarMode != value)
+                {
+                    _calendarMode = value;
+                    OnPropertyChanged();
+                    LoadHighlightedDatesAsync();
+                }
+            }
+        }
+
         private DataMode _dataMode;
         public DataMode DataMode
         {
@@ -35,6 +56,7 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     _dataMode = value;
                     OnPropertyChanged();
+                    LoadHighlightedDatesAsync();
                 }
             }
         }
@@ -61,6 +83,7 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 _displayMode = value;
                 OnPropertyChanged(nameof(DisplayMode));
+
             }
         }
 
@@ -152,6 +175,12 @@ namespace PharmaTrack.WPF.ViewModels
                 DisplayMode = Mode.Details;
             }
         }
+        public ICommand PrevWeekCommand { get; }
+        public ICommand NextWeekCommand { get; }
+        public ICommand ViewMyScheduleCommand { get; }
+        public ICommand ViewTeamScheduleCommand { get; }
+        public ICommand ViewMonthlyCommand { get; }
+        public ICommand ViewWeeklyCommand { get; }
 
         private void ExecuteLoadCalendarCommand(object? parameter)
         {
@@ -167,6 +196,15 @@ namespace PharmaTrack.WPF.ViewModels
             NextMonthCommand = new RelayCommand(ExecuteNextMonthCommand);
             PreviousMonthCommand = new RelayCommand(ExecutePreviousMonthCommand);
             ChangeDataMode = new RelayCommand(ExecuteChangeDataMode);
+
+            PrevWeekCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddDays(-7));
+            NextWeekCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddDays(7));
+
+            ViewMyScheduleCommand = new RelayCommand(_ => DataMode = DataMode.MySchedule);
+            ViewTeamScheduleCommand = new RelayCommand(_ => DataMode = DataMode.TeamSchedule);
+
+            ViewMonthlyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Monthly);
+            ViewWeeklyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Weekly);
         }
 
         public void OnViewModelLoaded()
@@ -174,6 +212,7 @@ namespace PharmaTrack.WPF.ViewModels
             // Logic to execute after the view model is fully loaded
             CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             DataMode = DataMode.MySchedule;
+            CalendarMode = CalendarMode.Weekly;
         }
 
         private async void LoadHighlightedDatesAsync()
@@ -195,46 +234,76 @@ namespace PharmaTrack.WPF.ViewModels
         {
             var days = new ObservableCollection<CalendarDay>();
 
-            // Get the first day of the month and determine its position in the week
-            DateTime firstDayOfMonth = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
-            int daysInMonth = DateTime.DaysInMonth(CurrentMonth.Year, CurrentMonth.Month);
-            int startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
-
-            // Adjust start day to make Monday the first column
-            startDayOfWeek = (startDayOfWeek == 0) ? 6 : startDayOfWeek - 1;
-
-            // Fill in the days before the first day of the month
-            DateTime previousMonth = CurrentMonth.AddMonths(-1);
-            int daysInPreviousMonth = DateTime.DaysInMonth(previousMonth.Year, previousMonth.Month);
-
-            for (int i = startDayOfWeek - 1; i >= 0; i--)
+            switch (CalendarMode)
             {
-                DateTime date = new DateTime(previousMonth.Year, previousMonth.Month, daysInPreviousMonth - i);
-                days.Add(new CalendarDay(date, isCurrentMonth: false, highlightedEvents: null, loadDetailsCommand: LoadDetailsCommand));
+                case CalendarMode.Weekly:
+                    // Get the start of the current week (Monday)
+                    DateTime startOfWeek = CurrentWeekStart();
+
+                    // Generate 7 days for the current week
+                    for (int i = 0; i < 7; i++)
+                    {
+                        DateTime date = startOfWeek.AddDays(i);
+                        List<string>? highlightedEvents = HighlightedDates.ContainsKey(date) ? HighlightedDates[date] : null;
+
+                        days.Add(new CalendarDay(date, isCurrentMonth: date.Month == CurrentMonth.Month, highlightedEvents: highlightedEvents, loadDetailsCommand: LoadDetailsCommand));
+                    }
+                    break;
+                case CalendarMode.Monthly:
+                    // Get the first day of the month and determine its position in the week
+                    DateTime firstDayOfMonth = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
+                    int daysInMonth = DateTime.DaysInMonth(CurrentMonth.Year, CurrentMonth.Month);
+                    int startDayOfWeek = (int)firstDayOfMonth.DayOfWeek;
+
+                    // Adjust start day to make Monday the first column
+                    startDayOfWeek = (startDayOfWeek == 0) ? 6 : startDayOfWeek - 1;
+
+                    // Fill in the days before the first day of the month
+                    DateTime previousMonth = CurrentMonth.AddMonths(-1);
+                    int daysInPreviousMonth = DateTime.DaysInMonth(previousMonth.Year, previousMonth.Month);
+
+                    for (int i = startDayOfWeek - 1; i >= 0; i--)
+                    {
+                        DateTime date = new DateTime(previousMonth.Year, previousMonth.Month, daysInPreviousMonth - i);
+                        days.Add(new CalendarDay(date, isCurrentMonth: false, highlightedEvents: null, loadDetailsCommand: LoadDetailsCommand));
+                    }
+
+                    // Fill in the current month's days
+                    for (int day = 1; day <= daysInMonth; day++)
+                    {
+                        DateTime date = new DateTime(CurrentMonth.Year, CurrentMonth.Month, day);
+                        List<string>? highlightedEvents = HighlightedDates.ContainsKey(date) ? HighlightedDates[date] : null;
+
+                        days.Add(new CalendarDay(date, isCurrentMonth: true, highlightedEvents: highlightedEvents, loadDetailsCommand: LoadDetailsCommand));
+                    }
+
+                    // Fill in the remaining days of the week after the last day of the month
+                    int remainingDays = 42 - days.Count; // Ensure a 6-week display
+                    DateTime nextMonth = CurrentMonth.AddMonths(1);
+
+                    for (int i = 1; i <= remainingDays; i++)
+                    {
+                        DateTime date = new DateTime(nextMonth.Year, nextMonth.Month, i);
+                        days.Add(new CalendarDay(date, isCurrentMonth: false, highlightedEvents: null, loadDetailsCommand: LoadDetailsCommand));
+                    }
+
+                    break;
+                default:
+                    throw new NotImplementedException();
             }
-
-            // Fill in the current month's days
-            for (int day = 1; day <= daysInMonth; day++)
-            {
-                DateTime date = new DateTime(CurrentMonth.Year, CurrentMonth.Month, day);
-                List<string>? highlightedEvents = HighlightedDates.ContainsKey(date) ? HighlightedDates[date] : null;
-
-                days.Add(new CalendarDay(date, isCurrentMonth: true, highlightedEvents: highlightedEvents, loadDetailsCommand: LoadDetailsCommand));
-            }
-
-            // Fill in the remaining days of the week after the last day of the month
-            int remainingDays = 42 - days.Count; // Ensure a 6-week display
-            DateTime nextMonth = CurrentMonth.AddMonths(1);
-
-            for (int i = 1; i <= remainingDays; i++)
-            {
-                DateTime date = new DateTime(nextMonth.Year, nextMonth.Month, i);
-                days.Add(new CalendarDay(date, isCurrentMonth: false, highlightedEvents: null, loadDetailsCommand: LoadDetailsCommand));
-            }
-
             // Update the CalendarDays property
             CalendarDays = days;
         }
+
+
+        private DateTime CurrentWeekStart()
+        {
+            DateTime today = CurrentMonth;
+            int daysToSubtract = (int)today.DayOfWeek - 1; // Adjust for Monday as the first day
+            daysToSubtract = daysToSubtract < 0 ? 6 : daysToSubtract; // Handle Sunday case
+            return today.AddDays(-daysToSubtract);
+        }
+
 
 
 

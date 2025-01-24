@@ -11,9 +11,12 @@
         <converters:PageNavigationConverter x:Key="PageNavigationConverter" />
         <converters:MonthColorConverter x:Key="MonthColorConverter" />
         <converters:EnumToVisibilityConverter x:Key="EnumToVisibilityConverter" />
+        <converters:DataModeToVisibilityConverter x:Key="DataModeToVisibilityConverter" />
         <converters:TodayDateToColorConverter x:Key="TodayDateToColorConverter" />
         <converters:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
         <converters:ParentHeightConverter x:Key="ParentHeightConverter" />
+        <converters:CalendarModeToRowsConverter x:Key="CalendarModeToRowsConverter" />
+        <converters:CalendarModeToVisibilityConverter x:Key="CalendarModeToVisibilityConverter" />
         <Style x:Key="GlobalDataGridHeaderStyle" TargetType="DataGridColumnHeader">
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="FontSize" Value="12" />

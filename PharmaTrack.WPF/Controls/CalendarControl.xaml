@@ -33,7 +33,7 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
-                            Command="{Binding PreviousMonthCommand}"
+                            Command="{Binding PrevWeekCommand}"
                             FontWeight="Bold"
                             Margin="5">
                         <Button.Content>
@@ -62,7 +62,7 @@
                     </Button>
 
                     <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
-                            Command="{Binding NextMonthCommand}"
+                            Command="{Binding NextWeekCommand}"
                             FontWeight="Bold"
                             Margin="5">
                         <Button.Content>
@@ -95,35 +95,22 @@
                 <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Right"
                             Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
                     <StackPanel Orientation="Horizontal">
-                        <RadioButton GroupName="DataMode"
-                                     IsChecked="{Binding DataMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=MySchedule}"
-                                     Command="{Binding ChangeDataMode}"
-                                     Margin="5">
-                            <RadioButton.Content>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <bi:BootstrapIcon Icon="CalendarRange"
-                                                      Height="16" />
-                                    <TextBlock Text=" My Schedule" 
-                                               FontWeight="Bold"
-                                               VerticalAlignment="Center" />
-                                </StackPanel>
-                            </RadioButton.Content>
-                        </RadioButton>
-                        <RadioButton GroupName="DataMode"
-                                     IsChecked="{Binding DataMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=TeamSchedule}"
-                                     Command="{Binding ChangeDataMode}"
-                                     Margin="5">
-                            <RadioButton.Content>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <bi:BootstrapIcon Icon="CalendarWeek"
-                                                      Width="16"
-                                                      Height="16" />
-                                    <TextBlock Text=" Team Schedule" 
-                                               FontWeight="Bold"
-                                               VerticalAlignment="Center" />
-                                </StackPanel>
-                            </RadioButton.Content>
-                        </RadioButton>
+                        <Button Content="Monthly View"
+                                Command="{Binding ViewMonthlyCommand}"
+                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}" />
+
+                        <Button Content="Weekly View"
+                                Command="{Binding ViewWeeklyCommand}"
+                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}" />
+
+
+                        <Button Content="My Schedule"
+                                Visibility="{Binding DataMode, Converter={StaticResource DataModeToVisibilityConverter}, ConverterParameter=MySchedule}"
+                                Command="{Binding ViewMyScheduleCommand}" />
+
+                        <Button Content="Team Schedule"
+                                Visibility="{Binding DataMode, Converter={StaticResource DataModeToVisibilityConverter}, ConverterParameter=TeamSchedule}"
+                                Command="{Binding ViewTeamScheduleCommand}" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal"
                                 Visibility="{Binding DataMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=TeamSchedule}">
@@ -182,12 +169,11 @@
         <!-- Calendar Grid -->
         <ItemsControl Grid.Row="1" 
                       ItemsSource="{Binding CalendarDays}"
-                      Visibility="{Binding DisplayMode, 
-                               Converter={StaticResource EnumToVisibilityConverter}, 
-                               ConverterParameter=Calendar}">
+                      Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <UniformGrid Rows="6" Columns="7" />
+                    <UniformGrid Columns="7" 
+                         Rows="{Binding CalendarMode, Converter={StaticResource CalendarModeToRowsConverter}}" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
