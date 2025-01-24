@@ -12,13 +12,13 @@
         <!-- Navigation Pange -->
         <StackPanel Grid.Row="0" Margin="5">
 
-            <Grid>
+            <Grid Height="50">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" HorizontalAlignment="Left">
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <!-- Month Header -->
                     <TextBlock Text="{Binding CurrentMonth, StringFormat={}{0:MMMM yyyy}}" 
                                Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
