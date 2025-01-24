@@ -92,10 +92,10 @@
                     </Button>
                 </StackPanel>
                 <!-- Data Mode Selector -->
-                <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Right">
+                <StackPanel Grid.Column="2" Orientation="Vertical" HorizontalAlignment="Right"
+                            Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
                     <StackPanel Orientation="Horizontal">
                         <RadioButton GroupName="DataMode"
-                                     Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
                                      IsChecked="{Binding DataMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=MySchedule}"
                                      Command="{Binding ChangeDataMode}"
                                      Margin="5">
@@ -110,7 +110,6 @@
                             </RadioButton.Content>
                         </RadioButton>
                         <RadioButton GroupName="DataMode"
-                                     Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
                                      IsChecked="{Binding DataMode, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=TeamSchedule}"
                                      Command="{Binding ChangeDataMode}"
                                      Margin="5">
