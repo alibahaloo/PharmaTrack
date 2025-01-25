@@ -60,18 +60,18 @@
 
                     <StackPanel>
                         <Button Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
-        Command="{Binding TodayCommand}"
-        FontWeight="Bold"
-        Margin="5" >
+                                Command="{Binding TodayCommand}"
+                                FontWeight="Bold"
+                                Margin="5" >
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <bi:BootstrapIcon Icon="CalendarMinus"
-                              Margin="5"
-                              Width="20"
-                              Height="20" />
+                                                      Margin="5"
+                                                      Width="20"
+                                                      Height="20" />
                                     <TextBlock Text="Today" 
-                       Margin="5"
-                       VerticalAlignment="Center"/>
+                                               Margin="5"
+                                               VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button.Content>
                         </Button>
@@ -172,13 +172,16 @@
                                    Margin="0,0,5,0"
                                    VerticalAlignment="Center"
                                    FontWeight="Bold"/>
-                        <ComboBox IsEditable="True"
-                                  ItemsSource="{Binding FilteredUsers}" 
-                                  Text="{Binding SelectedUser, UpdateSourceTrigger=PropertyChanged}" 
-                                  StaysOpenOnEdit="True" 
-                                  IsTextSearchEnabled="False"
-                                  IsDropDownOpen="{Binding IsDropDownOpen}" 
-                                  Width="200"/>
+                        <ComboBox x:Name="UserComboBox"
+          IsEditable="True"
+          ItemsSource="{Binding FilteredUsers}" 
+          Text="{Binding SelectedUser, UpdateSourceTrigger=PropertyChanged}" 
+          StaysOpenOnEdit="True" 
+          IsTextSearchEnabled="False"
+          IsDropDownOpen="{Binding IsDropDownOpen}" 
+          Width="200"
+          PreviewTextInput="UserComboBox_PreviewTextInput" />
+
                     </StackPanel>
                 </StackPanel>
             </Grid>

@@ -125,6 +125,88 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
+        private string _selectedUser = string.Empty;
+        private ObservableCollection<string> _filteredUsers = [];
+
+        public ObservableCollection<string> Users { get; } = [];
+
+        public ObservableCollection<string> FilteredUsers
+        {
+            get => _filteredUsers;
+            set
+            {
+                _filteredUsers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string SelectedUser
+        {
+            get => _selectedUser;
+            set
+            {
+                if (_selectedUser != value)
+                {
+                    _selectedUser = value;
+                    OnPropertyChanged();
+                    UpdateFilteredUsers();
+
+                    // Open dropdown when typing
+                    IsDropDownOpen = !string.IsNullOrWhiteSpace(_selectedUser);
+                }
+            }
+        }
+
+        private void UpdateFilteredUsers()
+        {
+            if (string.IsNullOrWhiteSpace(SelectedUser))
+            {
+                FilteredUsers = new ObservableCollection<string>(Users);
+            }
+            else
+            {
+                var filtered = Users
+                    .Where(user => user.ToLower().Contains(SelectedUser.ToLower()))
+                    .ToList();
+
+                FilteredUsers = new ObservableCollection<string>(filtered);
+            }
+        }
+        private bool _isDropDownOpen;
+        public bool IsDropDownOpen
+        {
+            get => _isDropDownOpen;
+            set
+            {
+                if (_isDropDownOpen != value)
+                {
+                    _isDropDownOpen = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public async Task LoadUsersAsync()
+        {
+            DisplayMode = Mode.Loading;
+            //await Task.Delay(500);
+            var users = await _usersService.GetUsernamesAsync();
+
+            Users.Clear();
+            if (users != null)
+            {
+                foreach (var user in users)
+                {
+                    Users.Add(user);
+                }
+
+                // Refresh filtered users
+                UpdateFilteredUsers();
+            }
+
+            DisplayMode = Mode.Calendar;
+        }
+
         public ObservableCollection<ScheduleTask> DailySchedules { get; } = new();
 
         public ICommand LoadDetailsCommand { get; }
@@ -139,10 +221,12 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ViewMonthlyCommand { get; }
         public ICommand ViewWeeklyCommand { get; }
 
+        private readonly UsersService _usersService;
         private readonly ScheduleService _scheduleService;
-        public CalendarControlViewModel(ScheduleService scheduleService)
+        public CalendarControlViewModel(ScheduleService scheduleService, UsersService usersService)
         {
             _scheduleService = scheduleService;
+            _usersService = usersService;
             LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
             LoadCalendarCommand = new RelayCommand(_ => DisplayMode = Mode.Calendar);
 
@@ -158,14 +242,17 @@ namespace PharmaTrack.WPF.ViewModels
 
             ViewMonthlyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Monthly);
             ViewWeeklyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Weekly);
+            
         }
 
-        public void OnViewModelLoaded()
+        public async void OnViewModelLoaded()
         {
             // Logic to execute after the view model is fully loaded
             CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             DataMode = DataMode.MySchedule;
             CalendarMode = CalendarMode.Weekly;
+
+            await LoadUsersAsync();
         }
         private async void ExecuteLoadDetailsCommand(object? parameter)
         {
