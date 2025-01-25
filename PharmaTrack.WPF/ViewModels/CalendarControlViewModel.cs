@@ -230,7 +230,7 @@ namespace PharmaTrack.WPF.ViewModels
             LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
             LoadCalendarCommand = new RelayCommand(_ => DisplayMode = Mode.Calendar);
 
-            TodayCommand = new RelayCommand(_ => CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1));
+            TodayCommand = new RelayCommand(_ => CurrentMonth = DateTime.Today);
             NextMonthCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddMonths(1));
             PreviousMonthCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddMonths(-1));
 
@@ -248,7 +248,7 @@ namespace PharmaTrack.WPF.ViewModels
         public async void OnViewModelLoaded()
         {
             // Logic to execute after the view model is fully loaded
-            CurrentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            CurrentMonth = DateTime.Today;
             DataMode = DataMode.MySchedule;
             CalendarMode = CalendarMode.Weekly;
 
