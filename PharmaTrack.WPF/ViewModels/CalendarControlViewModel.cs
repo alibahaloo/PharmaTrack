@@ -153,9 +153,31 @@ namespace PharmaTrack.WPF.ViewModels
 
                     // Open dropdown when typing
                     IsDropDownOpen = !string.IsNullOrWhiteSpace(_selectedUser);
+
+                    // Clear the final selection when typing
+                    SelectedUserFinal = string.Empty;
                 }
             }
         }
+
+        private string _selectedUserFinal = string.Empty;
+
+        public string SelectedUserFinal
+        {
+            get => _selectedUserFinal;
+            set
+            {
+                if (_selectedUserFinal != value)
+                {
+                    _selectedUserFinal = value;
+                    OnPropertyChanged();
+
+                    // Load dates for the selected user
+                    LoadHighlightedDatesAsync(); 
+                }
+            }
+        }
+
 
         private void UpdateFilteredUsers()
         {
@@ -221,6 +243,8 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ViewMonthlyCommand { get; }
         public ICommand ViewWeeklyCommand { get; }
 
+        public ICommand ClearSelectionCommand { get; }
+
         private readonly UsersService _usersService;
         private readonly ScheduleService _scheduleService;
         public CalendarControlViewModel(ScheduleService scheduleService, UsersService usersService)
@@ -242,7 +266,8 @@ namespace PharmaTrack.WPF.ViewModels
 
             ViewMonthlyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Monthly);
             ViewWeeklyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Weekly);
-            
+
+            ClearSelectionCommand = new RelayCommand(ExecuteClearSelection);
         }
 
         public async void OnViewModelLoaded()
@@ -254,6 +279,19 @@ namespace PharmaTrack.WPF.ViewModels
 
             await LoadUsersAsync();
         }
+
+        private void ExecuteClearSelection(object? parameter)
+        {
+            SelectedUser = string.Empty;
+            SelectedUserFinal = string.Empty;
+
+            // Optionally close the dropdown if open
+            IsDropDownOpen = false;
+
+            // Update filtered users to show all items
+            UpdateFilteredUsers();
+        }
+
         private async void ExecuteLoadDetailsCommand(object? parameter)
         {
             if (parameter is DateTime selectedDate)
@@ -296,7 +334,14 @@ namespace PharmaTrack.WPF.ViewModels
                     scheduleTasks = await _scheduleService.GetMyMonthlyScheduleTasksAsync(month);
                     break;
                 case DataMode.TeamSchedule:
-                    scheduleTasks = await _scheduleService.GetMonthlyScheduleTasksAsync(month);
+                    if (!string.IsNullOrEmpty(SelectedUserFinal))
+                    {
+                        scheduleTasks = await _scheduleService.GetUserScheduleTasksAsync(month, SelectedUserFinal);
+                    } else
+                    {
+                        scheduleTasks = await _scheduleService.GetMonthlyScheduleTasksAsync(month);
+                    }
+                    
                     break;
                 default:
                     throw new InvalidOperationException("Unsupported DataMode");
