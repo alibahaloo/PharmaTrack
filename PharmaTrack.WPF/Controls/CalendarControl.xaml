@@ -161,16 +161,18 @@
                                   StaysOpenOnEdit="True" 
                                   IsTextSearchEnabled="False"
                                   IsDropDownOpen="{Binding IsDropDownOpen}" 
-                                  SelectedItem="{Binding SelectedUserFinal}"
                                   Width="200"
                                   PreviewTextInput="UserComboBox_PreviewTextInput" />
                         <Button Margin="5,0,0,0"        
-                                ToolTip="Search">
+                                Command="{Binding FilterForSelectedUserCommand}"
+                                ToolTip="Filter">
                             <Button.Content>
                                 <bi:BootstrapIcon Icon="Filter" />
                             </Button.Content>
                         </Button>
                         <Button Margin="5,0,0,0"
+                                x:Name="ClearSelectionBtn"
+                                Click="ClearSelectionBtn_Click"
                                 Command="{Binding ClearSelectionCommand}"
                                 ToolTip="Clear">
                             <Button.Content>
