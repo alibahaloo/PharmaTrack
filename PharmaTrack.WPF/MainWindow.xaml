@@ -22,18 +22,11 @@
                     <MenuItem.Icon>
                         <bi:BootstrapIcon Icon="Calendar" />
                     </MenuItem.Icon>
-                    <MenuItem Header="My Schedule" 
+                    <MenuItem Header="Schedules" 
                               Command="{Binding ShowMyScheduleCommand}" 
                               Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                         <MenuItem.Icon>
                             <bi:BootstrapIcon Icon="CalendarRange" />
-                        </MenuItem.Icon>
-                    </MenuItem>
-                    <Separator/>
-                    <MenuItem Header="All Schedules" 
-                              Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
-                        <MenuItem.Icon>
-                            <bi:BootstrapIcon Icon="CalendarWeek" />
                         </MenuItem.Icon>
                     </MenuItem>
                     <Separator/>

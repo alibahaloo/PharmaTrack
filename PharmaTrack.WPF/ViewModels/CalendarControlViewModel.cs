@@ -410,6 +410,10 @@ namespace PharmaTrack.WPF.ViewModels
             // Update the CalendarDays property
             CalendarDays = days;
         }
+        public ObservableCollection<string> DayNames { get; } = new ObservableCollection<string>
+{
+    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+};
 
         private DateTime CurrentWeekStart()
         {

@@ -97,7 +97,6 @@
 
                         <TextBlock Text="{Binding SelectedDate, StringFormat={}{0:dd MMMM yyyy}}"
                                    Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}"
-                                   VerticalAlignment="Top"
                                    FontSize="20" 
                                    FontWeight="Bold"/>
                     </StackPanel>
@@ -108,6 +107,10 @@
                             Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <TextBlock Text="View:"
+                                   FontWeight="Bold" 
+                                   VerticalAlignment="Center" />
+                        
                         <Button Command="{Binding ViewMonthlyCommand}"
                                 ToolTip="Monthly View"
                                 Margin="5,5,0,5"
@@ -126,6 +129,9 @@
                             </Button.Content>
                         </Button>
 
+                        <TextBlock Text="Schedule:" 
+                                   FontWeight="Bold" 
+                                   VerticalAlignment="Center" Margin="5,0,0,0"/>
 
                         <Button Visibility="{Binding DataMode, Converter={StaticResource DataModeToVisibilityConverter}, ConverterParameter=MySchedule}"
                                 Margin="5"
@@ -149,7 +155,7 @@
                     <StackPanel Orientation="Horizontal"
                                 Margin="0,0,5,5"
                                 Visibility="{Binding DataMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=TeamSchedule}">
-                        <TextBlock Text="User:"
+                        <TextBlock Text="Filter by user:"
                                    Margin="0,0,5,0"
                                    VerticalAlignment="Center"
                                    FontWeight="Bold"/>
@@ -220,58 +226,86 @@
         </StackPanel>
 
         <!-- Calendar Grid -->
-        <ItemsControl Grid.Row="1" 
-                      ItemsSource="{Binding CalendarDays}"
-                      Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <UniformGrid Columns="7" 
-                         Rows="{Binding CalendarMode, Converter={StaticResource CalendarModeToRowsConverter}}" />
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderThickness="1" BorderBrush="Gray" 
-                            Cursor="Hand"
-                            Background="{Binding IsCurrentMonth, Converter={StaticResource MonthColorConverter}}">
-                        <Border.InputBindings>
-                            <MouseBinding Gesture="LeftClick"
-                                          Command="{Binding LoadDetailsCommand}" 
-                                          CommandParameter="{Binding Date}" />
-                        </Border.InputBindings>
-                        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2">
-                            <TextBlock Text="{Binding Date.Day}" 
-                                       Foreground="{Binding Date, Converter={StaticResource TodayDateToColorConverter}}"
-                                       FontSize="16" 
-                                       FontWeight="Bold" />
-                            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Disabled"
-                                          MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}, Converter={StaticResource ParentHeightConverter}}">
-                                <ItemsControl ItemsSource="{Binding HighlightedEvents}" Margin="2">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                            <TextBlock Text="{Binding}" 
-                                                       Padding="2"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       TextWrapping="NoWrap"
-                                                       Background="LightGreen"
-                                                       FontSize="10" 
-                                                       Foreground="Black">
-                            <!-- MouseBinding for Triggering Parent Command -->
-                                                <TextBlock.InputBindings>
-                                                    <MouseBinding Gesture="LeftClick"
-                                                                  Command="{Binding DataContext.LoadDetailsCommand, RelativeSource={RelativeSource AncestorType=Border}}"
-                                                                  CommandParameter="{Binding DataContext.Date, RelativeSource={RelativeSource AncestorType=Border}}" />
-                                                </TextBlock.InputBindings>
-                                            </TextBlock>
-                                        </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                            </ScrollViewer>
-                        </StackPanel>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+        <Grid Grid.Row="1"
+              Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
+            <!-- Define Rows for the Grid -->
+            <Grid.RowDefinitions>
+                <!-- Row for Days of the Week Header -->
+                <RowDefinition Height="Auto" />
+                <!-- Row for Calendar Days -->
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ItemsControl Grid.Row="0" ItemsSource="{Binding DayNames}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="7" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" 
+                                   HorizontalAlignment="Center" 
+                                   FontWeight="Bold" 
+                                   FontSize="14" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl Grid.Row="1"
+                          ItemsSource="{Binding CalendarDays}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="7" 
+                                     Rows="{Binding CalendarMode, Converter={StaticResource CalendarModeToRowsConverter}}" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderThickness="1" 
+                                BorderBrush="Gray" 
+                                Cursor="Hand"
+                                Background="{Binding IsCurrentMonth, Converter={StaticResource MonthColorConverter}}">
+                            <Border.InputBindings>
+                                <MouseBinding Gesture="LeftClick"
+                                              Command="{Binding LoadDetailsCommand}" 
+                                              CommandParameter="{Binding Date}" />
+                            </Border.InputBindings>
+                            <StackPanel HorizontalAlignment="Left" 
+                                        VerticalAlignment="Top">
+                                <TextBlock Text="{Binding Date.Day}" 
+                                           Foreground="{Binding Date, Converter={StaticResource TodayDateToColorConverter}}"
+                                           FontSize="16" 
+                                           FontWeight="Bold"
+                                           Margin="2"/>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled"
+                                              MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}, Converter={StaticResource ParentHeightConverter}}">
+                                    <ItemsControl ItemsSource="{Binding HighlightedEvents}" 
+                                                  Margin="2">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding}" 
+                                                           Padding="2"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           TextWrapping="NoWrap"
+                                                           Background="LightGreen"
+                                                           FontSize="10" 
+                                                           Foreground="Black">
+                                                    <!-- MouseBinding for Triggering Parent Command -->
+                                                    <TextBlock.InputBindings>
+                                                        <MouseBinding Gesture="LeftClick"
+                                                                      Command="{Binding DataContext.LoadDetailsCommand, RelativeSource={RelativeSource AncestorType=Border}}"
+                                                                      CommandParameter="{Binding DataContext.Date, RelativeSource={RelativeSource AncestorType=Border}}" />
+                                                    </TextBlock.InputBindings>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
     </Grid>
 </UserControl>
