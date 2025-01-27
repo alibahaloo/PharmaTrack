@@ -1,8 +1,10 @@
 ﻿using PharmaTrack.Shared.DBModels;
+using PharmaTrack.WPF.Controls;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net.Http;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -69,6 +71,20 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand LoadProductsCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
+
+        private Product _selectedProduct = default!;
+        public Product SelectedProduct
+        {
+            get => _selectedProduct;
+            set
+            {
+                _selectedProduct = value;
+                OnPropertyChanged(nameof(SelectedProduct));
+            }
+        }
+
+        public ICommand ViewProductCommand { get; }
+
         public InventoryViewModel(InventoryService inventoryService)
         {
             _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
@@ -76,6 +92,20 @@ namespace PharmaTrack.WPF.ViewModels
             LoadProductsCommand = new AsyncRelayCommand(async _ => await LoadProductsAsync());
             NextPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(1));
             PreviousPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(-1));
+
+            ViewProductCommand = new RelayCommand(
+                param =>
+                {
+                    if (SelectedProduct != null)
+                    {
+                        if (Application.Current.MainWindow.DataContext is MainWindowViewModel mainViewModel)
+                        {
+                            var productControl = new ProductControl(SelectedProduct.Id);
+                            mainViewModel.CurrentContent = productControl;
+                        }
+                    }
+                },
+                param => SelectedProduct != null);
         }
         public async Task LoadProductsAsync()
         {

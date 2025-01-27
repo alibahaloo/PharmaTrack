@@ -71,7 +71,8 @@ namespace PharmaTrack.WPF
             services.AddSingleton<UsersControl>();
             services.AddSingleton<CalendarControl>();
             services.AddSingleton<ScheduleControl>();
-            
+
+            services.AddSingleton<ProductControl>();
         }
     }
 }
