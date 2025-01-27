@@ -8,15 +8,15 @@ using System.Windows.Input;
 
 namespace PharmaTrack.WPF.ViewModels
 {
-    public enum CalendarMode
+    public enum ViewMode
     {
         Weekly,
         Monthly
     }
-    public enum Mode
+    public enum ControlMode
     {
         Loading,
-        Calendar,
+        List,
         Details,
     }
     public enum DataMode
@@ -31,15 +31,15 @@ namespace PharmaTrack.WPF.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        private CalendarMode _calendarMode;
-        public CalendarMode CalendarMode
+        private ViewMode _viewMode;
+        public ViewMode ViewMode
         {
-            get => _calendarMode;
+            get => _viewMode;
             set
             {
-                if (_calendarMode != value)
+                if (_viewMode != value)
                 {
-                    _calendarMode = value;
+                    _viewMode = value;
                     OnPropertyChanged();
                     LoadHighlightedDatesAsync();
                 }
@@ -75,14 +75,14 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
-        private Mode _displayMode = Mode.Loading;
-        public Mode DisplayMode
+        private ControlMode _controlMode = ControlMode.Loading;
+        public ControlMode ControlMode
         {
-            get => _displayMode;
+            get => _controlMode;
             set
             {
-                _displayMode = value;
-                OnPropertyChanged(nameof(DisplayMode));
+                _controlMode = value;
+                OnPropertyChanged(nameof(ControlMode));
 
             }
         }
@@ -188,7 +188,7 @@ namespace PharmaTrack.WPF.ViewModels
 
         public async Task LoadUsersAsync()
         {
-            DisplayMode = Mode.Loading;
+            ControlMode = ControlMode.Loading;
             //await Task.Delay(500);
             var users = await _usersService.GetUsernamesAsync();
 
@@ -204,7 +204,7 @@ namespace PharmaTrack.WPF.ViewModels
                 UpdateFilteredUsers();
             }
 
-            DisplayMode = Mode.Calendar;
+            ControlMode = ControlMode.List;
         }
 
         public ObservableCollection<ScheduleTask> DailySchedules { get; } = new();
@@ -232,7 +232,7 @@ namespace PharmaTrack.WPF.ViewModels
             _scheduleService = scheduleService;
             _usersService = usersService;
             LoadDetailsCommand = new RelayCommand(param => ExecuteLoadDetailsCommand(param));
-            LoadCalendarCommand = new RelayCommand(_ => DisplayMode = Mode.Calendar);
+            LoadCalendarCommand = new RelayCommand(_ => ControlMode = ControlMode.List);
 
             TodayCommand = new RelayCommand(_ => CurrentMonth = DateTime.Today);
             NextMonthCommand = new RelayCommand(_ => CurrentMonth = CurrentMonth.AddMonths(1));
@@ -244,8 +244,8 @@ namespace PharmaTrack.WPF.ViewModels
             ViewMyScheduleCommand = new RelayCommand(_ => DataMode = DataMode.MySchedule);
             ViewTeamScheduleCommand = new RelayCommand(_ => DataMode = DataMode.TeamSchedule);
 
-            ViewMonthlyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Monthly);
-            ViewWeeklyCommand = new RelayCommand(_ => CalendarMode = CalendarMode.Weekly);
+            ViewMonthlyCommand = new RelayCommand(_ => ViewMode = ViewMode.Monthly);
+            ViewWeeklyCommand = new RelayCommand(_ => ViewMode = ViewMode.Weekly);
 
             ClearSelectionCommand = new RelayCommand(_ => LoadHighlightedDatesAsync());
             FilterForSelectedUserCommand = new RelayCommand(_ => LoadHighlightedDatesAsync());
@@ -256,7 +256,7 @@ namespace PharmaTrack.WPF.ViewModels
             // Logic to execute after the view model is fully loaded
             CurrentMonth = DateTime.Today;
             DataMode = DataMode.MySchedule;
-            CalendarMode = CalendarMode.Weekly;
+            ViewMode = ViewMode.Weekly;
 
             await LoadUsersAsync();
         }
@@ -264,7 +264,7 @@ namespace PharmaTrack.WPF.ViewModels
         {
             if (parameter is DateTime selectedDate)
             {
-                DisplayMode = Mode.Loading;
+                ControlMode = ControlMode.Loading;
 
                 SelectedDate = selectedDate;
 
@@ -286,12 +286,12 @@ namespace PharmaTrack.WPF.ViewModels
                     }
                 }
 
-                DisplayMode = Mode.Details;
+                ControlMode = ControlMode.Details;
             }
         }
         private async Task<Dictionary<DateTime, List<string>>> FetchEventsForMonthAsync(DateTime month)
         {
-            DisplayMode = Mode.Loading;
+            ControlMode = ControlMode.Loading;
             //await Task.Delay(500); // Simulate API delay
 
             List<ScheduleTask>? scheduleTasks = null;
@@ -328,7 +328,7 @@ namespace PharmaTrack.WPF.ViewModels
                     ).ToList()
                 );
 
-            DisplayMode = Mode.Calendar;
+            ControlMode = ControlMode.List;
             return groupedSchedules ?? [];
         }
         private async void LoadHighlightedDatesAsync()
@@ -350,9 +350,9 @@ namespace PharmaTrack.WPF.ViewModels
         {
             var days = new ObservableCollection<CalendarDay>();
 
-            switch (CalendarMode)
+            switch (ViewMode)
             {
-                case CalendarMode.Weekly:
+                case ViewMode.Weekly:
                     // Get the start of the current week (Monday)
                     DateTime startOfWeek = CurrentWeekStart();
 
@@ -365,7 +365,7 @@ namespace PharmaTrack.WPF.ViewModels
                         days.Add(new CalendarDay(date, isCurrentMonth: date.Month == CurrentMonth.Month, highlightedEvents: highlightedEvents, loadDetailsCommand: LoadDetailsCommand));
                     }
                     break;
-                case CalendarMode.Monthly:
+                case ViewMode.Monthly:
                     // Get the first day of the month and determine its position in the week
                     DateTime firstDayOfMonth = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
                     int daysInMonth = DateTime.DaysInMonth(CurrentMonth.Year, CurrentMonth.Month);

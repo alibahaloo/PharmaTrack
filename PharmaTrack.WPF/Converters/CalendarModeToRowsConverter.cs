@@ -8,9 +8,9 @@ namespace PharmaTrack.WPF.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is CalendarMode calendarMode)
+            if (value is ViewMode calendarMode)
             {
-                return calendarMode == CalendarMode.Weekly ? 1 : 6;
+                return calendarMode == ViewMode.Weekly ? 1 : 6;
             }
 
             return 6; // Default to 6 (Monthly)

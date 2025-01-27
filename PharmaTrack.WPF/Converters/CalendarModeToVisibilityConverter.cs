@@ -9,9 +9,9 @@ namespace PharmaTrack.WPF.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is CalendarMode currentMode && parameter is string targetModeString)
+            if (value is ViewMode currentMode && parameter is string targetModeString)
             {
-                if (Enum.TryParse(typeof(CalendarMode), targetModeString, out var targetMode) && targetMode is CalendarMode target)
+                if (Enum.TryParse(typeof(ViewMode), targetModeString, out var targetMode) && targetMode is ViewMode target)
                 {
                     // Hide the button if the current mode matches the target mode
                     return currentMode == target ? Visibility.Collapsed : Visibility.Visible;

@@ -19,9 +19,9 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Vertical" HorizontalAlignment="Left">
                     <StackPanel Orientation="Horizontal">
-                        <StackPanel Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
+                        <StackPanel Visibility="{Binding ControlMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=List}">
                             <Button Command="{Binding PreviousMonthCommand}"
-                                    Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}"
+                                    Visibility="{Binding ViewMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}"
                                     FontWeight="Bold"
                                     Margin="5,5,0,0">
                                 <Button.Content>
@@ -29,7 +29,7 @@
                                 </Button.Content>
                             </Button>
                             <Button Command="{Binding PrevWeekCommand}"
-                                    Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}"
+                                    Visibility="{Binding ViewMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}"
                                     FontWeight="Bold"
                                     Margin="5,5,0,0">
                                 <Button.Content>
@@ -40,7 +40,7 @@
 
                         <StackPanel>
                             <Button Command="{Binding TodayCommand}"
-                                    Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
+                                    Visibility="{Binding ControlMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=List}"
                                     FontWeight="Bold"
                                     Margin="5,5,5,0">
                                 <Button.Content>
@@ -53,7 +53,7 @@
                                 </Button.Content>
                             </Button>
                             <Button x:Name="BackToCalendar" 
-                                    Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}"
+                                    Visibility="{Binding ControlMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}"
                                     Command="{Binding LoadCalendarCommand}" 
                                     FontWeight="Bold"
                                     Margin="5">
@@ -68,9 +68,9 @@
                             </Button>
                         </StackPanel>
 
-                        <StackPanel Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
+                        <StackPanel Visibility="{Binding ControlMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=List}">
                             <Button Command="{Binding NextWeekCommand}"
-                                    Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}"
+                                    Visibility="{Binding ViewMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}"
                                     FontWeight="Bold"
                                     Margin="0,5,0,0">
                                 <Button.Content>
@@ -78,7 +78,7 @@
                                 </Button.Content>
                             </Button>
                             <Button Command="{Binding NextMonthCommand}"
-                                    Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}"
+                                    Visibility="{Binding ViewMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}"
                                     FontWeight="Bold"
                                     Margin="0,5,0,0">
                                 <Button.Content>
@@ -91,12 +91,12 @@
                     <StackPanel Margin="5,0,0,0">
                         <!-- Month Header -->
                         <TextBlock Text="{Binding CurrentMonth, StringFormat={}{0:MMMM yyyy}}" 
-                                   Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}"
+                                   Visibility="{Binding ControlMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=List}"
                                    FontSize="20" 
                                    FontWeight="Bold" />
 
                         <TextBlock Text="{Binding SelectedDate, StringFormat={}{0:dd MMMM yyyy}}"
-                                   Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}"
+                                   Visibility="{Binding ControlMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}"
                                    FontSize="20" 
                                    FontWeight="Bold"/>
                     </StackPanel>
@@ -104,7 +104,7 @@
                 </StackPanel>
                 <!-- Data Mode Selector -->
                 <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Right"
-                            Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
+                            Visibility="{Binding ControlMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=List}">
                     
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <TextBlock Text="View:"
@@ -114,7 +114,7 @@
                         <Button Command="{Binding ViewMonthlyCommand}"
                                 ToolTip="Monthly View"
                                 Margin="5,5,0,5"
-                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}">
+                                Visibility="{Binding ViewMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Monthly}">
                             <Button.Content>
                                 <bi:BootstrapIcon Icon="CalendarMonth" />
                             </Button.Content>
@@ -123,7 +123,7 @@
                         <Button Command="{Binding ViewWeeklyCommand}"
                                 ToolTip="Weekly View"
                                 Margin="5,5,0,5"
-                                Visibility="{Binding CalendarMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}">
+                                Visibility="{Binding ViewMode, Converter={StaticResource CalendarModeToVisibilityConverter}, ConverterParameter=Weekly}">
                             <Button.Content>
                                 <bi:BootstrapIcon Icon="CalendarWeek" />
                             </Button.Content>
@@ -193,7 +193,7 @@
         <!-- Loading Section -->
         <StackPanel Grid.Row="1" 
                 VerticalAlignment="Center"
-                Visibility="{Binding DisplayMode, 
+                Visibility="{Binding ControlMode, 
                              Converter={StaticResource EnumToVisibilityConverter}, 
                              ConverterParameter=Loading}">
             <local:LoadingControl />
@@ -201,7 +201,7 @@
 
         <!-- Details Grid -->
         <StackPanel Grid.Row="1" 
-            Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}">
+            Visibility="{Binding ControlMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Details}">
             <ItemsControl ItemsSource="{Binding DailySchedules}" Margin="10">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -227,7 +227,7 @@
 
         <!-- Calendar Grid -->
         <Grid Grid.Row="1"
-              Visibility="{Binding DisplayMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=Calendar}">
+              Visibility="{Binding ControlMode, Converter={StaticResource EnumToVisibilityConverter}, ConverterParameter=List}">
             <!-- Define Rows for the Grid -->
             <Grid.RowDefinitions>
                 <!-- Row for Days of the Week Header -->
@@ -255,7 +255,7 @@
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <UniformGrid Columns="7" 
-                                     Rows="{Binding CalendarMode, Converter={StaticResource CalendarModeToRowsConverter}}" />
+                                     Rows="{Binding ViewMode, Converter={StaticResource CalendarModeToRowsConverter}}" />
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
