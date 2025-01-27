@@ -100,7 +100,7 @@ namespace PharmaTrack.WPF.ViewModels
                     {
                         if (Application.Current.MainWindow.DataContext is MainWindowViewModel mainViewModel)
                         {
-                            var productControl = new ProductControl(SelectedProduct.Id);
+                            var productControl = new ProductControl(SelectedProduct.Id, inventoryService);
                             mainViewModel.CurrentContent = productControl;
                         }
                     }

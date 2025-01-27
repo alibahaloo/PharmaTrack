@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using PharmaTrack.WPF.Helpers;
+using System.Windows.Controls;
 
 namespace PharmaTrack.WPF.Controls
 {
@@ -7,10 +8,10 @@ namespace PharmaTrack.WPF.Controls
     /// </summary>
     public partial class ProductControl : UserControl
     {
-        public ProductControl(int productId)
+        public ProductControl(int productId, InventoryService inventoryService)
         {
             InitializeComponent();
-            DataContext = new ProductViewModel(productId);
+            DataContext = new ProductViewModel(productId, inventoryService);
         }
     }
 }

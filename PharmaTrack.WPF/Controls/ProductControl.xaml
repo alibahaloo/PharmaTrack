@@ -12,19 +12,63 @@
                     Command="{Binding GoBackCommand}" />
         </StackPanel>
 
-        <!-- Product Details -->
-        <Grid Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+        <!-- Product Details Form -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="10">
+                <!-- Define rows for each field and buttons -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-            <TextBlock Text="Product ID:" FontWeight="Bold" VerticalAlignment="Center" />
-            <TextBlock Text="{Binding ProductId}" Grid.Column="1" VerticalAlignment="Center" />
-        </Grid>
+                <!-- Define two columns for labels and inputs -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Product Fields -->
+                <TextBlock Text="Product ID:" FontWeight="Bold" VerticalAlignment="Center" Grid.Row="0" />
+                <TextBox Text="{Binding Product.Id, Mode=OneWay}" Grid.Column="1" Grid.Row="0" IsReadOnly="True" />
+
+                <TextBlock Text="UPC:" FontWeight="Bold" VerticalAlignment="Center" Grid.Row="1" />
+                <TextBox Text="{Binding Product.UPC, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" />
+
+                <TextBlock Text="NPN:" FontWeight="Bold" VerticalAlignment="Center" Grid.Row="2" />
+                <TextBox Text="{Binding Product.NPN, Mode=TwoWay}" Grid.Column="1" Grid.Row="2" />
+
+                <TextBlock Text="DIN:" FontWeight="Bold" VerticalAlignment="Center" Grid.Row="3" />
+                <TextBox Text="{Binding Product.DIN, Mode=TwoWay}" Grid.Column="1" Grid.Row="3" />
+
+                <TextBlock Text="Name:" FontWeight="Bold" VerticalAlignment="Center" Grid.Row="4" />
+                <TextBox Text="{Binding Product.Name, Mode=TwoWay}" Grid.Column="1" Grid.Row="4" />
+
+                <TextBlock Text="Brand:" FontWeight="Bold" VerticalAlignment="Center" Grid.Row="5" />
+                <TextBox Text="{Binding Product.Brand, Mode=TwoWay}" Grid.Column="1" Grid.Row="5" />
+
+                <TextBlock Text="Quantity:" FontWeight="Bold" VerticalAlignment="Center" Grid.Row="6" />
+                <TextBox Text="{Binding Product.Quantity, Mode=TwoWay}" Grid.Column="1" Grid.Row="6" />
+
+                <TextBlock Text="Created At:" FontWeight="Bold" VerticalAlignment="Center" Grid.Row="7" />
+                <TextBox Text="{Binding Product.CreatedAt, Mode=OneWay}" Grid.Column="1" Grid.Row="7" IsReadOnly="True" />
+
+                <TextBlock Text="Updated At:" FontWeight="Bold" VerticalAlignment="Center" Grid.Row="8" />
+                <TextBox Text="{Binding Product.UpdatedAt, Mode=OneWay}" Grid.Column="1" Grid.Row="8" IsReadOnly="True" />
+
+                <!-- Action Buttons -->
+                <StackPanel Orientation="Horizontal" Grid.Row="9" Grid.ColumnSpan="2" HorizontalAlignment="Right" Margin="10">
+                    <Button Content="Save" Command="{Binding SaveCommand}" Width="100" Margin="5" />
+                    <Button Content="Cancel" Command="{Binding GoBackCommand}" Width="100" Margin="5" />
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
     </DockPanel>
 </UserControl>

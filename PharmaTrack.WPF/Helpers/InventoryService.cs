@@ -54,7 +54,6 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
-
         public async Task<PagedResponse<Product>?> GetProductsAsync(int curPage = 1)
         {
             string? accessToken = TokenStorage.AccessToken;
@@ -115,7 +114,34 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
+        public async Task<Product?> GetProductByIdAsync(int Id)
+        {
+            string apiUrl = $"{_productsUrl}{Id}";
 
+            string? accessToken = TokenStorage.AccessToken;
+            if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
+
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            var response = await _httpClient.GetAsync(apiUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                // Parse the response (deserialize JSON into Product object)
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<Product>(responseData, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+
+            throw response.StatusCode switch
+            {
+                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
+            };
+        }
         public async Task<bool> StockTransferAsync(StockTransferRequest request)
         {
             if (request == null)
