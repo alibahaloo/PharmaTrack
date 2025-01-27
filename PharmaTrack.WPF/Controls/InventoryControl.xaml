@@ -71,7 +71,8 @@
                       CanUserAddRows="False" 
                       CanUserDeleteRows="False"
                       IsReadOnly="True"
-                      ColumnHeaderStyle="{StaticResource GlobalDataGridHeaderStyle}">
+                      ColumnHeaderStyle="{StaticResource GlobalDataGridHeaderStyle}"
+                      MouseDoubleClick="DataGrid_MouseDoubleClick">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="UPC" Binding="{Binding UPC}" Width="auto"/>
                     <DataGridTextColumn Header="NPN" Binding="{Binding NPN}" />
