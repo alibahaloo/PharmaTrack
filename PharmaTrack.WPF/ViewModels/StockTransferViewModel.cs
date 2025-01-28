@@ -3,6 +3,7 @@ using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Helpers;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -178,9 +179,22 @@ namespace PharmaTrack.WPF.ViewModels
             set { _isStockOut = value; OnPropertyChanged(); }
         }
 
+        private bool _isUPCInputFocused;
+        public bool IsUPCInputFocused
+        {
+            get => _isUPCInputFocused;
+            set
+            {
+                _isUPCInputFocused = value;
+                OnPropertyChanged(nameof(IsUPCInputFocused));
+            }
+        }
+
+
         public ICommand ScanBarcodeCommand { get; }
         public ICommand SubmitCommand { get; }
         public ICommand LookupCommand { get; }
+        public ICommand ClearCommand { get; }
 
         private readonly InventoryService _inventoryService;
 
@@ -197,6 +211,16 @@ namespace PharmaTrack.WPF.ViewModels
             ScanBarcodeCommand = new RelayCommand(ExecuteScanBarcodeCommand);
             SubmitCommand = new RelayCommand(ExecuteSubmitCommand);
             LookupCommand = new RelayCommand(ExecuteLookupCommand);
+            ClearCommand = new RelayCommand(_ => ClearForm());
+        }
+        private void ClearForm()
+        {
+            UPCInput = string.Empty;
+            ProductDescription = string.Empty;
+            Quantity = string.Empty;
+            NPN = string.Empty;
+            DIN = string.Empty;
+            Brand = string.Empty;
         }
         private void UpdateSubmitButtonState()
         {
@@ -290,6 +314,12 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     StatusText = "Stock Transfer Submitted Successfully!";
                     StatusForeground = Brushes.Blue;
+                    MessageBoxResult result = MessageBox.Show("Stock Transfer Submitted Successfully!", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);
+                    if (result == MessageBoxResult.OK)
+                    {
+                        ClearForm();
+                        IsUPCInputFocused = true; // Set focus
+                    }
                 }
             }
             catch (Exception ex)
