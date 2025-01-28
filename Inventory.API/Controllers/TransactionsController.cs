@@ -26,18 +26,13 @@ namespace Inventory.API.Controllers
 
             if (request != null)
             {
-                if (!string.IsNullOrEmpty(request.UPC)) query = query.Where(t => t.Product.UPC == request.UPC);
-                if (!string.IsNullOrEmpty(request.Product)) query = query.Where(t => t.Product.Name.Contains(request.Product, StringComparison.CurrentCultureIgnoreCase));
-                if (!string.IsNullOrEmpty(request.Brand))
-                {
-                    query = query.Where(t => t.Product.Brand != null &&
-                                             t.Product.Brand.Contains(request.Brand, StringComparison.CurrentCultureIgnoreCase));
-                }
-                if (request.Type != null)
-                {
-                    query = query.Where(t => t.Type == request.Type);
-                }
-            }            
+                query = query.Where(t =>
+                    (string.IsNullOrEmpty(request.UPC) || t.Product.UPC == request.UPC) &&
+                    (string.IsNullOrEmpty(request.Product) || t.Product.Name.ToLower().Contains(request.Product.ToLower())) &&
+                    (string.IsNullOrEmpty(request.Brand) || (t.Product.Brand != null && t.Product.Brand.ToLower().Contains(request.Brand.ToLower()))) &&
+                    (request.Type == null || t.Type == request.Type)
+                );
+            }
 
             var result = await EFExtensions.GetPaged(query, curPage);
 

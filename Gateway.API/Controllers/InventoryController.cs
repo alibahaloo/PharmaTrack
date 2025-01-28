@@ -239,9 +239,6 @@ namespace Gateway.API.Controllers
         [HttpGet("transactions")]
         public async Task<IActionResult> GetAllTransactions([FromQuery] TransactionsRequest request, int curPage = 1)
         {
-            // Define the Inventory API endpoint URL
-            //var getTransactionsUrl = $"{_inventoryApiBaseUrl}/api/transactions?curPage={curPage}";
-
             try
             {
                 // Serialize TransactionsRequest into query parameters
@@ -269,7 +266,6 @@ namespace Gateway.API.Controllers
 
                 var queryString = string.Join("&", queryParameters);
                 var getTransactionsUrl = $"{_inventoryApiBaseUrl}/api/transactions?{queryString}";
-
 
                 // Send GET request to the Inventory API
                 var response = await _httpClient.GetAsync(getTransactionsUrl);
