@@ -96,7 +96,7 @@ namespace Inventory.API.Controllers
                 existingProduct.NPN = updateRequest.NPN;
                 existingProduct.DIN = updateRequest.DIN;
                 existingProduct.Brand = updateRequest.Brand;
-                existingProduct.Quantity = updateRequest.Quantity;
+                //existingProduct.Quantity = updateRequest.Quantity;
                 existingProduct.UpdatedAt = DateTime.UtcNow;
 
                 // Save changes to the database

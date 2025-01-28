@@ -142,6 +142,33 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
+        public async Task<bool> UpdateProductAsync(Product product)
+        {
+            string apiUrl = $"{_productsUrl}{product.Id}";
+
+            string? accessToken = TokenStorage.AccessToken;
+            if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
+
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            // Serialize the request body
+            var jsonBody = JsonSerializer.Serialize(product);
+            var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+            // Make the POST request
+            var response = await _httpClient.PutAsync(apiUrl, content);
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            throw response.StatusCode switch
+            {
+                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"An error occurred: {await response.Content.ReadAsStringAsync()}"),
+            };
+        }
         public async Task<bool> StockTransferAsync(StockTransferRequest request)
         {
             if (request == null)

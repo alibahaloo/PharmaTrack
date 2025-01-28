@@ -3,6 +3,7 @@ using PharmaTrack.WPF.Helpers;
 using PharmaTrack.WPF.ViewModels;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -133,11 +134,11 @@ public class ProductViewModel : INotifyPropertyChanged
 
         try
         {
-            // Logic to save the updated product (implement API call here)
-            // await _inventoryService.UpdateProductAsync(Product);
-
-            // Simulate save
-            Product.UpdatedAt = DateTime.UtcNow;
+            await _inventoryService.UpdateProductAsync(Product);
+            MessageBoxResult result = MessageBox.Show("Product Updated Successfully.", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (result == MessageBoxResult.OK) {
+                GoBackToInventory();
+            }            
         }
         catch (Exception ex)
         {
