@@ -142,7 +142,7 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
-        public async Task<bool> UpdateProductAsync(Product product)
+        public async Task UpdateProductAsync(Product product)
         {
             string apiUrl = $"{_productsUrl}{product.Id}";
 
@@ -157,19 +157,23 @@ namespace PharmaTrack.WPF.Helpers
             var jsonBody = JsonSerializer.Serialize(product);
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
-            // Make the POST request
-            var response = await _httpClient.PutAsync(apiUrl, content);
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return true;
+                // Make the POST request
+                var response = await _httpClient.PutAsync(apiUrl, content);
+                response.EnsureSuccessStatusCode();
             }
-            throw response.StatusCode switch
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
-                _ => new HttpRequestException($"An error occurred: {await response.Content.ReadAsStringAsync()}"),
-            };
+                // Handle 401 (Unauthorized) error
+                throw new UnauthorizedAccessException("Invalid or expired refresh token!", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new HttpRequestException($"An error occurred: {ex.Message}");
+            }
         }
-        public async Task<bool> StockTransferAsync(StockTransferRequest request)
+        public async Task StockTransferAsync(StockTransferRequest request)
         {
             if (request == null)
             {
@@ -187,17 +191,20 @@ namespace PharmaTrack.WPF.Helpers
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
-            // Make the POST request
-            var response = await _httpClient.PostAsync(_stockTransferUrl, content);
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return true;
+                var response = await _httpClient.PostAsync(_stockTransferUrl, content);
+                response.EnsureSuccessStatusCode();
             }
-            throw response.StatusCode switch
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
-                _ => new HttpRequestException($"An error occurred: {await response.Content.ReadAsStringAsync()}"),
-            };
+                // Handle 401 (Unauthorized) error
+                throw new UnauthorizedAccessException("Invalid or expired refresh token!", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new HttpRequestException($"An error occurred: {ex.Message}");
+            }
         }
     }
 }

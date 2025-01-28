@@ -215,12 +215,17 @@ namespace PharmaTrack.WPF.ViewModels
         }
         private void ClearForm()
         {
+            IsUPCInputFocused = false;
+
             UPCInput = string.Empty;
             ProductDescription = string.Empty;
             Quantity = string.Empty;
             NPN = string.Empty;
             DIN = string.Empty;
             Brand = string.Empty;
+            LookupStatusText = string.Empty;
+
+            IsUPCInputFocused = true; // Set focus
         }
         private void UpdateSubmitButtonState()
         {
@@ -308,18 +313,15 @@ namespace PharmaTrack.WPF.ViewModels
                     Type = transactionType,
                 };
 
-                var response = await _inventoryService.StockTransferAsync(stockTransferRequest);
+                await _inventoryService.StockTransferAsync(stockTransferRequest);
 
-                if (response)
+                StatusText = "Stock Transfer Submitted Successfully!";
+                StatusForeground = Brushes.Blue;
+                
+                MessageBoxResult result = MessageBox.Show("Stock Transfer Submitted Successfully!", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);
+                if (result == MessageBoxResult.OK)
                 {
-                    StatusText = "Stock Transfer Submitted Successfully!";
-                    StatusForeground = Brushes.Blue;
-                    MessageBoxResult result = MessageBox.Show("Stock Transfer Submitted Successfully!", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);
-                    if (result == MessageBoxResult.OK)
-                    {
-                        ClearForm();
-                        IsUPCInputFocused = true; // Set focus
-                    }
+                    ClearForm();
                 }
             }
             catch (Exception ex)
