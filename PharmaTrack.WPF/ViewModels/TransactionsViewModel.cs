@@ -65,6 +65,25 @@ namespace PharmaTrack.WPF.ViewModels
             set { _statusForeground = value; OnPropertyChanged(nameof(StatusForeground)); }
         }
 
+        private bool _isStockBoth = true;
+        public bool IsStockBoth
+        {
+            get => _isStockBoth;
+            set { _isStockBoth = value; OnPropertyChanged(nameof(IsStockBoth)); }
+        }
+        private bool _isStockIn = false;
+        public bool IsStockIn
+        {
+            get => _isStockIn;
+            set { _isStockIn = value; OnPropertyChanged(nameof(IsStockIn)); }
+        }
+        private bool _isStockOut = false!;
+        public bool IsStockOut
+        {
+            get => _isStockOut;
+            set { _isStockOut = value; OnPropertyChanged(nameof(IsStockOut)); }
+        }
+
         public ICommand LoadTransactionsCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
