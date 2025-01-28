@@ -27,13 +27,24 @@
             <!-- Product Information -->
             <StackPanel Orientation="Vertical" Margin="5">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
-                    <TextBlock Text="Quantity:" FontWeight="Bold" VerticalAlignment="Center" />
+                    <TextBlock Text="Quantity:" 
+                               Width="100"
+                               FontWeight="Bold" 
+                               VerticalAlignment="Center" />
                     <TextBlock Text="{Binding Product.Quantity}"  Padding="5" />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
-                    <TextBlock Text="UPC:" FontWeight="Bold" Width="100" VerticalAlignment="Center" />
-                    <TextBox Text="{Binding Product.UPC, Mode=TwoWay}" Width="300" Padding="5" />
+                    <TextBlock Text="UPC:"   
+                               FontWeight="Bold" 
+                               Width="100" 
+                               VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding Product.UPC, Mode=TwoWay}" 
+                             x:Name="UPCInputTextBox"
+                             GotFocus="UPCInputTextBox_GotFocus"
+                             LostFocus="UPCInputTextBox_LostFocus"
+                             Width="300" 
+                             Padding="5" />
                     <Button FontWeight="Regular"
                             Margin="5,0,0,0"
                             x:Name="ScanButton"
@@ -41,7 +52,8 @@
                             HorizontalAlignment="left"
                             VerticalAlignment="Center"
                             Background="Green"
-                            Foreground="White">
+                            Foreground="White"
+                            Click="ScanButton_Click">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal"
                                         VerticalAlignment="Center">
@@ -54,6 +66,11 @@
                             </StackPanel>
                         </Button.Content>
                     </Button>
+
+                    <TextBlock Text="{Binding ScannerStatusText}"
+                               Margin="5,0,0,0"
+                               Foreground="{Binding ScannerForeground}"
+                               VerticalAlignment="Center" />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">

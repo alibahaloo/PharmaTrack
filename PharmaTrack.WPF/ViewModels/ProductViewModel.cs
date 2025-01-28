@@ -1,11 +1,10 @@
 ﻿using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Helpers;
 using PharmaTrack.WPF.ViewModels;
-using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
 
 public class ProductViewModel : INotifyPropertyChanged
 {
@@ -18,6 +17,32 @@ public class ProductViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
+    private string _scannerStatusText = default!;
+    public string ScannerStatusText
+    {
+        get => _scannerStatusText;
+        set
+        {
+            _scannerStatusText = value;
+            OnPropertyChanged();
+        }
+    }
+    private Brush _scannerForeground = default!;
+    public Brush ScannerForeground
+    {
+        get => _scannerForeground;
+        set { _scannerForeground = value; OnPropertyChanged(); }
+    }
+    private bool _isLoading = false;
+    public bool IsLoading
+    {
+        get => _isLoading;
+        set
+        {
+            _isLoading = value;
+            OnPropertyChanged(); // Notify UI of changes
+        }
+    }
     private Product _product = default!;
     public Product Product
     {
@@ -28,29 +53,59 @@ public class ProductViewModel : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
-
+    private string _statusText = default!;
+    public string StatusText
+    {
+        get => _statusText;
+        set { _statusText = value; OnPropertyChanged(); }
+    }
+    private Brush _statusForeground = default!;
+    public Brush StatusForeground
+    {
+        get => _statusForeground;
+        set { _statusForeground = value; OnPropertyChanged(); }
+    }
     public ICommand GoBackCommand { get; }
     public ICommand SaveCommand { get; }
-
+    public ICommand ScanBarcodeCommand { get; }
     public ProductViewModel(int productId, InventoryService inventoryService)
     {
         _inventoryService = inventoryService;
         GoBackCommand = new RelayCommand(_ => GoBackToInventory());
         SaveCommand = new AsyncRelayCommand(async _ => await SaveProductAsync());
-
+        ScanBarcodeCommand = new RelayCommand(ExecuteScanBarcodeCommand);
         LoadProductAsync(productId);
+    }
+
+    private void ExecuteScanBarcodeCommand(object? parameter)
+    {
+        //Product.UPC = string.Empty;
+        ScannerStatusText = "Ready to Scan";
+        ScannerForeground = Brushes.Green;
+        //ScanBarcodeBtnEnabled = false;
     }
 
     private async void LoadProductAsync(int productId)
     {
+        IsLoading = true;
         try
         {
+            await Task.Delay(500);
             Product = await _inventoryService.GetProductByIdAsync(productId) ?? new Product();
+
+            StatusText = "Product Loaded Successfully!";
+            StatusForeground = Brushes.Green;
         }
         catch (Exception ex)
         {
             // Handle or log errors
-            Product = new Product { Name = "Error loading product", Id = productId };
+            //Product = new Product { Name = "Error loading product", Id = productId };
+            StatusText = $"Error Loading Product: {ex.Message}";
+            StatusForeground = Brushes.Red;
+        }
+        finally
+        {
+            IsLoading = false;
         }
     }
 
@@ -67,6 +122,8 @@ public class ProductViewModel : INotifyPropertyChanged
         catch (Exception ex)
         {
             // Handle errors, e.g., show a message to the user
+            StatusText = $"Error Saving Product: {ex.Message}";
+            StatusForeground = Brushes.Red;
         }
     }
 
