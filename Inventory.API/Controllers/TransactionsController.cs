@@ -20,9 +20,24 @@ namespace Inventory.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTransactions(int curPage = 1)
+        public async Task<IActionResult> GetTransactions([FromQuery] TransactionsRequest request, int curPage = 1)
         {
             IQueryable<Transaction> query = _context.Transactions.Include(t => t.Product);
+
+            if (request != null)
+            {
+                if (!string.IsNullOrEmpty(request.UPC)) query = query.Where(t => t.Product.UPC == request.UPC);
+                if (!string.IsNullOrEmpty(request.Product)) query = query.Where(t => t.Product.Name.Contains(request.Product, StringComparison.CurrentCultureIgnoreCase));
+                if (!string.IsNullOrEmpty(request.Brand))
+                {
+                    query = query.Where(t => t.Product.Brand != null &&
+                                             t.Product.Brand.Contains(request.Brand, StringComparison.CurrentCultureIgnoreCase));
+                }
+                if (request.Type != null)
+                {
+                    query = query.Where(t => t.Type == request.Type);
+                }
+            }            
 
             var result = await EFExtensions.GetPaged(query, curPage);
 

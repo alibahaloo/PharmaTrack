@@ -237,13 +237,40 @@ namespace Gateway.API.Controllers
         }
 
         [HttpGet("transactions")]
-        public async Task<IActionResult> GetAllTransactions(int curPage = 1)
+        public async Task<IActionResult> GetAllTransactions([FromQuery] TransactionsRequest request, int curPage = 1)
         {
             // Define the Inventory API endpoint URL
-            var getTransactionsUrl = $"{_inventoryApiBaseUrl}/api/transactions?curPage={curPage}";
+            //var getTransactionsUrl = $"{_inventoryApiBaseUrl}/api/transactions?curPage={curPage}";
 
             try
             {
+                // Serialize TransactionsRequest into query parameters
+                var queryParameters = new List<string>
+                {
+                    $"curPage={curPage}"
+                };
+
+                if (!string.IsNullOrEmpty(request.UPC))
+                {
+                    queryParameters.Add($"upc={Uri.EscapeDataString(request.UPC)}");
+                }
+                if (!string.IsNullOrEmpty(request.Product))
+                {
+                    queryParameters.Add($"product={Uri.EscapeDataString(request.Product)}");
+                }
+                if (!string.IsNullOrEmpty(request.Brand))
+                {
+                    queryParameters.Add($"brand={Uri.EscapeDataString(request.Brand)}");
+                }
+                if (request.Type.HasValue)
+                {
+                    queryParameters.Add($"type={(int)request.Type.Value}");
+                }
+
+                var queryString = string.Join("&", queryParameters);
+                var getTransactionsUrl = $"{_inventoryApiBaseUrl}/api/transactions?{queryString}";
+
+
                 // Send GET request to the Inventory API
                 var response = await _httpClient.GetAsync(getTransactionsUrl);
 
