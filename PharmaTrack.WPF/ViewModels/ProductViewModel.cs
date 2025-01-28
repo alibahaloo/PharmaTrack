@@ -108,9 +108,29 @@ public class ProductViewModel : INotifyPropertyChanged
             IsLoading = false;
         }
     }
+    private bool ValidateInputs()
+    {
+        // Check if all required fields are valid
+        bool valid = !string.IsNullOrWhiteSpace(Product.UPC)
+                              && !string.IsNullOrWhiteSpace(Product.Name);
 
+        if (!valid)
+        {
+            StatusText = "UPC, Product are needed for submission.";
+            StatusForeground = Brushes.Red;
+        }
+        else
+        {
+            StatusText = string.Empty;
+            StatusForeground = Brushes.Green;
+        }
+
+        return valid;
+    }
     private async Task SaveProductAsync()
     {
+        if (!ValidateInputs()) { return; }
+
         try
         {
             // Logic to save the updated product (implement API call here)
