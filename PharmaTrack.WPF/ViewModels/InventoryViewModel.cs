@@ -14,7 +14,7 @@ namespace PharmaTrack.WPF.ViewModels
     {
         private readonly InventoryService _inventoryService;
 
-        public ObservableCollection<Product> Products { get; set; }
+        public ObservableCollection<Product> Products { get; set; } = [];
 
         private string _statusMessage = default!;
         public string StatusMessage
@@ -37,7 +37,6 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(CurrentPage));
             }
         }
-
         private int _totalPages = 1;
         public int TotalPages
         {
@@ -61,17 +60,42 @@ namespace PharmaTrack.WPF.ViewModels
                 }
             }
         }
-
         private Brush _statusForeground = default!;
         public Brush StatusForeground
         {
             get => _statusForeground;
             set { _statusForeground = value; OnPropertyChanged(nameof(StatusForeground)); }
         }
-        public ICommand LoadProductsCommand { get; }
-        public ICommand NextPageCommand { get; }
-        public ICommand PreviousPageCommand { get; }
-
+        private string? _productName;
+        public string? ProductName
+        {
+            get => _productName;
+            set { _productName = value; OnPropertyChanged(nameof(ProductName)); }
+        }
+        private string? _brand;
+        public string? Brand
+        {
+            get => _brand;
+            set { _brand = value; OnPropertyChanged(nameof(Brand)); }
+        }
+        private string? _upc;
+        public string? UPC
+        {
+            get => _upc;
+            set { _upc = value; OnPropertyChanged(nameof(UPC)); }
+        }
+        private string? _din;
+        public string? DIN
+        {
+            get => _din;
+            set { _din = value; OnPropertyChanged(nameof(DIN)); }
+        }
+        private string? _npn;
+        public string? NPN
+        {
+            get => _npn;
+            set { _npn = value; OnPropertyChanged(nameof(NPN)); }
+        }
         private Product _selectedProduct = default!;
         public Product SelectedProduct
         {
@@ -84,14 +108,20 @@ namespace PharmaTrack.WPF.ViewModels
         }
 
         public ICommand ViewProductCommand { get; }
-
+        public ICommand LoadProductsCommand { get; }
+        public ICommand NextPageCommand { get; }
+        public ICommand PreviousPageCommand { get; }
+        public ICommand ApplyFiltersCommand { get; }
+        public ICommand ResetFiltersCommand { get; }
         public InventoryViewModel(InventoryService inventoryService)
         {
             _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
-            Products = new ObservableCollection<Product>();
             LoadProductsCommand = new AsyncRelayCommand(async _ => await LoadProductsAsync());
             NextPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(1));
             PreviousPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(-1));
+
+            ApplyFiltersCommand = new AsyncRelayCommand(async _ => await LoadProductsAsync());
+            ResetFiltersCommand = new RelayCommand(_ => ResetFilters());
 
             ViewProductCommand = new RelayCommand(
                 param =>
@@ -106,6 +136,15 @@ namespace PharmaTrack.WPF.ViewModels
                     }
                 },
                 param => SelectedProduct != null);
+        }
+        private async void ResetFilters()
+        {
+            ProductName = null;
+            Brand = null;
+            UPC = null;
+            NPN = null;
+            DIN = null;
+            await LoadProductsAsync();
         }
         public async Task LoadProductsAsync()
         {

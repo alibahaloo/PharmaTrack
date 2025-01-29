@@ -66,11 +66,11 @@ namespace PharmaTrack.WPF.ViewModels
             set { _statusForeground = value; OnPropertyChanged(nameof(StatusForeground)); }
         }
 
-        private string? _product;
-        public string? Product
+        private string? _productName;
+        public string? ProductName
         {
-            get => _product;
-            set { _product = value; OnPropertyChanged(nameof(Product)); }
+            get => _productName;
+            set { _productName = value; OnPropertyChanged(nameof(ProductName)); }
         }
 
         private string? _brand;
@@ -215,7 +215,7 @@ namespace PharmaTrack.WPF.ViewModels
         }
         private async void ResetFilters()
         {
-            Product = null;
+            ProductName = null;
             Brand = null;
             UPC = null;
             SelectedUser = string.Empty;
@@ -236,7 +236,7 @@ namespace PharmaTrack.WPF.ViewModels
                 var request = new TransactionsRequest
                 {
                     UPC = UPC,
-                    Product = Product,
+                    Product = ProductName,
                     Brand = Brand,
                     CreatedBy = SelectedUser,
                     Type = SelectedTransactionType
