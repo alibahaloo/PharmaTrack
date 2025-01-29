@@ -30,6 +30,7 @@ namespace Inventory.API.Controllers
                     (string.IsNullOrEmpty(request.UPC) || t.Product.UPC == request.UPC) &&
                     (string.IsNullOrEmpty(request.Product) || t.Product.Name.ToLower().Contains(request.Product.ToLower())) &&
                     (string.IsNullOrEmpty(request.Brand) || (t.Product.Brand != null && t.Product.Brand.ToLower().Contains(request.Brand.ToLower()))) &&
+                    (string.IsNullOrEmpty(request.CreatedBy) || (t.CreatedBy == request.CreatedBy)) &&
                     (request.Type == null || t.Type == request.Type)
                 );
             }

@@ -259,6 +259,10 @@ namespace Gateway.API.Controllers
                 {
                     queryParameters.Add($"brand={Uri.EscapeDataString(request.Brand)}");
                 }
+                if (!string.IsNullOrEmpty(request.CreatedBy))
+                {
+                    queryParameters.Add($"createdBy={Uri.EscapeDataString(request.CreatedBy)}");
+                }
                 if (request.Type.HasValue)
                 {
                     queryParameters.Add($"type={(int)request.Type.Value}");
