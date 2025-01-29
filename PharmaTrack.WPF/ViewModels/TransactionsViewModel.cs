@@ -117,21 +117,6 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     _selectedUser = value;
                     OnPropertyChanged(nameof(SelectedUser));
-                    // Open dropdown when typing
-                    IsDropDownOpen = !string.IsNullOrWhiteSpace(_selectedUser);
-                }
-            }
-        }
-        private bool _isDropDownOpen;
-        public bool IsDropDownOpen
-        {
-            get => _isDropDownOpen;
-            set
-            {
-                if (_isDropDownOpen != value)
-                {
-                    _isDropDownOpen = value;
-                    OnPropertyChanged(nameof(IsDropDownOpen));
                 }
             }
         }

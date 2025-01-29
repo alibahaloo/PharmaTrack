@@ -161,13 +161,11 @@
                                    FontWeight="Bold"/>
                         <ComboBox x:Name="UserComboBox"
                                   IsEditable="True"
-                                  ItemsSource="{Binding FilteredUsers}" 
+                                  ItemsSource="{Binding Users}" 
                                   Text="{Binding SelectedUser, UpdateSourceTrigger=PropertyChanged}" 
                                   StaysOpenOnEdit="True" 
-                                  IsTextSearchEnabled="False"
-                                  IsDropDownOpen="{Binding IsDropDownOpen}" 
-                                  Width="200"
-                                  PreviewTextInput="UserComboBox_PreviewTextInput" />
+                                  IsTextSearchEnabled="True"
+                                  Width="200"/>
                         <Button Margin="5,0,0,0"        
                                 Command="{Binding FilterForSelectedUserCommand}"
                                 ToolTip="Filter">
@@ -177,7 +175,6 @@
                         </Button>
                         <Button Margin="5,0,0,0"
                                 x:Name="ClearSelectionBtn"
-                                Click="ClearSelectionBtn_Click"
                                 Command="{Binding ClearSelectionCommand}"
                                 ToolTip="Clear">
                             <Button.Content>

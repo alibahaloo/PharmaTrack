@@ -31,11 +31,10 @@
                            FontSize="14" FontWeight="Bold"
                            VerticalAlignment="Center" Margin="5"/>
                 <ComboBox IsEditable="True"
-                          ItemsSource="{Binding FilteredUsers}" 
+                          ItemsSource="{Binding Users}" 
                           Text="{Binding SelectedUser, UpdateSourceTrigger=PropertyChanged}" 
                           StaysOpenOnEdit="True" 
-                          IsTextSearchEnabled="False"
-                          IsDropDownOpen="{Binding IsDropDownOpen}" 
+                          IsTextSearchEnabled="True"
                           VerticalAlignment="Top" 
                           Width="200"
                           Margin="5"

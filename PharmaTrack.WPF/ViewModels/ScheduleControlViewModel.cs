@@ -17,22 +17,11 @@ namespace PharmaTrack.WPF.ViewModels
         private string _statusText = default!;
         private Brush _statusForeground = default!;
         private bool _isLoading = false;
-        private bool _isDropDownOpen;
 
         private string _selectedUser = string.Empty;
-        private ObservableCollection<string> _filteredUsers = [];
 
         public ObservableCollection<string> Users { get; } = [];
 
-        public ObservableCollection<string> FilteredUsers
-        {
-            get => _filteredUsers;
-            set
-            {
-                _filteredUsers = value;
-                OnPropertyChanged();
-            }
-        }
 
         public string SelectedUser
         {
@@ -43,10 +32,6 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     _selectedUser = value;
                     OnPropertyChanged();
-                    UpdateFilteredUsers();
-
-                    // Open dropdown when typing
-                    IsDropDownOpen = !string.IsNullOrWhiteSpace(_selectedUser);
                 }
             }
         }
@@ -120,19 +105,6 @@ namespace PharmaTrack.WPF.ViewModels
             return time;
         }
 
-        public bool IsDropDownOpen
-        {
-            get => _isDropDownOpen;
-            set
-            {
-                if (_isDropDownOpen != value)
-                {
-                    _isDropDownOpen = value;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
         public string Description
         {
             get => _description;
@@ -153,24 +125,7 @@ namespace PharmaTrack.WPF.ViewModels
         {
             _usersService = usersService;
             _scheduleService = scheduleService;
-            FilteredUsers = new ObservableCollection<string>(Users);
             SubmitCommand = new RelayCommand(Submit, CanSubmit);
-        }
-
-        private void UpdateFilteredUsers()
-        {
-            if (string.IsNullOrWhiteSpace(SelectedUser))
-            {
-                FilteredUsers = new ObservableCollection<string>(Users);
-            }
-            else
-            {
-                var filtered = Users
-                    .Where(user => user.ToLower().Contains(SelectedUser.ToLower()))
-                    .ToList();
-
-                FilteredUsers = new ObservableCollection<string>(filtered);
-            }
         }
 
         public async Task LoadUsersAsync()
@@ -186,8 +141,6 @@ namespace PharmaTrack.WPF.ViewModels
                     Users.Add(user);
                 }
 
-                // Refresh filtered users
-                UpdateFilteredUsers();
             }
             
             IsLoading = false;

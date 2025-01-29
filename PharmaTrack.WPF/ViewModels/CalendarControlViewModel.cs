@@ -126,19 +126,7 @@ namespace PharmaTrack.WPF.ViewModels
         }
 
         private string _selectedUser = string.Empty;
-        private ObservableCollection<string> _filteredUsers = [];
-
         public ObservableCollection<string> Users { get; } = [];
-
-        public ObservableCollection<string> FilteredUsers
-        {
-            get => _filteredUsers;
-            set
-            {
-                _filteredUsers = value;
-                OnPropertyChanged();
-            }
-        }
 
         public string SelectedUser
         {
@@ -148,39 +136,6 @@ namespace PharmaTrack.WPF.ViewModels
                 if (_selectedUser != value)
                 {
                     _selectedUser = value;
-                    OnPropertyChanged();
-                    UpdateFilteredUsers();
-
-                    // Open dropdown when typing
-                    IsDropDownOpen = !string.IsNullOrWhiteSpace(_selectedUser);
-                }
-            }
-        }
-
-        private void UpdateFilteredUsers()
-        {
-            if (string.IsNullOrWhiteSpace(SelectedUser))
-            {
-                FilteredUsers = new ObservableCollection<string>(Users);
-            }
-            else
-            {
-                var filtered = Users
-                    .Where(user => user.ToLower().Contains(SelectedUser.ToLower()))
-                    .ToList();
-
-                FilteredUsers = new ObservableCollection<string>(filtered);
-            }
-        }
-        private bool _isDropDownOpen;
-        public bool IsDropDownOpen
-        {
-            get => _isDropDownOpen;
-            set
-            {
-                if (_isDropDownOpen != value)
-                {
-                    _isDropDownOpen = value;
                     OnPropertyChanged();
                 }
             }
@@ -199,11 +154,7 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     Users.Add(user);
                 }
-
-                // Refresh filtered users
-                UpdateFilteredUsers();
             }
-
             ControlMode = ControlMode.List;
         }
 
@@ -247,8 +198,14 @@ namespace PharmaTrack.WPF.ViewModels
             ViewMonthlyCommand = new RelayCommand(_ => ViewMode = ViewMode.Monthly);
             ViewWeeklyCommand = new RelayCommand(_ => ViewMode = ViewMode.Weekly);
 
-            ClearSelectionCommand = new RelayCommand(_ => LoadHighlightedDatesAsync());
+            ClearSelectionCommand = new RelayCommand(_ => ResetFilter());
             FilterForSelectedUserCommand = new RelayCommand(_ => LoadHighlightedDatesAsync());
+        }
+
+        private void ResetFilter()
+        {
+            SelectedUser = string.Empty;
+            LoadHighlightedDatesAsync();
         }
 
         public async void OnViewModelLoaded()

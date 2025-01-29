@@ -20,11 +20,5 @@ namespace PharmaTrack.WPF.Controls
                 editableTextBox.SelectionLength = 0;
             }
         }
-
-        private void ClearSelectionBtn_Click(object sender, System.Windows.RoutedEventArgs e)
-        {
-            UserComboBox.SelectedValue = null;
-            UserComboBox.Text = string.Empty;
-        }
     }
 }
