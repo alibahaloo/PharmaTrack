@@ -12,7 +12,7 @@ namespace PharmaTrack.WPF.Controls
         {
             InitializeComponent();
             DataContext = viewModel;
-            Loaded += async (_, _) => await viewModel.LoadTransactionsAsync();
+            Loaded += async (_, _) => await viewModel.ViewModelLoaded();
         }
     }
 }

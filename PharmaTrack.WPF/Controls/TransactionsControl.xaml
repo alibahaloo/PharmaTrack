@@ -17,7 +17,7 @@
                            VerticalAlignment="Center" 
                            FontWeight="Bold"/>
                 <TextBox Width="200" 
-                         Text="{Binding Product, UpdateSourceTrigger=PropertyChanged}"
+                         Text="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}"
                          VerticalContentAlignment="Center" />
 
                 <TextBlock Text="Brand:" 
@@ -51,11 +51,10 @@
                            FontWeight="Bold"/>
                 <ComboBox x:Name="UserComboBox"
                           IsEditable="True"
-                          ItemsSource="{Binding FilteredUsers}" 
+                          ItemsSource="{Binding Users}" 
                           Text="{Binding SelectedUser, UpdateSourceTrigger=PropertyChanged}" 
                           StaysOpenOnEdit="True" 
-                          IsTextSearchEnabled="False"
-                          IsDropDownOpen="{Binding IsDropDownOpen}" 
+                          IsTextSearchEnabled="True"
                           Width="200"/>
 
                 <TextBlock Text="Transfer:" 

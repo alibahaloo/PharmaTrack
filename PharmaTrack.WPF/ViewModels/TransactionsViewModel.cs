@@ -106,21 +106,8 @@ namespace PharmaTrack.WPF.ViewModels
             set { _isStockOut = value; OnPropertyChanged(nameof(IsStockOut)); }
         }
 
-        private string _selectedUser = string.Empty;
-        private ObservableCollection<string> _filteredUsers = [];
-
         public ObservableCollection<string> Users { get; } = [];
-
-        public ObservableCollection<string> FilteredUsers
-        {
-            get => _filteredUsers;
-            set
-            {
-                _filteredUsers = value;
-                OnPropertyChanged(nameof(FilteredUsers));
-            }
-        }
-
+        private string _selectedUser = string.Empty;
         public string SelectedUser
         {
             get => _selectedUser;
@@ -130,27 +117,9 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     _selectedUser = value;
                     OnPropertyChanged(nameof(SelectedUser));
-                    UpdateFilteredUsers();
-
                     // Open dropdown when typing
                     IsDropDownOpen = !string.IsNullOrWhiteSpace(_selectedUser);
                 }
-            }
-        }
-
-        private void UpdateFilteredUsers()
-        {
-            if (string.IsNullOrWhiteSpace(SelectedUser))
-            {
-                FilteredUsers = new ObservableCollection<string>(Users);
-            }
-            else
-            {
-                var filtered = Users
-                    .Where(user => user.ToLower().Contains(SelectedUser.ToLower()))
-                    .ToList();
-
-                FilteredUsers = new ObservableCollection<string>(filtered);
             }
         }
         private bool _isDropDownOpen;
@@ -189,9 +158,6 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     Users.Add(user);
                 }
-
-                // Refresh filtered users
-                UpdateFilteredUsers();
             }
         }
 
@@ -213,6 +179,11 @@ namespace PharmaTrack.WPF.ViewModels
             ApplyFiltersCommand = new AsyncRelayCommand(async _ => await LoadTransactionsAsync());
             ResetFiltersCommand = new RelayCommand(_ => ResetFilters());
         }
+        public async Task ViewModelLoaded()
+        {
+            await LoadUsersAsync(); // Ensure users are loaded before filtering
+            await LoadTransactionsAsync();
+        }
         private async void ResetFilters()
         {
             ProductName = null;
@@ -227,9 +198,7 @@ namespace PharmaTrack.WPF.ViewModels
         public async Task LoadTransactionsAsync()
         {
             IsLoading = true;
-
-            await LoadUsersAsync(); // Ensure users are loaded before filtering
-
+           
             try
             {
                 // Create a TransactionsRequest with filters from ViewModel properties
