@@ -105,7 +105,36 @@ namespace PharmaTrack.WPF.ViewModels
             get => _isStockOut;
             set { _isStockOut = value; OnPropertyChanged(nameof(IsStockOut)); }
         }
-
+        private string _scannerStatusText = default!;
+        public string ScannerStatusText
+        {
+            get => _scannerStatusText;
+            set
+            {
+                _scannerStatusText = value;
+                OnPropertyChanged(nameof(ScannerStatusText));
+            }
+        }
+        private Brush _scannerForeground = default!;
+        public Brush ScannerForeground
+        {
+            get => _scannerForeground;
+            set
+            {
+                _scannerForeground = value;
+                OnPropertyChanged(nameof(ScannerForeground));
+            }
+        }
+        private bool _isUPCInputFocused;
+        public bool IsUPCInputFocused
+        {
+            get => _isUPCInputFocused;
+            set
+            {
+                _isUPCInputFocused = value;
+                OnPropertyChanged(nameof(IsUPCInputFocused));
+            }
+        }
         public ObservableCollection<string> Users { get; } = [];
         private string _selectedUser = string.Empty;
         public string SelectedUser
@@ -151,6 +180,7 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand PreviousPageCommand { get; }
         public ICommand ApplyFiltersCommand { get; }
         public ICommand ResetFiltersCommand { get; }
+        public ICommand ScanBarcodeCommand { get; }
         private readonly UsersService _usersService;
 
         public TransactionsViewModel(InventoryService inventoryService, UsersService usersService)
@@ -161,8 +191,16 @@ namespace PharmaTrack.WPF.ViewModels
             NextPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(1));
             PreviousPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(-1));
 
+            ScanBarcodeCommand = new RelayCommand(ExecuteScanBarcodeCommand);
+
             ApplyFiltersCommand = new AsyncRelayCommand(async _ => await LoadTransactionsAsync());
             ResetFiltersCommand = new RelayCommand(_ => ResetFilters());
+        }
+        private void ExecuteScanBarcodeCommand(object? parameter)
+        {
+            UPC = string.Empty;
+            ScannerStatusText = "Ready to Scan";
+            ScannerForeground = Brushes.Green;
         }
         public async Task ViewModelLoaded()
         {

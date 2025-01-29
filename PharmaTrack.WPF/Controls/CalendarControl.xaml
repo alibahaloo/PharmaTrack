@@ -162,17 +162,11 @@
                         <ComboBox x:Name="UserComboBox"
                                   IsEditable="True"
                                   ItemsSource="{Binding Users}" 
+                                  SelectedItem="{Binding SelectedUser, Mode=TwoWay}"
                                   Text="{Binding SelectedUser, UpdateSourceTrigger=PropertyChanged}" 
                                   StaysOpenOnEdit="True" 
                                   IsTextSearchEnabled="True"
                                   Width="200"/>
-                        <Button Margin="5,0,0,0"        
-                                Command="{Binding FilterForSelectedUserCommand}"
-                                ToolTip="Filter">
-                            <Button.Content>
-                                <bi:BootstrapIcon Icon="Filter" />
-                            </Button.Content>
-                        </Button>
                         <Button Margin="5,0,0,0"
                                 x:Name="ClearSelectionBtn"
                                 Command="{Binding ClearSelectionCommand}"

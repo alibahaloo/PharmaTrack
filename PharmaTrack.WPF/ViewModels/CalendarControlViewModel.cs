@@ -137,6 +137,9 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     _selectedUser = value;
                     OnPropertyChanged();
+
+                    // Execute command when selection changes
+                    UserSelectionChangedCommand.Execute(_selectedUser);
                 }
             }
         }
@@ -171,10 +174,8 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ViewTeamScheduleCommand { get; }
         public ICommand ViewMonthlyCommand { get; }
         public ICommand ViewWeeklyCommand { get; }
-
         public ICommand ClearSelectionCommand { get; }
-
-        public ICommand FilterForSelectedUserCommand { get; }
+        public ICommand UserSelectionChangedCommand { get; }
 
         private readonly UsersService _usersService;
         private readonly ScheduleService _scheduleService;
@@ -199,7 +200,7 @@ namespace PharmaTrack.WPF.ViewModels
             ViewWeeklyCommand = new RelayCommand(_ => ViewMode = ViewMode.Weekly);
 
             ClearSelectionCommand = new RelayCommand(_ => ResetFilter());
-            FilterForSelectedUserCommand = new RelayCommand(_ => LoadHighlightedDatesAsync());
+            UserSelectionChangedCommand = new RelayCommand(_ => LoadHighlightedDatesAsync());
         }
 
         private void ResetFilter()

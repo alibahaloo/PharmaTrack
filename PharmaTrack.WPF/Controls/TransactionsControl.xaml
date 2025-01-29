@@ -5,6 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PharmaTrack.WPF.Controls"
              xmlns:bi="https://github.com/helluvamatt/BootstrapIcons.Wpf/"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:PharmaTrack.WPF.Behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel>
@@ -33,15 +35,29 @@
                            VerticalAlignment="Center" 
                            FontWeight="Bold"/>
                 <TextBox Width="100" 
-                         Text="{Binding UPC, UpdateSourceTrigger=PropertyChanged}"
-                         VerticalContentAlignment="Center" />
+         x:Name="UPCInputTextBox"
+         GotFocus="UPCInputTextBox_GotFocus"
+         LostFocus="UPCInputTextBox_LostFocus"
+         Text="{Binding UPC, UpdateSourceTrigger=PropertyChanged}"
+         VerticalContentAlignment="Center">
+                    <i:Interaction.Behaviors>
+                        <behaviors:FocusBehavior IsFocused="{Binding IsUPCInputFocused}" />
+                    </i:Interaction.Behaviors>
+                </TextBox>
 
                 <Button Margin="5,0,0,0"        
-                        ToolTip="Scan Barcode">
+        Command="{Binding ScanBarcodeCommand}"
+        ToolTip="Scan Barcode"
+        Click="ScanButton_Click">
                     <Button.Content>
                         <bi:BootstrapIcon Icon="UpcScan" />
                     </Button.Content>
                 </Button>
+
+                <TextBlock Text="{Binding ScannerStatusText}"
+           Margin="5,0,0,0"
+           Foreground="{Binding ScannerForeground}"
+           VerticalAlignment="Center" />
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">

@@ -26,5 +26,30 @@ namespace PharmaTrack.WPF.Controls
                 }
             }
         }
+
+        private void UPCInputTextBox_GotFocus(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var viewModel = DataContext as InventoryViewModel;
+            if (viewModel != null)
+            {
+                viewModel.ScannerStatusText = "Ready to Scan";
+                viewModel.ScannerForeground = System.Windows.Media.Brushes.Green;
+            }
+        }
+
+        private void UPCInputTextBox_LostFocus(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var viewModel = DataContext as InventoryViewModel;
+            if (viewModel != null)
+            {
+                viewModel.ScannerStatusText = "Not Ready to Scan";
+                viewModel.ScannerForeground = System.Windows.Media.Brushes.Red;
+            }
+        }
+
+        private void ScanButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            UPCInputTextBox.Focus();
+        }
     }
 }

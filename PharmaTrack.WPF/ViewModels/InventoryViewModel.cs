@@ -108,12 +108,43 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
+        private string _scannerStatusText = default!;
+        public string ScannerStatusText
+        {
+            get => _scannerStatusText;
+            set
+            {
+                _scannerStatusText = value;
+                OnPropertyChanged(nameof(ScannerStatusText));
+            }
+        }
+        private Brush _scannerForeground = default!;
+        public Brush ScannerForeground
+        {
+            get => _scannerForeground;
+            set 
+            { 
+                _scannerForeground = value; 
+                OnPropertyChanged(nameof(ScannerForeground)); 
+            }
+        }
+        private bool _isUPCInputFocused;
+        public bool IsUPCInputFocused
+        {
+            get => _isUPCInputFocused;
+            set
+            {
+                _isUPCInputFocused = value;
+                OnPropertyChanged(nameof(IsUPCInputFocused));
+            }
+        }
         public ICommand ViewProductCommand { get; }
         public ICommand LoadProductsCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
         public ICommand ApplyFiltersCommand { get; }
         public ICommand ResetFiltersCommand { get; }
+        public ICommand ScanBarcodeCommand { get; }
         public InventoryViewModel(InventoryService inventoryService)
         {
             _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
@@ -123,6 +154,8 @@ namespace PharmaTrack.WPF.ViewModels
 
             ApplyFiltersCommand = new AsyncRelayCommand(async _ => await LoadProductsAsync());
             ResetFiltersCommand = new RelayCommand(_ => ResetFilters());
+
+            ScanBarcodeCommand = new RelayCommand(ExecuteScanBarcodeCommand);
 
             ViewProductCommand = new RelayCommand(
                 param =>
@@ -137,6 +170,12 @@ namespace PharmaTrack.WPF.ViewModels
                     }
                 },
                 param => SelectedProduct != null);
+        }
+        private void ExecuteScanBarcodeCommand(object? parameter)
+        {
+            UPC = string.Empty;
+            ScannerStatusText = "Ready to Scan";
+            ScannerForeground = Brushes.Green;
         }
         private async void ResetFilters()
         {
