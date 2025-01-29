@@ -28,19 +28,54 @@ namespace PharmaTrack.WPF.Helpers
                         ?? throw new ArgumentException("Transactions URL is not configured in the application settings.", nameof(configuration));
         }
 
-        public async Task<PagedResponse<Transaction>?> GetTransactionsAsync(int curPage = 1)
+        public async Task<PagedResponse<Transaction>?> GetTransactionsAsync(TransactionsRequest request, int curPage = 1)
         {
             string? accessToken = TokenStorage.AccessToken;
-            if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
+            if (accessToken == null)
+            {
+                throw new UnauthorizedAccessException("Access token is null or expired.");
+            }
 
             // Add the JWT to the headers
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
-            var response = await _httpClient.GetAsync($"{_transactionsUrl}?curPage={curPage}");
+            // Convert TransactionsRequest to query parameters
+            var queryParameters = new List<string>
+            {
+                $"curPage={curPage}"
+            };
+
+            if (!string.IsNullOrEmpty(request.UPC))
+            {
+                queryParameters.Add($"upc={Uri.EscapeDataString(request.UPC)}");
+            }
+            if (!string.IsNullOrEmpty(request.Product))
+            {
+                queryParameters.Add($"product={Uri.EscapeDataString(request.Product)}");
+            }
+            if (!string.IsNullOrEmpty(request.Brand))
+            {
+                queryParameters.Add($"brand={Uri.EscapeDataString(request.Brand)}");
+            }
+            if (!string.IsNullOrEmpty(request.CreatedBy))
+            {
+                queryParameters.Add($"createdBy={Uri.EscapeDataString(request.CreatedBy)}");
+            }
+            if (request.Type.HasValue)
+            {
+                queryParameters.Add($"type={(int)request.Type.Value}");
+            }
+
+            string queryString = string.Join("&", queryParameters);
+            string requestUrl = $"{_transactionsUrl}?{queryString}";
+
+            // Send GET request to the API
+            var response = await _httpClient.GetAsync(requestUrl);
+
             if (response.IsSuccessStatusCode)
             {
-                // Parse the response (deserialize JSON into Product object)
+                // Parse the response (deserialize JSON into PagedResponse<Transaction>)
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<PagedResponse<Transaction>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
@@ -48,12 +83,14 @@ namespace PharmaTrack.WPF.Helpers
                 });
             }
 
+            // Handle errors
             throw response.StatusCode switch
             {
                 System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
+
         public async Task<PagedResponse<Product>?> GetProductsAsync(int curPage = 1)
         {
             string? accessToken = TokenStorage.AccessToken;

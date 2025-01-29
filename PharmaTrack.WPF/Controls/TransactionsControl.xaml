@@ -9,59 +9,65 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel>
         <StackPanel Orientation="Vertical" VerticalAlignment="Center" DockPanel.Dock="Top">
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+            <StackPanel Orientation="Horizontal" 
+                        Margin="5"
+                        VerticalAlignment="Center">
                 <TextBlock Text="Product:"
                            Width="70"
                            VerticalAlignment="Center" 
-                           Margin="5" 
                            FontWeight="Bold"/>
                 <TextBox Width="200" 
-                         Padding="3" 
-                         VerticalContentAlignment="Center" 
-                         Margin="5"/>
+                         Text="{Binding Product, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalContentAlignment="Center" />
 
-                <TextBlock Text="Brand:" VerticalAlignment="Center" Margin="5" FontWeight="Bold"/>
+                <TextBlock Text="Brand:" 
+                           Width="50"
+                           Margin="5,0,5,0" 
+                           VerticalAlignment="Center" 
+                           FontWeight="Bold"/>
+                <TextBox Width="100"     
+                         Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalContentAlignment="Center" />
+
+                <TextBlock Text="UPC:" 
+                           Margin="5,0,5,0" 
+                           VerticalAlignment="Center" 
+                           FontWeight="Bold"/>
                 <TextBox Width="100" 
-                         Padding="3" 
-                         VerticalContentAlignment="Center" 
-                         Margin="5"/>
+                         Text="{Binding UPC, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalContentAlignment="Center" />
 
-                <TextBlock Text="UPC:" VerticalAlignment="Center" Margin="5" FontWeight="Bold"/>
-                <TextBox Width="100" 
-                         Padding="3" 
-                         VerticalContentAlignment="Center" 
-                         Margin="5"/>
-
-                <Button Background="Green" Foreground="White" Margin="5">
+                <Button Margin="5,0,0,0"        
+                        ToolTip="Scan Barcode">
                     <Button.Content>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <bi:BootstrapIcon Icon="UpcScan"
-                              Margin="5"
-                              Width="15"
-                              Height="15"
-                              Foreground="White"/>
-                            <TextBlock Text="Scan Barcode"
-                                       Margin="5"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
+                        <bi:BootstrapIcon Icon="UpcScan" />
                     </Button.Content>
                 </Button>
             </StackPanel>
-            
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
                 <TextBlock Text="Created By:" 
                            Width="70"
                            VerticalAlignment="Center" 
-                           Margin="5" 
                            FontWeight="Bold"/>
-                <ComboBox Width="200" 
-          Padding="3" 
-          VerticalContentAlignment="Center" 
-          Margin="5"></ComboBox>
+                <ComboBox x:Name="UserComboBox"
+                          IsEditable="True"
+                          ItemsSource="{Binding FilteredUsers}" 
+                          Text="{Binding SelectedUser, UpdateSourceTrigger=PropertyChanged}" 
+                          StaysOpenOnEdit="True" 
+                          IsTextSearchEnabled="False"
+                          IsDropDownOpen="{Binding IsDropDownOpen}" 
+                          Width="200"/>
+
+                <TextBlock Text="Transfer:" 
+                           Width="50"
+                           Margin="5,0,5,0" 
+                           VerticalAlignment="Center" 
+                           FontWeight="Bold"/>
                 <RadioButton GroupName="Transfer"
+                             Margin="5,0,5,0" 
                              VerticalAlignment="Center"
-                             IsChecked="{Binding IsBothStock, Mode=TwoWay}" 
-                             Margin="5">
+                             IsChecked="{Binding IsBothStock, Mode=TwoWay}">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <bi:BootstrapIcon Icon="ArrowLeftRight"
@@ -73,9 +79,9 @@
                     </RadioButton.Content>
                 </RadioButton>
                 <RadioButton GroupName="Transfer"
+                             Margin="5,0,5,0" 
                              VerticalAlignment="Center"
-                             IsChecked="{Binding IsStockIn, Mode=TwoWay}" 
-                             Margin="5">
+                             IsChecked="{Binding IsStockIn, Mode=TwoWay}">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <bi:BootstrapIcon Icon="BoxArrowInLeft"
@@ -86,10 +92,9 @@
                         </StackPanel>
                     </RadioButton.Content>
                 </RadioButton>
-                <RadioButton GroupName="Transfer"
+                <RadioButton GroupName="Transfer" Margin="5,0,5,0" 
                              VerticalAlignment="Center"
-                             IsChecked="{Binding IsStockOut, Mode=TwoWay}" 
-                             Margin="5">
+                             IsChecked="{Binding IsStockOut, Mode=TwoWay}">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <bi:BootstrapIcon Icon="BoxArrowRight"
@@ -101,18 +106,19 @@
                     </RadioButton.Content>
                 </RadioButton>
 
-                <Button Background="Blue" Foreground="White" Margin="5">
+                <Button Margin="5,0,0,0"      
+                        Command="{Binding ApplyFiltersCommand}"
+                        ToolTip="Filter">
                     <Button.Content>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <bi:BootstrapIcon Icon="Search"
-                                              Margin="5"
-                                              Width="15"
-                                              Height="15"
-                                              Foreground="White"/>
-                            <TextBlock Text="Search"
-                                       Margin="5"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
+                        <bi:BootstrapIcon Icon="Filter" />
+                    </Button.Content>
+                </Button>
+
+                <Button Margin="5,0,0,0"        
+                        Command="{Binding ResetFiltersCommand}"
+                        ToolTip="Reset">
+                    <Button.Content>
+                        <bi:BootstrapIcon Icon="X" />
                     </Button.Content>
                 </Button>
             </StackPanel>

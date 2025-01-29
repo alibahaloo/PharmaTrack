@@ -1,4 +1,5 @@
-﻿using PharmaTrack.Shared.DBModels;
+﻿using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,7 +12,7 @@ namespace PharmaTrack.WPF.ViewModels
     public class TransactionsViewModel : INotifyPropertyChanged
     {
         private readonly InventoryService _inventoryService;
-        public ObservableCollection<Transaction> Transactions { get; set; }
+        public ObservableCollection<Transaction> Transactions { get; set; } = [];
         private string _statusMessage = default!;
         public string StatusMessage
         {
@@ -65,6 +66,27 @@ namespace PharmaTrack.WPF.ViewModels
             set { _statusForeground = value; OnPropertyChanged(nameof(StatusForeground)); }
         }
 
+        private string? _product;
+        public string? Product
+        {
+            get => _product;
+            set { _product = value; OnPropertyChanged(nameof(Product)); }
+        }
+
+        private string? _brand;
+        public string? Brand
+        {
+            get => _brand;
+            set { _brand = value; OnPropertyChanged(nameof(Brand)); }
+        }
+
+        private string? _upc;
+        public string? UPC
+        {
+            get => _upc;
+            set { _upc = value; OnPropertyChanged(nameof(UPC)); }
+        }
+
         private bool _isStockBoth = true;
         public bool IsStockBoth
         {
@@ -84,25 +106,145 @@ namespace PharmaTrack.WPF.ViewModels
             set { _isStockOut = value; OnPropertyChanged(nameof(IsStockOut)); }
         }
 
+        private string _selectedUser = string.Empty;
+        private ObservableCollection<string> _filteredUsers = [];
+
+        public ObservableCollection<string> Users { get; } = [];
+
+        public ObservableCollection<string> FilteredUsers
+        {
+            get => _filteredUsers;
+            set
+            {
+                _filteredUsers = value;
+                OnPropertyChanged(nameof(FilteredUsers));
+            }
+        }
+
+        public string SelectedUser
+        {
+            get => _selectedUser;
+            set
+            {
+                if (_selectedUser != value)
+                {
+                    _selectedUser = value;
+                    OnPropertyChanged(nameof(SelectedUser));
+                    UpdateFilteredUsers();
+
+                    // Open dropdown when typing
+                    IsDropDownOpen = !string.IsNullOrWhiteSpace(_selectedUser);
+                }
+            }
+        }
+
+        private void UpdateFilteredUsers()
+        {
+            if (string.IsNullOrWhiteSpace(SelectedUser))
+            {
+                FilteredUsers = new ObservableCollection<string>(Users);
+            }
+            else
+            {
+                var filtered = Users
+                    .Where(user => user.ToLower().Contains(SelectedUser.ToLower()))
+                    .ToList();
+
+                FilteredUsers = new ObservableCollection<string>(filtered);
+            }
+        }
+        private bool _isDropDownOpen;
+        public bool IsDropDownOpen
+        {
+            get => _isDropDownOpen;
+            set
+            {
+                if (_isDropDownOpen != value)
+                {
+                    _isDropDownOpen = value;
+                    OnPropertyChanged(nameof(IsDropDownOpen));
+                }
+            }
+        }
+
+        // Computed Transaction Type Filter
+        public TransactionType? SelectedTransactionType
+        {
+            get
+            {
+                if (IsStockIn) return TransactionType.In;
+                if (IsStockOut) return TransactionType.Out;
+                return null; // Both selected
+            }
+        }
+
+        public async Task LoadUsersAsync()
+        {
+            var users = await _usersService.GetUsernamesAsync();
+
+            Users.Clear();
+            if (users != null)
+            {
+                foreach (var user in users)
+                {
+                    Users.Add(user);
+                }
+
+                // Refresh filtered users
+                UpdateFilteredUsers();
+            }
+        }
+
         public ICommand LoadTransactionsCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
+        public ICommand ApplyFiltersCommand { get; }
+        public ICommand ResetFiltersCommand { get; }
+        private readonly UsersService _usersService;
 
-        public TransactionsViewModel(InventoryService inventoryService)
+        public TransactionsViewModel(InventoryService inventoryService, UsersService usersService)
         {
             _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
-            Transactions = new ObservableCollection<Transaction>();
+            _usersService = usersService;
             LoadTransactionsCommand = new AsyncRelayCommand(async _ => await LoadTransactionsAsync());
             NextPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(1));
             PreviousPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(-1));
-        }
 
+            ApplyFiltersCommand = new AsyncRelayCommand(async _ => await LoadTransactionsAsync());
+            ResetFiltersCommand = new RelayCommand(_ => ResetFilters());
+        }
+        private async void ResetFilters()
+        {
+            Product = null;
+            Brand = null;
+            UPC = null;
+            SelectedUser = string.Empty;
+            IsStockBoth = true;
+            IsStockIn = false;
+            IsStockOut = false;
+            await LoadTransactionsAsync();
+        }
         public async Task LoadTransactionsAsync()
         {
             IsLoading = true;
+
+            await LoadUsersAsync(); // Ensure users are loaded before filtering
+
             try
             {
-                var response = await _inventoryService.GetTransactionsAsync(CurrentPage);
+                // Create a TransactionsRequest with filters from ViewModel properties
+                var request = new TransactionsRequest
+                {
+                    UPC = UPC,
+                    Product = Product,
+                    Brand = Brand,
+                    CreatedBy = SelectedUser,
+                    Type = SelectedTransactionType
+                };
+
+                // Call API with filters
+                var response = await _inventoryService.GetTransactionsAsync(request, CurrentPage);
+
                 if (response != null)
                 {
                     Transactions.Clear();
@@ -114,6 +256,7 @@ namespace PharmaTrack.WPF.ViewModels
                     CurrentPage = response.CurrentPage;
                     TotalPages = response.TotalPageCount;
                 }
+
                 StatusMessage = "Transactions loaded successfully.";
                 StatusForeground = Brushes.Green;
             }
@@ -132,6 +275,7 @@ namespace PharmaTrack.WPF.ViewModels
                 IsLoading = false;
             }
         }
+
         private async Task ChangePageAsync(int direction)
         {
             if ((direction == -1 && CurrentPage > 1) || (direction == 1 && CurrentPage < TotalPages))
