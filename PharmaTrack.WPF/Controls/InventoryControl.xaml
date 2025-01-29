@@ -8,43 +8,75 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" DockPanel.Dock="Top">
-            <Button Background="Blue" 
-                    x:Name="ViewProductBtn"
-                    Foreground="White" 
-                    Margin="5"
-                    Command="{Binding ViewProductCommand}"
-                    CommandParameter="{Binding SelectedProductId}">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <bi:BootstrapIcon Icon="ViewList"
-                          Margin="5"
-                          Width="15"
-                          Height="15"
-                          Foreground="White"/>
-                        <TextBlock Text="View Product"
-                                   Margin="5"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
+        <StackPanel Orientation="Vertical" VerticalAlignment="Center" DockPanel.Dock="Top">
+            <StackPanel Orientation="Horizontal" 
+            Margin="5"
+            VerticalAlignment="Center">
+                <TextBlock Text="Product:"
+                           Width="55"
+                           VerticalAlignment="Center" 
+                           FontWeight="Bold"/>
+                <TextBox Width="200" 
+             Text="{Binding Product, UpdateSourceTrigger=PropertyChanged}"
+             VerticalContentAlignment="Center" />
 
-            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="5" FontWeight="Bold"/>
-            <TextBox x:Name="SearchPhrase" Width="300" Padding="3" VerticalContentAlignment="Center" Margin="5"/>
-            <Button Background="Green" Foreground="White" Margin="5">
-                <Button.Content>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <bi:BootstrapIcon Icon="Search"
-                                          Margin="5"
-                                          Width="15"
-                                          Height="15"
-                                          Foreground="White"/>
-                        <TextBlock Text="Search"
-                                   Margin="5"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button.Content>
-            </Button>
+                <TextBlock Text="Brand:" 
+                           Margin="5,0,5,0" 
+                           VerticalAlignment="Center" 
+                           FontWeight="Bold"/>
+                <TextBox Width="100"     
+             Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"
+             VerticalContentAlignment="Center" />
+
+                <TextBlock Text="UPC:" 
+                           Margin="5,0,5,0" 
+               VerticalAlignment="Center" 
+               FontWeight="Bold"/>
+                <TextBox Width="100" 
+             Text="{Binding UPC, UpdateSourceTrigger=PropertyChanged}"
+             VerticalContentAlignment="Center" />
+
+                <Button Margin="5,0,0,0"        
+            ToolTip="Scan Barcode">
+                    <Button.Content>
+                        <bi:BootstrapIcon Icon="UpcScan" />
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="5">
+                <TextBlock Text="NPN:"
+                           Width="55"             
+                           VerticalAlignment="Center" 
+                           FontWeight="Bold"/>
+                <TextBox Width="100" 
+                         Text="{Binding NPN, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalContentAlignment="Center" />
+
+                <TextBlock Text="DIN:" 
+                           Margin="5,0,5,0" 
+                           VerticalAlignment="Center" 
+                           FontWeight="Bold"/>
+                <TextBox Width="100" 
+                         Text="{Binding DIN, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalContentAlignment="Center" />
+
+                <Button Margin="5,0,0,0"      
+            Command="{Binding ApplyFiltersCommand}"
+            ToolTip="Filter">
+                    <Button.Content>
+                        <bi:BootstrapIcon Icon="Filter" />
+                    </Button.Content>
+                </Button>
+
+                <Button Margin="5,0,0,0"        
+            Command="{Binding ResetFiltersCommand}"
+            ToolTip="Reset">
+                    <Button.Content>
+                        <bi:BootstrapIcon Icon="X" />
+                    </Button.Content>
+                </Button>
+            </StackPanel>
         </StackPanel>
         <!-- Status Bar -->
         <StatusBar DockPanel.Dock="Bottom">

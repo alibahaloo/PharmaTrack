@@ -21,7 +21,6 @@
                          VerticalContentAlignment="Center" />
 
                 <TextBlock Text="Brand:" 
-                           Width="50"
                            Margin="5,0,5,0" 
                            VerticalAlignment="Center" 
                            FontWeight="Bold"/>
@@ -60,7 +59,6 @@
                           Width="200"/>
 
                 <TextBlock Text="Transfer:" 
-                           Width="50"
                            Margin="5,0,5,0" 
                            VerticalAlignment="Center" 
                            FontWeight="Bold"/>
