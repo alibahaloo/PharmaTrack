@@ -23,10 +23,10 @@ namespace Gateway.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts(int curPage = 1)
+        public async Task<IActionResult> GetAllProducts([FromQuery] InventoryRequest request, int curPage = 1)
         {
             // Define the Inventory API endpoint URL
-            var getAllProductsUrl = $"{_inventoryApiBaseUrl}/api/products?curPage={curPage}";
+            //var getAllProductsUrl = $"{_inventoryApiBaseUrl}/api/products?curPage={curPage}";
 
             try
             {
@@ -36,6 +36,36 @@ namespace Gateway.API.Controllers
                 {
                     return validationResult; // Return if validation fails
                 }
+
+                // Serialize TransactionsRequest into query parameters
+                var queryParameters = new List<string>
+                {
+                    $"curPage={curPage}"
+                };
+
+                if (!string.IsNullOrEmpty(request.UPC))
+                {
+                    queryParameters.Add($"upc={Uri.EscapeDataString(request.UPC)}");
+                }
+                if (!string.IsNullOrEmpty(request.Name))
+                {
+                    queryParameters.Add($"name={Uri.EscapeDataString(request.Name)}");
+                }
+                if (!string.IsNullOrEmpty(request.Brand))
+                {
+                    queryParameters.Add($"brand={Uri.EscapeDataString(request.Brand)}");
+                }
+                if (!string.IsNullOrEmpty(request.DIN))
+                {
+                    queryParameters.Add($"din={Uri.EscapeDataString(request.DIN)}");
+                }
+                if (!string.IsNullOrEmpty(request.NPN))
+                {
+                    queryParameters.Add($"npn={Uri.EscapeDataString(request.NPN)}");
+                }
+
+                var queryString = string.Join("&", queryParameters);
+                var getAllProductsUrl = $"{_inventoryApiBaseUrl}/api/products?{queryString}";
 
                 // Send GET request to the Inventory API
                 var response = await _httpClient.GetAsync(getAllProductsUrl);

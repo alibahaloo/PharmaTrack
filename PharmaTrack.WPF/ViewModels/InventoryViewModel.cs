@@ -1,4 +1,5 @@
-﻿using PharmaTrack.Shared.DBModels;
+﻿using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Controls;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
@@ -151,7 +152,17 @@ namespace PharmaTrack.WPF.ViewModels
             IsLoading = true;
             try
             {
-                var response = await _inventoryService.GetProductsAsync(CurrentPage);
+                // Create a InventoryRequest with filters from ViewModel properties
+                var request = new InventoryRequest
+                {
+                    UPC = UPC,
+                    Name = ProductName,
+                    Brand = Brand,
+                    DIN = DIN,
+                    NPN = NPN
+                };
+
+                var response = await _inventoryService.GetProductsAsync(request, CurrentPage);
                 if (response != null)
                 {
                     Products.Clear();

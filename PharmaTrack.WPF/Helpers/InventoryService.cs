@@ -90,8 +90,7 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
-
-        public async Task<PagedResponse<Product>?> GetProductsAsync(int curPage = 1)
+        public async Task<PagedResponse<Product>?> GetProductsAsync(InventoryRequest request, int curPage = 1)
         {
             string? accessToken = TokenStorage.AccessToken;
             if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
@@ -100,7 +99,38 @@ namespace PharmaTrack.WPF.Helpers
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
-            var response = await _httpClient.GetAsync($"{_productsUrl}?curPage={curPage}");
+            // Convert TransactionsRequest to query parameters
+            var queryParameters = new List<string>
+            {
+                $"curPage={curPage}"
+            };
+
+            if (!string.IsNullOrEmpty(request.UPC))
+            {
+                queryParameters.Add($"upc={Uri.EscapeDataString(request.UPC)}");
+            }
+            if (!string.IsNullOrEmpty(request.Name))
+            {
+                queryParameters.Add($"name={Uri.EscapeDataString(request.Name)}");
+            }
+            if (!string.IsNullOrEmpty(request.Brand))
+            {
+                queryParameters.Add($"brand={Uri.EscapeDataString(request.Brand)}");
+            }
+            if (!string.IsNullOrEmpty(request.DIN))
+            {
+                queryParameters.Add($"din={Uri.EscapeDataString(request.DIN)}");
+            }
+            if (!string.IsNullOrEmpty(request.NPN))
+            {
+                queryParameters.Add($"npn={Uri.EscapeDataString(request.NPN)}");
+            }
+
+            string queryString = string.Join("&", queryParameters);
+            string requestUrl = $"{_productsUrl}?{queryString}";
+
+            // Send GET request to the API
+            var response = await _httpClient.GetAsync(requestUrl);
 
             if (response.IsSuccessStatusCode)
             {

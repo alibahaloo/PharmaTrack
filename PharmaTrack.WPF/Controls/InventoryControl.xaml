@@ -17,7 +17,7 @@
                            VerticalAlignment="Center" 
                            FontWeight="Bold"/>
                 <TextBox Width="200" 
-             Text="{Binding Product, UpdateSourceTrigger=PropertyChanged}"
+             Text="{Binding ProductName, UpdateSourceTrigger=PropertyChanged}"
              VerticalContentAlignment="Center" />
 
                 <TextBlock Text="Brand:" 
@@ -107,13 +107,13 @@
                       MouseDoubleClick="DataGrid_MouseDoubleClick">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="UPC" Binding="{Binding UPC}" Width="auto"/>
-                    <DataGridTextColumn Header="NPN" Binding="{Binding NPN}" />
-                    <DataGridTextColumn Header="DIN" Binding="{Binding DIN}" />
+                    <DataGridTextColumn Header="NPN" Binding="{Binding NPN}" Width="auto"/>
+                    <DataGridTextColumn Header="DIN" Binding="{Binding DIN}" Width="auto"/>
                     <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
                     <DataGridTextColumn Header="Brand" Binding="{Binding Brand}" Width="auto"/>
-                    <DataGridTextColumn Header="#" Binding="{Binding Quantity}" />
-                    <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt}" />
-                    <DataGridTextColumn Header="Updated At" Binding="{Binding UpdatedAt}" />
+                    <DataGridTextColumn Header="#" Binding="{Binding Quantity}" Width="auto"/>
+                    <DataGridTextColumn Header="Created At" Binding="{Binding CreatedAt}" Width="auto"/>
+                    <DataGridTextColumn Header="Updated At" Binding="{Binding UpdatedAt}" Width="auto"/>
                 </DataGrid.Columns>
             </DataGrid>
 

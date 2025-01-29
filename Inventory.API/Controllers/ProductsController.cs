@@ -20,9 +20,20 @@ namespace Inventory.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProducts(int curPage = 1)
+        public async Task<IActionResult> GetProducts([FromQuery] InventoryRequest request, int curPage = 1)
         {
             IQueryable<Product> query = _context.Products;
+
+            if (request != null)
+            {
+                query = query.Where(t =>
+                    (string.IsNullOrEmpty(request.UPC) || t.UPC == request.UPC) &&
+                    (string.IsNullOrEmpty(request.Name) || t.Name.ToLower().Contains(request.Name.ToLower())) &&
+                    (string.IsNullOrEmpty(request.NPN) || t.UPC == request.NPN) &&
+                    (string.IsNullOrEmpty(request.DIN) || t.UPC == request.DIN) &&
+                    (string.IsNullOrEmpty(request.Brand) || (t.Brand != null && t.Brand.ToLower().Contains(request.Brand.ToLower())))
+                );
+            }
 
             var result = await EFExtensions.GetPaged(query, curPage);
 
