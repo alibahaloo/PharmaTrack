@@ -80,7 +80,7 @@
                 <RadioButton GroupName="Transfer"
                              Margin="5,0,5,0" 
                              VerticalAlignment="Center"
-                             IsChecked="{Binding IsBothStock, Mode=TwoWay}">
+                             IsChecked="{Binding IsStockBoth, Mode=TwoWay}">
                     <RadioButton.Content>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <bi:BootstrapIcon Icon="ArrowLeftRight"
@@ -162,10 +162,10 @@
                       IsReadOnly="True"
                       ColumnHeaderStyle="{StaticResource GlobalDataGridHeaderStyle}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="In/Out" Binding="{Binding Type}" Width="auto"/>
-                    <DataGridTextColumn Header="UPC" Binding="{Binding Product.UPC}" Width="auto"/>
+                    <DataGridTextColumn Header="In/Out" Binding="{Binding Type}"/>
+                    <DataGridTextColumn Header="UPC" Binding="{Binding Product.UPC}"/>
                     <DataGridTextColumn Header="Product" Binding="{Binding Product.Name}" Width="*"/>
-                    <DataGridTextColumn Header="Brand" Binding="{Binding Product.Brand}" Width="auto"/>
+                    <DataGridTextColumn Header="Brand" Binding="{Binding Product.Brand}"/>
                     <DataGridTextColumn Header="#" Binding="{Binding Quantity}" Width="auto"/>
                     <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" Width="auto"/>
                     <DataGridTextColumn Header="Created By" Binding="{Binding CreatedBy}" Width="auto"/>
