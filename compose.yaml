@@ -67,6 +67,23 @@ services:
     depends_on:
       - schedule-db
 
+  drug-api:
+    container_name: Drug.API
+    build:
+      context: ..
+      dockerfile: PharmaTrack/Drug.API/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=drug-db;Database=Drug;User Id=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True
+      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=your_password
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    ports:
+      - "8089:80"
+      - "8090:443"
+    depends_on:
+      - drug-db
+
   inventory-db:
     container_name: Inventory.db  
     image: "mcr.microsoft.com/mssql/server:2019-latest"
@@ -102,8 +119,21 @@ services:
       - "1435:1433"  # Expose SQL Server port
     volumes:
       - schedule-db-data:/var/opt/mssql  # Persist SQL data between restarts
+ 
+  drug-db:
+    container_name: Drug.db  
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"  # Replace with a strong password
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Express"
+    ports:
+      - "1436:1433"  # Expose SQL Server port
+    volumes:
+      - drug-db-data:/var/opt/mssql  # Persist SQL data between restarts
 
 volumes:
   inventory-db-data:
   auth-db-data:
-  schedule-db-data:  
+  schedule-db-data:
+  drug-db-data:
