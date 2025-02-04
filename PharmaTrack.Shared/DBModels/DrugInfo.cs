@@ -7,6 +7,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
+        [Column("HASH")]
+        public string? Hash { get; set; }
 
         [Column("DRUG_CODE")]
         public int DrugCode { get; set; }
@@ -55,7 +57,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
-
+        [Column("HASH")]
+        public string? Hash { get; set; }
         [Column("ACTIVE_INGREDIENT_CODE")]
         public int ActiveIngredientCode { get; set; }
 
@@ -104,7 +107,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
-
+        [Column("HASH")]
+        public string? Hash { get; set; }
         [Column("COMPANY_CODE")]
         public int CompanyCode { get; set; }
 
@@ -174,7 +178,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
-
+        [Column("HASH")]
+        public string? Hash { get; set; }
         [Column("STATUS_ID")]
         public int StatusId { get; set; }
 
@@ -194,7 +199,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
-
+        [Column("HASH")]
+        public string? Hash { get; set; }
         [Column("PHARM_FORM_CODE")]
         public int PharmFormCode { get; set; }
 
@@ -211,7 +217,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
-
+        [Column("HASH")]
+        public string? Hash { get; set; }
         [Column("PACKAGE_ID")]
         public int PackageId { get; set; }
 
@@ -244,7 +251,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
-
+        [Column("HASH")]
+        public string? Hash { get; set; }
         [Column("PHARM_STD_ID")]
         public int PharmStdId { get; set; }
 
@@ -261,7 +269,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
-
+        [Column("HASH")]
+        public string? Hash { get; set; }
         [Column("ROUTE_ID")]
         public int RouteId { get; set; }
 
@@ -282,7 +291,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
-
+        [Column("HASH")]
+        public string? Hash { get; set; }
         [Column("SCHEDULE_ID")]
         public int ScheduleId { get; set; }
 
@@ -299,7 +309,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
-
+        [Column("HASH")]
+        public string? Hash { get; set; }
         [Column("THER_CLASS_ID")]
         public int TherClassId { get; set; }
 
@@ -328,7 +339,8 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
-
+        [Column("HASH")]
+        public string? Hash { get; set; }
         [Column("VET_SPECIES_ID")]
         public int VetSpeciesId { get; set; }
 

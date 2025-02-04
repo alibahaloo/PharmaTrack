@@ -2,7 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using PharmaTrack.Shared.DBModels;
-using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Drug.API.Services
 {
@@ -77,7 +80,15 @@ namespace Drug.API.Services
                         AiGroupNo = GetStringValue(worksheet.Cells[row, 11].Text)
                     };
 
-                    drugs.Add(drug);
+                    // Generate a unique hash for this row
+                    drug.Hash = GenerateHash(drug);
+
+                    // Check if a record with the same hash exists
+                    bool exists = await _context.Drugs.AnyAsync(d => d.Hash == drug.Hash);
+                    if (!exists)
+                    {
+                        drugs.Add(drug);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -101,6 +112,20 @@ namespace Drug.API.Services
         private static DateTime? GetDateValue(string value)
         {
             return DateTime.TryParse(value, out DateTime result) ? result : (DateTime?)null;
+        }
+
+        private static string GenerateHash<T>(T obj)
+        {
+
+            // Convert the object into a JSON string (ignoring null properties for consistency)
+            string json = JsonSerializer.Serialize(obj, new JsonSerializerOptions
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+
+            byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(json));
+            return Convert.ToHexStringLower(bytes);
         }
     }
 }
