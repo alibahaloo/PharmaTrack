@@ -6,6 +6,8 @@ namespace PharmaTrack.Shared.DBModels
     public class DrugProduct
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("DRUG_CODE")]
         public int DrugCode { get; set; }
 
@@ -22,9 +24,8 @@ namespace PharmaTrack.Shared.DBModels
         public string? DrugIdentificationNumber { get; set; }
 
         [Column("BRAND_NAME")]
-        [Required]
         [MaxLength(200)]
-        public string BrandName { get; set; } = null!;
+        public string? BrandName { get; set; } = null!;
 
         [Column("DESCRIPTOR")]
         [MaxLength(150)]
@@ -48,23 +49,13 @@ namespace PharmaTrack.Shared.DBModels
         [Column("AI_GROUP_NO")]
         [MaxLength(10)]
         public string? AiGroupNo { get; set; }
-
-        // Navigation Properties
-        public ICollection<DrugIngredient> Ingredients { get; set; } = [];
-        public ICollection<DrugCompany> Companies { get; set; } = [];
-        public ICollection<DrugStatus> Statuses { get; set; } = [];
-        public ICollection<DrugForm> Forms { get; set; } = [];
-        public ICollection<DrugPackaging> Packagings { get; set; } = [];
-        public ICollection<DrugPharmaceuticalStd> PharmaceuticalStandards { get; set; } = [];
-        public ICollection<DrugRoute> Routes { get; set; } = [];
-        public ICollection<DrugSchedule> Schedules { get; set; } = [];
-        public ICollection<DrugTherapeuticClass> TherapeuticClasses { get; set; } = [];
-        public ICollection<DrugVeterinarySpecies> VeterinarySpecies { get; set; } = [];
     }
 
     public class DrugIngredient
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("ACTIVE_INGREDIENT_CODE")]
         public int ActiveIngredientCode { get; set; }
 
@@ -107,15 +98,13 @@ namespace PharmaTrack.Shared.DBModels
         [Column("NOTES")]
         [MaxLength(2000)]
         public string? Notes { get; set; }
-
-        // Foreign Key
-        [ForeignKey(nameof(DrugCode))]
-        public DrugProduct Drug { get; set; } = null!;
     }
 
     public class DrugCompany
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("COMPANY_CODE")]
         public int CompanyCode { get; set; }
 
@@ -179,15 +168,13 @@ namespace PharmaTrack.Shared.DBModels
         [Column("POST_OFFICE_BOX")]
         [MaxLength(15)]
         public string? PostOfficeBox { get; set; }
-
-        // Foreign Key
-        [ForeignKey(nameof(DrugCode))]
-        public DrugProduct Drug { get; set; } = null!;
     }
 
     public class DrugStatus
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("STATUS_ID")]
         public int StatusId { get; set; }
 
@@ -201,15 +188,13 @@ namespace PharmaTrack.Shared.DBModels
 
         [Column("HISTORY_DATE")]
         public DateTime? HistoryDate { get; set; }
-
-        // Foreign Key
-        [ForeignKey(nameof(DrugCode))]
-        public DrugProduct Drug { get; set; } = null!;
     }
 
     public class DrugForm
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("PHARM_FORM_CODE")]
         public int PharmFormCode { get; set; }
 
@@ -220,15 +205,13 @@ namespace PharmaTrack.Shared.DBModels
         [Column("PHARMACEUTICAL_FORM")]
         [MaxLength(40)]
         public string? PharmaceuticalForm { get; set; }
-
-        // Foreign Key
-        [ForeignKey(nameof(DrugCode))]
-        public DrugProduct Drug { get; set; } = null!;
     }
 
     public class DrugPackaging
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("PACKAGE_ID")]
         public int PackageId { get; set; }
 
@@ -255,15 +238,13 @@ namespace PharmaTrack.Shared.DBModels
         [Column("PRODUCT_INFORMATION")]
         [MaxLength(80)]
         public string? ProductInformation { get; set; }
-
-        // Foreign Key
-        [ForeignKey(nameof(DrugCode))]
-        public DrugProduct Drug { get; set; } = null!;
     }
 
     public class DrugPharmaceuticalStd
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("PHARM_STD_ID")]
         public int PharmStdId { get; set; }
 
@@ -274,15 +255,13 @@ namespace PharmaTrack.Shared.DBModels
         [Column("PHARMACEUTICAL_STD")]
         [MaxLength(40)]
         public string? PharmaceuticalStd { get; set; }
-
-        // Foreign Key
-        [ForeignKey(nameof(DrugCode))]
-        public DrugProduct Drug { get; set; } = null!;
     }
 
     public class DrugRoute
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("ROUTE_ID")]
         public int RouteId { get; set; }
 
@@ -297,15 +276,13 @@ namespace PharmaTrack.Shared.DBModels
         [Column("ROUTE_OF_ADMINISTRATION")]
         [MaxLength(40)]
         public string? RouteOfAdministration { get; set; }
-
-        // Foreign Key
-        [ForeignKey(nameof(DrugCode))]
-        public DrugProduct Drug { get; set; } = null!;
     }
 
     public class DrugSchedule
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("SCHEDULE_ID")]
         public int ScheduleId { get; set; }
 
@@ -316,15 +293,13 @@ namespace PharmaTrack.Shared.DBModels
         [Column("SCHEDULE")]
         [MaxLength(40)]
         public string? Schedule { get; set; }
-
-        // Foreign Key
-        [ForeignKey(nameof(DrugCode))]
-        public DrugProduct Drug { get; set; } = null!;
     }
 
     public class DrugTherapeuticClass
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("THER_CLASS_ID")]
         public int TherClassId { get; set; }
 
@@ -347,15 +322,13 @@ namespace PharmaTrack.Shared.DBModels
         [Column("TC_AHFS")]
         [MaxLength(80)]
         public string? TcAhfs { get; set; }
-
-        // Foreign Key
-        [ForeignKey(nameof(DrugCode))]
-        public DrugProduct Drug { get; set; } = null!;
     }
 
     public class DrugVeterinarySpecies
     {
         [Key]
+        public int Id { get; set; }
+
         [Column("VET_SPECIES_ID")]
         public int VetSpeciesId { get; set; }
 
@@ -370,9 +343,5 @@ namespace PharmaTrack.Shared.DBModels
         [Column("VET_SUB_SPECIES")]
         [MaxLength(80)]
         public string? VetSubSpecies { get; set; }
-
-        // Foreign Key
-        [ForeignKey(nameof(DrugCode))]
-        public DrugProduct Drug { get; set; } = null!;
     }
 }
