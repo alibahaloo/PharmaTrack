@@ -23,6 +23,14 @@ namespace Drug.API.Controllers
             return Ok("Job has been enqueued!");
         }
 
+        [HttpPost("import-drug-data")]
+        public IActionResult EnqueueImportDrugData()
+        {
+            // Enqueue a background job
+            BackgroundJob.Enqueue(() => _jobService.ImportDataAsync());
+            return Ok("Import job has been enqueued!");
+        }
+
         [HttpPost("schedule-drug-data-processing")]
         public IActionResult ScheduleProcessDrugData()
         {

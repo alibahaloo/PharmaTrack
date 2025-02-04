@@ -8,6 +8,9 @@ WORKDIR /source
 COPY ./PharmaTrack/Drug.API ./Drug.API
 COPY ./PharmaTrack/PharmaTrack.Shared ./PharmaTrack.Shared
 
+# Copy DataFiles directory (Ensures the Excel file is available)
+COPY ./PharmaTrack/Drug.API/DataFiles ./Drug.API/DataFiles
+
 WORKDIR /source/Drug.API
 
 ARG TARGETARCH
@@ -28,6 +31,9 @@ ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 RUN update-ca-certificates
 
 COPY --from=build /app .
+
+# ✅ Copy the DataFiles directory explicitly from the build stage
+COPY --from=build /source/Drug.API/DataFiles /app/DataFiles
 
 # Copy the SSL certificate from the host to the container
 COPY ./PharmaTrack/aspnetapp.pfx /https/aspnetapp.pfx
