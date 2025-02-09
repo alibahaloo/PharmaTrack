@@ -16,6 +16,7 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly UsersControl _usersControl;
         private readonly LoadingControl _loadingControl = new();
         private readonly ScheduleControl _scheduleControl;
+        private readonly DrugListControl _drugListControl;
         private object _currentContent = default!;
         private bool _isLoggedIn;
         private bool _isUserAdmin = false;
@@ -32,6 +33,7 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ShowTransactionsCommand { get; }
         public ICommand ShowUsersCommand { get; }
         public ICommand RetryCommand { get; }
+        public ICommand ShowDrugsCommand { get; }
 
         public bool IsLoaded
         {
@@ -99,7 +101,8 @@ namespace PharmaTrack.WPF.ViewModels
             InventoryControl inventoryControl,
             TransactionsControl transactionsControl,
             UsersControl usersControl,
-            ScheduleControl scheduleControl)
+            ScheduleControl scheduleControl,
+            DrugListControl drugListControl)
         {
             _authService = authService;
             _loginControl = loginControl;
@@ -109,6 +112,7 @@ namespace PharmaTrack.WPF.ViewModels
             _transactionsControl = transactionsControl;
             _usersControl = usersControl;
             _scheduleControl = scheduleControl;
+            _drugListControl = drugListControl;
 
             // Subscribe to LoginViewModel's LoginSuccessful event
             if (_loginControl.DataContext is LoginViewModel loginViewModel)
@@ -125,6 +129,7 @@ namespace PharmaTrack.WPF.ViewModels
             ShowTransactionsCommand = new RelayCommand(_ => LoadTransactions());
             ShowUsersCommand = new RelayCommand(_ => LoadUsers());
             RetryCommand = new RelayCommand(_ => Retry());
+            ShowDrugsCommand = new RelayCommand(_ => LoadDrugs());
         }
 
         private async void Retry()
@@ -179,6 +184,10 @@ namespace PharmaTrack.WPF.ViewModels
                     LoadLogin();
                 }
             }
+        }
+        private void LoadDrugs()
+        {
+            CurrentContent = _drugListControl;
         }
         private void LoadCreateTask()
         {

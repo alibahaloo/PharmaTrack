@@ -68,8 +68,15 @@
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
-                
-                
+
+                <MenuItem Header="Drugs" 
+                          Command="{Binding ShowDrugsCommand}" 
+                          Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                    <MenuItem.Icon>
+                        <bi:BootstrapIcon Icon="CapsulePill" />
+                    </MenuItem.Icon>
+                </MenuItem>
+
                 <MenuItem Header="Users" 
                           Command="{Binding ShowUsersCommand}" 
                           Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
