@@ -125,13 +125,31 @@
                 </StackPanel>
 
 
-                <StackPanel HorizontalAlignment="Left">
+                <StackPanel>
                     <TextBlock Text="DIN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"  Margin="5"/>
                     <TextBox Text="{Binding DIN, UpdateSourceTrigger=PropertyChanged}"
                              Padding="5"
                              Width="150"
                              Margin="5" />
                 </StackPanel>
+                <Button 
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Bottom"
+                     Background="Green"
+                     Foreground="White"
+                     Margin="5">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <bi:BootstrapIcon Icon="CapsulePill" 
+                                              Margin="5"
+                                              Width="16" Height="16" 
+                                              Foreground="White" />
+                            <TextBlock Text="Lookup Drug Info"
+                                       Margin="5"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
             </StackPanel>
 
             <!-- Product Description -->
@@ -148,8 +166,6 @@
                          ToolTip="Enter product title or description" />
             </StackPanel>
 
-
-
             <StackPanel Orientation="Horizontal">
                 <StackPanel HorizontalAlignment="Left">
                     <TextBlock Text="Quantity" FontSize="14" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5"/>
@@ -165,7 +181,7 @@
 
                 <StackPanel Orientation="Vertical">
                     <TextBlock FontSize="14" FontWeight="Bold" Text="Transfer" Margin="5" />
-                    <StackPanel Orientation="Vertical" >
+                    <StackPanel Orientation="Horizontal" >
                         <RadioButton GroupName="Transfer"
                                      IsChecked="{Binding IsStockIn, Mode=TwoWay}" 
                                      Margin="5">
