@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
 using PharmaTrack.Shared.Services;
@@ -19,6 +20,116 @@ namespace Gateway.API.Controllers
             _jwtService = jwtService;
             _httpClient = httpClientFactory.CreateClient();
             _drugApiBaseUrl = configuration["DrugApi:BaseUrl"] ?? throw new ArgumentNullException("DrugApi:BaseUrl", "The base URL for the Drug API is not configured.");
+        }
+
+        [HttpGet("DIN/{DIN}")]
+        public async Task<IActionResult> GetDrugInfoByDIN(string DIN)
+        {
+            try
+            {
+                // Step 1: Validate Authorization Header
+                /*
+                var (validationResult, username, isAdmin) = _jwtService.ValidateAuthorizationHeader(Request);
+                if (validationResult != null)
+                {
+                    return validationResult; // Return if validation fails
+                }
+                */
+
+                var apiUrl = $"{_drugApiBaseUrl}/api/Drugs/DIN/{DIN}";
+
+                // Send GET request to the Inventory API
+                var response = await _httpClient.GetAsync(apiUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Return the error response from the Inventory API
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                // Deserialize the response JSON into a list of Product objects
+                var responseJson = await response.Content.ReadAsStringAsync();
+
+                DrugInfoDto? apiResponse;
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<DrugInfoDto>(responseJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing data: {jsonEx.Message}");
+                }
+
+                return Ok(apiResponse);
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle HTTP request errors
+                return StatusCode(500, $"Error communicating with API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        [HttpGet("{drugCode}")]
+        public async Task<IActionResult> GetDrugInfoByCode(int drugCode)
+        {
+            try
+            {
+                // Step 1: Validate Authorization Header
+                /*
+                var (validationResult, username, isAdmin) = _jwtService.ValidateAuthorizationHeader(Request);
+                if (validationResult != null)
+                {
+                    return validationResult; // Return if validation fails
+                }
+                */
+
+                var apiUrl = $"{_drugApiBaseUrl}/api/Drugs/{drugCode}";
+
+                // Send GET request to the Inventory API
+                var response = await _httpClient.GetAsync(apiUrl);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    // Return the error response from the Inventory API
+                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+                }
+
+                // Deserialize the response JSON into a list of Product objects
+                var responseJson = await response.Content.ReadAsStringAsync();
+
+                DrugInfoDto? apiResponse;
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<DrugInfoDto>(responseJson, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+                catch (JsonException jsonEx)
+                {
+                    return StatusCode(500, $"Error deserializing data: {jsonEx.Message}");
+                }
+
+                return Ok(apiResponse);
+            }
+            catch (HttpRequestException ex)
+            {
+                // Handle HTTP request errors
+                return StatusCode(500, $"Error communicating with API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
+            }
         }
 
         [HttpGet]

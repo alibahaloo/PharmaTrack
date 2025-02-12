@@ -152,6 +152,11 @@
                 </Button>
             </StackPanel>
 
+            <Expander Header="Drug Information" Width="auto" Margin="5">
+                <TextBlock Text="this is some text">
+                </TextBlock>
+            </Expander>
+
             <!-- Product Description -->
             <StackPanel Orientation="Vertical">
                 <TextBlock Text="Product Description" FontSize="14" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5"/>
