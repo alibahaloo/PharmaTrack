@@ -145,14 +145,16 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
+
         [Column("HASH")]
         public string? Hash { get; set; }
-        [Column("STATUS_ID")]
-        public int StatusId { get; set; }
 
         [Column("DRUG_CODE")]
         [Required]
         public int DrugCode { get; set; }
+
+        [Column("CURRENT_STATUS_FLAG")]
+        public string? CurrentStatusFlag { get; set; }
 
         [Column("STATUS")]
         public string? Status { get; set; }
@@ -182,10 +184,9 @@ namespace PharmaTrack.Shared.DBModels
     {
         [Key]
         public int Id { get; set; }
+
         [Column("HASH")]
         public string? Hash { get; set; }
-        [Column("PACKAGE_ID")]
-        public int PackageId { get; set; }
 
         [Column("DRUG_CODE")]
         [Required]
@@ -213,8 +214,6 @@ namespace PharmaTrack.Shared.DBModels
         public int Id { get; set; }
         [Column("HASH")]
         public string? Hash { get; set; }
-        [Column("PHARM_STD_ID")]
-        public int PharmStdId { get; set; }
 
         [Column("DRUG_CODE")]
         [Required]
@@ -230,8 +229,6 @@ namespace PharmaTrack.Shared.DBModels
         public int Id { get; set; }
         [Column("HASH")]
         public string? Hash { get; set; }
-        [Column("ROUTE_ID")]
-        public int RouteId { get; set; }
 
         [Column("DRUG_CODE")]
         [Required]
@@ -251,8 +248,6 @@ namespace PharmaTrack.Shared.DBModels
         public int Id { get; set; }
         [Column("HASH")]
         public string? Hash { get; set; }
-        [Column("SCHEDULE_ID")]
-        public int ScheduleId { get; set; }
 
         [Column("DRUG_CODE")]
         [Required]
@@ -268,8 +263,6 @@ namespace PharmaTrack.Shared.DBModels
         public int Id { get; set; }
         [Column("HASH")]
         public string? Hash { get; set; }
-        [Column("THER_CLASS_ID")]
-        public int TherClassId { get; set; }
 
         [Column("DRUG_CODE")]
         [Required]
@@ -283,9 +276,6 @@ namespace PharmaTrack.Shared.DBModels
 
         [Column("TC_AHFS_NUMBER")]
         public string? TcAhfsNumber { get; set; }
-
-        [Column("TC_AHFS")]
-        public string? TcAhfs { get; set; }
     }
 
     public class DrugVeterinarySpecies
@@ -294,8 +284,6 @@ namespace PharmaTrack.Shared.DBModels
         public int Id { get; set; }
         [Column("HASH")]
         public string? Hash { get; set; }
-        [Column("VET_SPECIES_ID")]
-        public int VetSpeciesId { get; set; }
 
         [Column("DRUG_CODE")]
         [Required]

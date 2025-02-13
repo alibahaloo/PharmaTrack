@@ -64,8 +64,7 @@ namespace Drug.API.Services
                 {
                     var vetSpecies = new DrugVeterinarySpecies
                     {
-                        VetSpeciesId = GetIntValue(worksheet.Cells[row, 1].Text),
-                        DrugCode = GetIntValue(worksheet.Cells[row, 2].Text),
+                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
                         VetSpecies = GetStringValue(worksheet.Cells[row, 3].Text),
                         VetSubSpecies = GetStringValue(worksheet.Cells[row, 4].Text)
                     };
@@ -102,12 +101,10 @@ namespace Drug.API.Services
                 {
                     var therapeuticClass = new DrugTherapeuticClass
                     {
-                        TherClassId = GetIntValue(worksheet.Cells[row, 1].Text),
-                        DrugCode = GetIntValue(worksheet.Cells[row, 2].Text),
-                        TcAtcNumber = GetStringValue(worksheet.Cells[row, 3].Text),
-                        TcAtc = GetStringValue(worksheet.Cells[row, 4].Text),
-                        TcAhfsNumber = GetStringValue(worksheet.Cells[row, 5].Text),
-                        TcAhfs = GetStringValue(worksheet.Cells[row, 6].Text)
+                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
+                        TcAtcNumber = GetStringValue(worksheet.Cells[row, 2].Text),
+                        TcAtc = GetStringValue(worksheet.Cells[row, 3].Text),
+                        TcAhfsNumber = GetStringValue(worksheet.Cells[row, 4].Text),
                     };
 
                     // Generate a unique hash for this therapeutic class row
@@ -142,9 +139,8 @@ namespace Drug.API.Services
                 {
                     var schedule = new DrugSchedule
                     {
-                        ScheduleId = GetIntValue(worksheet.Cells[row, 1].Text),
-                        DrugCode = GetIntValue(worksheet.Cells[row, 2].Text),
-                        Schedule = GetStringValue(worksheet.Cells[row, 3].Text)
+                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
+                        Schedule = GetStringValue(worksheet.Cells[row, 2].Text)
                     };
 
                     // Generate a unique hash for this schedule row
@@ -179,10 +175,9 @@ namespace Drug.API.Services
                 {
                     var route = new DrugRoute
                     {
-                        RouteId = GetIntValue(worksheet.Cells[row, 1].Text),
-                        DrugCode = GetIntValue(worksheet.Cells[row, 2].Text),
-                        RouteOfAdministrationCode = GetIntValue(worksheet.Cells[row, 3].Text),
-                        RouteOfAdministration = GetStringValue(worksheet.Cells[row, 4].Text)
+                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
+                        RouteOfAdministrationCode = GetIntValue(worksheet.Cells[row, 2].Text),
+                        RouteOfAdministration = GetStringValue(worksheet.Cells[row, 3].Text)
                     };
 
                     // Generate a unique hash for this route row
@@ -217,9 +212,8 @@ namespace Drug.API.Services
                 {
                     var pharmStd = new DrugPharmaceuticalStd
                     {
-                        PharmStdId = GetIntValue(worksheet.Cells[row, 1].Text),
-                        DrugCode = GetIntValue(worksheet.Cells[row, 2].Text),
-                        PharmaceuticalStd = GetStringValue(worksheet.Cells[row, 3].Text)
+                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
+                        PharmaceuticalStd = GetStringValue(worksheet.Cells[row, 2].Text)
                     };
 
                     // Generate a unique hash for this pharmaceutical standard row
@@ -254,13 +248,13 @@ namespace Drug.API.Services
                 {
                     var packaging = new DrugPackaging
                     {
-                        PackageId = GetIntValue(worksheet.Cells[row, 1].Text),
-                        DrugCode = GetIntValue(worksheet.Cells[row, 2].Text),
-                        Upc = GetStringValue(worksheet.Cells[row, 3].Text),
-                        PackageSizeUnit = GetStringValue(worksheet.Cells[row, 4].Text),
-                        PackageType = GetStringValue(worksheet.Cells[row, 5].Text),
-                        PackageSize = GetStringValue(worksheet.Cells[row, 6].Text),
-                        ProductInformation = GetStringValue(worksheet.Cells[row, 7].Text)
+                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
+                       
+                        Upc = GetStringValue(worksheet.Cells[row, 2].Text),
+                        PackageSizeUnit = GetStringValue(worksheet.Cells[row, 3].Text),
+                        PackageType = GetStringValue(worksheet.Cells[row, 4].Text),
+                        PackageSize = GetStringValue(worksheet.Cells[row, 5].Text),
+                        ProductInformation = GetStringValue(worksheet.Cells[row, 6].Text)
                     };
 
                     // Generate a unique hash for this packaging row
@@ -295,8 +289,8 @@ namespace Drug.API.Services
                 {
                     var form = new DrugForm
                     {
-                        PharmFormCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        DrugCode = GetIntValue(worksheet.Cells[row, 2].Text),
+                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
+                        PharmFormCode = GetIntValue(worksheet.Cells[row, 2].Text),
                         PharmaceuticalForm = GetStringValue(worksheet.Cells[row, 3].Text)
                     };
 
@@ -332,8 +326,8 @@ namespace Drug.API.Services
                 {
                     var status = new DrugStatus
                     {
-                        StatusId = GetIntValue(worksheet.Cells[row, 1].Text),
-                        DrugCode = GetIntValue(worksheet.Cells[row, 2].Text),
+                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
+                        CurrentStatusFlag = GetStringValue(worksheet.Cells[row, 2].Text),
                         Status = GetStringValue(worksheet.Cells[row, 3].Text),
                         HistoryDate = GetDateValue(worksheet.Cells[row, 4].Text)
                     };
@@ -370,9 +364,9 @@ namespace Drug.API.Services
                 {
                     var company = new DrugCompany
                     {
-                        CompanyCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        DrugCode = GetIntValue(worksheet.Cells[row, 2].Text),
-                        MfrCode = GetStringValue(worksheet.Cells[row, 3].Text),
+                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
+                        MfrCode = GetStringValue(worksheet.Cells[row, 2].Text),
+                        CompanyCode = GetIntValue(worksheet.Cells[row, 3].Text),
                         CompanyName = GetStringValue(worksheet.Cells[row, 4].Text),
                         CompanyType = GetStringValue(worksheet.Cells[row, 5].Text),
                         AddressMailingFlag = GetStringValue(worksheet.Cells[row, 6].Text),
@@ -420,8 +414,8 @@ namespace Drug.API.Services
                 {
                     var ingredient = new DrugIngredient
                     {
-                        ActiveIngredientCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        DrugCode = GetIntValue(worksheet.Cells[row, 2].Text),
+                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
+                        ActiveIngredientCode = GetIntValue(worksheet.Cells[row, 2].Text),
                         Ingredient = GetStringValue(worksheet.Cells[row, 3].Text),
                         IngredientSuppliedInd = GetStringValue(worksheet.Cells[row, 4].Text),
                         Strength = GetStringValue(worksheet.Cells[row, 5].Text),
