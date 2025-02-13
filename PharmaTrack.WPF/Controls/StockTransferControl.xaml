@@ -24,250 +24,334 @@
             </StatusBarItem>
         </StatusBar>
         <!-- Main Content -->
-        <StackPanel Margin="10">
-            <TextBlock Text="Stock Transfer" FontSize="32" Margin="5"></TextBlock>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                <Button FontWeight="Regular"
-                        FontSize="16"
-                        x:Name="ScanButton"
-                        Command="{Binding ScanBarcodeCommand}"
-                        HorizontalAlignment="left"
-                        VerticalAlignment="Center"
-                        Background="Green"
-                        Foreground="White"
-                        Margin="5"
-                        Padding="5"
-                        Click="ScanButton_Click">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <bi:BootstrapIcon Icon="UpcScan"
-                              Margin="5"
-                              Width="20"
-                              Height="20"
-                              Foreground="White" />
-                            <TextBlock Text="Scan Barcode"
-                                       VerticalAlignment="Center"
-                                       Margin="5"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-
-                <TextBlock Text="{Binding ScannerStatusText}"
-                           Foreground="{Binding ScannerForeground}"
-                           VerticalAlignment="Center" />
-            </StackPanel>
-            
-
-            <!-- Barcode Scanning -->
-            <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                <TextBlock Text="UPC" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
+        <ScrollViewer>
+            <StackPanel Margin="10">
+                <TextBlock Text="Stock Transfer" FontSize="32" Margin="5"></TextBlock>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <TextBox x:Name="UPCInputTextBox"
-                             Padding="5"
-                             Text="{Binding UPCInput, UpdateSourceTrigger=PropertyChanged}"
-                             Width="200"
-                             Margin="5"
-                             ToolTip="Enter UPC here"
-                             GotFocus="UPCInputTextBox_GotFocus"
-                             LostFocus="UPCInputTextBox_LostFocus">
-                        <i:Interaction.Behaviors>
-                            <behaviors:FocusBehavior IsFocused="{Binding IsUPCInputFocused}" />
-                        </i:Interaction.Behaviors>
-                        <TextBox.InputBindings>
-                            <KeyBinding Key="Enter" Command="{Binding LookupCommand}" />
-                        </TextBox.InputBindings>
-                    </TextBox>
-
-                    <Button IsEnabled="{Binding LookUpBtnEnabled}"
-                            Command="{Binding LookupCommand}"
-                            x:Name="LoockupBarcode"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Background="Green"
-                            Foreground="White"
-                            Margin="5">
+                    <Button FontWeight="Regular"
+                FontSize="16"
+                x:Name="ScanButton"
+                Command="{Binding ScanBarcodeCommand}"
+                HorizontalAlignment="left"
+                VerticalAlignment="Center"
+                Background="Green"
+                Foreground="White"
+                Margin="5"
+                Padding="5"
+                Click="ScanButton_Click">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <bi:BootstrapIcon Icon="Search" 
-                                                  Margin="5"
-                                                  Width="16" Height="16" 
-                                                  Foreground="White" />
-                                <TextBlock Text="Lookup Product"
-                                           Margin="5"
-                                           VerticalAlignment="Center" />
+                                <bi:BootstrapIcon Icon="UpcScan"
+                      Margin="5"
+                      Width="20"
+                      Height="20"
+                      Foreground="White" />
+                                <TextBlock Text="Scan Barcode"
+                               VerticalAlignment="Center"
+                               Margin="5"/>
                             </StackPanel>
                         </Button.Content>
                     </Button>
 
-                    <TextBlock Text="{Binding LookupStatusText}"
-                               Foreground="{Binding LookupForeground}"
-                               VerticalAlignment="Center" />
-
-                    
-                </StackPanel>
-            </StackPanel>
-            
-            <!-- Additional Input Fields -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                <StackPanel>
-                    <TextBlock Text="Brand" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>
-                    <TextBox Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="5"
-                             Width="200"
-                             Margin="5" />
-                </StackPanel>
-                <StackPanel>
-                    <TextBlock Text="NPN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>
-                    <TextBox Text="{Binding NPN, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="5"
-                             Width="150"
-                             Margin="5" />
+                    <TextBlock Text="{Binding ScannerStatusText}"
+                   Foreground="{Binding ScannerForeground}"
+                   VerticalAlignment="Center" />
                 </StackPanel>
 
 
-                <StackPanel>
-                    <TextBlock Text="DIN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"  Margin="5"/>
-                    <TextBox Text="{Binding DIN, UpdateSourceTrigger=PropertyChanged}"
-                             Padding="5"
-                             Width="150"
-                             Margin="5" />
-                </StackPanel>
-                <Button 
-                     HorizontalAlignment="Center"
-                    Command="{Binding LookupDrugCommand}"
-                     VerticalAlignment="Bottom"
-                     Background="Green"
-                     Foreground="White"
-                     Margin="5">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <bi:BootstrapIcon Icon="CapsulePill" 
-                                              Margin="5"
-                                              Width="16" Height="16" 
-                                              Foreground="White" />
-                            <TextBlock Text="Lookup Drug Info"
-                                       Margin="5"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-            </StackPanel>
+                <!-- Barcode Scanning -->
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                    <TextBlock Text="UPC" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <TextBox x:Name="UPCInputTextBox"
+                     Padding="5"
+                     Text="{Binding UPCInput, UpdateSourceTrigger=PropertyChanged}"
+                     Width="200"
+                     Margin="5"
+                     ToolTip="Enter UPC here"
+                     GotFocus="UPCInputTextBox_GotFocus"
+                     LostFocus="UPCInputTextBox_LostFocus">
+                            <i:Interaction.Behaviors>
+                                <behaviors:FocusBehavior IsFocused="{Binding IsUPCInputFocused}" />
+                            </i:Interaction.Behaviors>
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding LookupCommand}" />
+                            </TextBox.InputBindings>
+                        </TextBox>
 
-            <Expander Header="Drug Information" Width="auto" Margin="5">
-                <TextBlock Text="this is some text">
-                </TextBlock>
-            </Expander>
-
-            <!-- Product Description -->
-            <StackPanel Orientation="Vertical">
-                <TextBlock Text="Product Description" FontSize="14" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5"/>
-                <TextBox Text="{Binding ProductDescription, UpdateSourceTrigger=PropertyChanged}"
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True"
-                         SelectionBrush="Green"
-                         MinWidth="100"
-                         MinHeight="50"
-                         Padding="5"
-                         Margin="5"
-                         ToolTip="Enter product title or description" />
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal">
-                <StackPanel HorizontalAlignment="Left">
-                    <TextBlock Text="Quantity" FontSize="14" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5"/>
-
-                    <TextBox Width="200"
-                             Padding="5"
-                             Margin="5"
-                             Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
-                             ToolTip="Enter quantity" />
-                    <TextBlock Foreground="Red"
-                                Text="{Binding ElementName=QuantityTextBox, Path=(Validation.Errors)[0].ErrorContent, FallbackValue='', NotifyOnValidationError=True}" />
-                </StackPanel>
-
-                <StackPanel Orientation="Vertical">
-                    <TextBlock FontSize="14" FontWeight="Bold" Text="Transfer" Margin="5" />
-                    <StackPanel Orientation="Horizontal" >
-                        <RadioButton GroupName="Transfer"
-                                     IsChecked="{Binding IsStockIn, Mode=TwoWay}" 
-                                     Margin="5">
-                            <RadioButton.Content>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <bi:BootstrapIcon Icon="BoxArrowInLeft"
-                                                      Width="16"
-                                                      Height="16" />
-                                    <TextBlock Text=" Stock In" 
-                                               VerticalAlignment="Center" />
-                                </StackPanel>
-                            </RadioButton.Content>
-                        </RadioButton>
-                        <RadioButton GroupName="Transfer"
-                                     IsChecked="{Binding IsStockOut, Mode=TwoWay}" 
-                                     Margin="5">
-                            <RadioButton.Content>
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <bi:BootstrapIcon Icon="BoxArrowRight"
-                                                      Width="16"
-                                                      Height="16" />
-                                    <TextBlock Text=" Stock Out" 
-                                               VerticalAlignment="Center" />
-                                </StackPanel>
-                            </RadioButton.Content>
-                        </RadioButton>
-                    </StackPanel>
-                </StackPanel>
-            </StackPanel>
-
-            <!-- Submit Button -->
-            <StackPanel Orientation="Horizontal">
-                <Button 
-                        FontWeight="Bold" 
-                        FontSize="16"
-                        Command="{Binding SubmitCommand}"
-                        IsEnabled="{Binding SubmitButtonEnabled}"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Background="Blue"
-                        Foreground="White"
-                        Margin="5"
-                        Padding="5">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <bi:BootstrapIcon Icon="CheckLg"
-                                              Margin="5"
-                                              Width="20"
-                                              Height="20"
-                                              Foreground="White" />
-                            <TextBlock Text="Submit Stock Transfer" 
-                                       VerticalAlignment="Center"
-                                       Margin="5"/>
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-                <Button 
-                    FontWeight="Bold" 
-                    FontSize="16"
-                    Command="{Binding ClearCommand}"
+                        <Button IsEnabled="{Binding LookUpBtnEnabled}"
+                    Command="{Binding LookupCommand}"
+                    x:Name="LoockupBarcode"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Background="Gray"
+                    Background="Green"
                     Foreground="White"
-                    Margin="5"
-                    Padding="5">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <bi:BootstrapIcon Icon="Eraser"
-                              Margin="5"
-                              Width="20"
-                              Height="20"
-                              Foreground="White" />
-                            <TextBlock Text="Clear" 
-                                       VerticalAlignment="Center"
-                                       Margin="5"/>
+                    Margin="5">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <bi:BootstrapIcon Icon="Search" 
+                                          Margin="5"
+                                          Width="16" Height="16" 
+                                          Foreground="White" />
+                                    <TextBlock Text="Lookup Product"
+                                   Margin="5"
+                                   VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <TextBlock Text="{Binding LookupStatusText}"
+                       Foreground="{Binding LookupForeground}"
+                       VerticalAlignment="Center" />
+
+
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Additional Input Fields -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <StackPanel>
+                        <TextBlock Text="Brand" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>
+                        <TextBox Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="5"
+                     Width="200"
+                     Margin="5" />
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="NPN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>
+                        <TextBox Text="{Binding NPN, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="5"
+                     Width="150"
+                     Margin="5" />
+                    </StackPanel>
+
+
+                    <StackPanel>
+                        <TextBlock Text="DIN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"  Margin="5"/>
+                        <TextBox Text="{Binding DIN, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="5"
+                     Width="150"
+                     Margin="5" />
+                    </StackPanel>
+                    <Button 
+             HorizontalAlignment="Center"
+            Command="{Binding LookupDrugCommand}"
+             VerticalAlignment="Bottom"
+             Background="Green"
+             Foreground="White"
+             Margin="5">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <bi:BootstrapIcon Icon="CapsulePill" 
+                                      Margin="5"
+                                      Width="16" Height="16" 
+                                      Foreground="White" />
+                                <TextBlock Text="Lookup Drug Info"
+                               Margin="5"
+                               VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+
+                <Expander Header="Look Up Result" Width="auto" Margin="5">
+                    <StackPanel>
+                        <!-- Product Info -->
+                        <GroupBox Header="Drug Information">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="0.3*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Drug Code" FontWeight="Bold" FontSize="14"/>
+                                    <TextBlock Text="DIN" FontWeight="Bold" FontSize="14"/>
+                                    <TextBlock Text="Brand" FontWeight="Bold" FontSize="14"/>
+                                    <TextBlock Text="Categorization" FontWeight="Bold" FontSize="14"/>
+                                    <TextBlock Text="Description" FontWeight="Bold" FontSize="14"/>
+                                    <TextBlock Text="Last Updated" FontWeight="Bold" FontSize="14"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding DrugInfo.Product.DrugCode}" FontWeight="Regular" FontSize="14"/>
+                                    <TextBlock Text="{Binding DrugInfo.Product.DrugIdentificationNumber}" FontWeight="Regular" FontSize="14"/>
+                                    <TextBlock Text="{Binding DrugInfo.Product.BrandName}" FontWeight="Regular" FontSize="14"/>
+                                    <TextBlock Text="{Binding DrugInfo.Product.ProductCategorization}" FontWeight="Regular" FontSize="14"/>
+                                    <TextBlock Text="{Binding DrugInfo.Product.Descriptor}" FontWeight="Regular" FontSize="14"/>
+                                    <TextBlock Text="{Binding DrugInfo.Product.LastUpdateDate}" FontWeight="Regular" FontSize="14"/>
+                                </StackPanel>
+                            </Grid>
+                        </GroupBox>
+
+                        <!-- Ingredients Table -->
+                        <GroupBox Header="Ingredients">
+                            <DataGrid ItemsSource="{Binding Ingredients}" 
+                                      AutoGenerateColumns="False"
+                                      Focusable="False"
+                                      CanUserAddRows="False" 
+                                      CanUserDeleteRows="False"
+                                      IsHitTestVisible="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Code" Binding="{Binding ActiveIngredientCode}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Ingredient" Width="*" Binding="{Binding Ingredient}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Strength" Binding="{Binding Strength}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Unit" Binding="{Binding StrengthUnit}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Type" Binding="{Binding StrengthType}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Dosage" Binding="{Binding DosageValue}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Unit" Binding="{Binding DosageUnit}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Base" Binding="{Binding Base}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Notes" Binding="{Binding Notes}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </GroupBox>
+
+                        <!-- Companies Table -->
+                        <GroupBox Header="Companies">
+                            <DataGrid ItemsSource="{Binding Companies}" AutoGenerateColumns="True" Height="150"/>
+                        </GroupBox>
+
+                        <!-- Statuses Table -->
+                        <GroupBox Header="Statuses">
+                            <DataGrid ItemsSource="{Binding Statuses}" AutoGenerateColumns="True" Height="100"/>
+                        </GroupBox>
+
+                        <!-- Forms Table -->
+                        <GroupBox Header="Forms">
+                            <DataGrid ItemsSource="{Binding Forms}" AutoGenerateColumns="True" Height="100"/>
+                        </GroupBox>
+
+                        <!-- Routes Table -->
+                        <GroupBox Header="Routes">
+                            <DataGrid ItemsSource="{Binding Routes}" AutoGenerateColumns="True" Height="100"/>
+                        </GroupBox>
+
+                        <!-- Schedules Table -->
+                        <GroupBox Header="Schedules">
+                            <DataGrid ItemsSource="{Binding Schedules}" AutoGenerateColumns="True" Height="100"/>
+                        </GroupBox>
+
+                        <!-- Therapeutic Classes Table -->
+                        <GroupBox Header="Therapeutic Classes">
+                            <DataGrid ItemsSource="{Binding TherapeuticClasses}" AutoGenerateColumns="True" Height="100"/>
+                        </GroupBox>
+
+                        <!-- Veterinary Species Table -->
+                        <GroupBox Header="Veterinary Species">
+                            <DataGrid ItemsSource="{Binding VeterinarySpecies}" AutoGenerateColumns="True" Height="100"/>
+                        </GroupBox>
+                    </StackPanel>
+                </Expander>
+
+                <!-- Product Description -->
+                <StackPanel Orientation="Vertical">
+                    <TextBlock Text="Product Description" FontSize="14" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5"/>
+                    <TextBox Text="{Binding ProductDescription, UpdateSourceTrigger=PropertyChanged}"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 SelectionBrush="Green"
+                 MinWidth="100"
+                 MinHeight="50"
+                 Padding="5"
+                 Margin="5"
+                 ToolTip="Enter product title or description" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel HorizontalAlignment="Left">
+                        <TextBlock Text="Quantity" FontSize="14" FontWeight="Bold" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="5"/>
+
+                        <TextBox Width="200"
+                     Padding="5"
+                     Margin="5"
+                     Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                     ToolTip="Enter quantity" />
+                        <TextBlock Foreground="Red"
+                        Text="{Binding ElementName=QuantityTextBox, Path=(Validation.Errors)[0].ErrorContent, FallbackValue='', NotifyOnValidationError=True}" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock FontSize="14" FontWeight="Bold" Text="Transfer" Margin="5" />
+                        <StackPanel Orientation="Horizontal" >
+                            <RadioButton GroupName="Transfer"
+                             IsChecked="{Binding IsStockIn, Mode=TwoWay}" 
+                             Margin="5">
+                                <RadioButton.Content>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <bi:BootstrapIcon Icon="BoxArrowInLeft"
+                                              Width="16"
+                                              Height="16" />
+                                        <TextBlock Text=" Stock In" 
+                                       VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </RadioButton.Content>
+                            </RadioButton>
+                            <RadioButton GroupName="Transfer"
+                             IsChecked="{Binding IsStockOut, Mode=TwoWay}" 
+                             Margin="5">
+                                <RadioButton.Content>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <bi:BootstrapIcon Icon="BoxArrowRight"
+                                              Width="16"
+                                              Height="16" />
+                                        <TextBlock Text=" Stock Out" 
+                                       VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </RadioButton.Content>
+                            </RadioButton>
                         </StackPanel>
-                    </Button.Content>
-                </Button>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Submit Button -->
+                <StackPanel Orientation="Horizontal">
+                    <Button 
+                FontWeight="Bold" 
+                FontSize="16"
+                Command="{Binding SubmitCommand}"
+                IsEnabled="{Binding SubmitButtonEnabled}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Background="Blue"
+                Foreground="White"
+                Margin="5"
+                Padding="5">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <bi:BootstrapIcon Icon="CheckLg"
+                                      Margin="5"
+                                      Width="20"
+                                      Height="20"
+                                      Foreground="White" />
+                                <TextBlock Text="Submit Stock Transfer" 
+                               VerticalAlignment="Center"
+                               Margin="5"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button 
+            FontWeight="Bold" 
+            FontSize="16"
+            Command="{Binding ClearCommand}"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Background="Gray"
+            Foreground="White"
+            Margin="5"
+            Padding="5">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <bi:BootstrapIcon Icon="Eraser"
+                      Margin="5"
+                      Width="20"
+                      Height="20"
+                      Foreground="White" />
+                                <TextBlock Text="Clear" 
+                               VerticalAlignment="Center"
+                               Margin="5"/>
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
     </DockPanel>
 </UserControl>

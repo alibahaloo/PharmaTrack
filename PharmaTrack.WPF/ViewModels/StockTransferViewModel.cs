@@ -1,6 +1,7 @@
 ﻿using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Helpers;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -189,7 +190,26 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(IsUPCInputFocused));
             }
         }
-
+        private DrugInfoDto? _drugInfo;
+        public DrugInfoDto? DrugInfo
+        {
+            get => _drugInfo;
+            set
+            {
+                _drugInfo = value;
+                OnPropertyChanged(nameof(DrugInfo));
+            }
+        }
+        public ObservableCollection<DrugIngredient> Ingredients { get; } = [];
+        public ObservableCollection<DrugCompany> Companies { get; } = [];
+        public ObservableCollection<DrugStatus> Statuses { get; } = [];
+        public ObservableCollection<DrugForm> Forms { get; } = [];
+        public ObservableCollection<DrugPackaging> Packagings { get; } = [];
+        public ObservableCollection<DrugPharmaceuticalStd> PharmaceuticalStds { get; } = [];
+        public ObservableCollection<DrugRoute> Routes { get; } = [];
+        public ObservableCollection<DrugSchedule> Schedules { get; } = [];
+        public ObservableCollection<DrugTherapeuticClass> TherapeuticClasses { get; } = [];
+        public ObservableCollection<DrugVeterinarySpecies> VeterinarySpecies { get; } = [];
 
         public ICommand ScanBarcodeCommand { get; }
         public ICommand SubmitCommand { get; }
@@ -249,26 +269,61 @@ namespace PharmaTrack.WPF.ViewModels
         }
         private async void ExecuteLookupDrugCommand(object? parameter)
         {
+            if (string.IsNullOrWhiteSpace(DIN))
+                return;
+
             IsLoading = true;
             try
             {
-                if (string.IsNullOrWhiteSpace(DIN))
-                {
-                    return;
-                }
-
                 DrugInfoDto? drugInfo = await _drugService.GetDrugInfoByDINAsync(DIN);
+                if (drugInfo != null)
+                {
+                    DrugInfo = drugInfo;
+                    UpdateCollections(drugInfo);
+                }
             }
             catch (Exception ex)
             {
-                //LookupStatusText = ex.Message;
-                //LookupForeground = Brushes.Red;
+                // Handle error
             }
             finally
             {
                 IsLoading = false;
             }
         }
+        private void UpdateCollections(DrugInfoDto drugInfo)
+        {
+            Ingredients.Clear();
+            foreach (var item in drugInfo.Ingredients) Ingredients.Add(item);
+
+            Companies.Clear();
+            foreach (var item in drugInfo.Companies) Companies.Add(item);
+
+            Statuses.Clear();
+            foreach (var item in drugInfo.Statuses) Statuses.Add(item);
+
+            Forms.Clear();
+            foreach (var item in drugInfo.Forms) Forms.Add(item);
+
+            Packagings.Clear();
+            foreach (var item in drugInfo.Packagings) Packagings.Add(item);
+
+            PharmaceuticalStds.Clear();
+            foreach (var item in drugInfo.PharmaceuticalStds) PharmaceuticalStds.Add(item);
+
+            Routes.Clear();
+            foreach (var item in drugInfo.Routes) Routes.Add(item);
+
+            Schedules.Clear();
+            foreach (var item in drugInfo.Schedules) Schedules.Add(item);
+
+            TherapeuticClasses.Clear();
+            foreach (var item in drugInfo.TherapeuticClasses) TherapeuticClasses.Add(item);
+
+            VeterinarySpecies.Clear();
+            foreach (var item in drugInfo.VeterinarySpecies) VeterinarySpecies.Add(item);
+        }
+
         private async void ExecuteLookupCommand(object? parameter)
         {
             IsLoading = true;
