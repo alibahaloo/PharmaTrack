@@ -195,10 +195,11 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand SubmitCommand { get; }
         public ICommand LookupCommand { get; }
         public ICommand ClearCommand { get; }
+        public ICommand LookupDrugCommand { get; }
 
         private readonly InventoryService _inventoryService;
-
-        public StockTransferViewModel(InventoryService inventoryService)
+        private readonly DrugService _drugService;
+        public StockTransferViewModel(InventoryService inventoryService, DrugService drugService)
         {
             // Initialize defaults
             ScannerStatusText = "Ready to Scan";
@@ -206,12 +207,14 @@ namespace PharmaTrack.WPF.ViewModels
             Quantity = "1";
 
             _inventoryService = inventoryService;
+            _drugService = drugService;
 
             // Initialize commands
             ScanBarcodeCommand = new RelayCommand(ExecuteScanBarcodeCommand);
             SubmitCommand = new RelayCommand(ExecuteSubmitCommand);
             LookupCommand = new RelayCommand(ExecuteLookupCommand);
             ClearCommand = new RelayCommand(_ => ClearForm());
+            LookupDrugCommand = new RelayCommand(ExecuteLookupDrugCommand);
         }
         private void ClearForm()
         {
@@ -242,6 +245,28 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 StatusText = "Ready to submit";
                 StatusForeground = Brushes.Green;
+            }
+        }
+        private async void ExecuteLookupDrugCommand(object? parameter)
+        {
+            IsLoading = true;
+            try
+            {
+                if (string.IsNullOrWhiteSpace(DIN))
+                {
+                    return;
+                }
+
+                DrugInfoDto? drugInfo = await _drugService.GetDrugInfoByDINAsync(DIN);
+            }
+            catch (Exception ex)
+            {
+                //LookupStatusText = ex.Message;
+                //LookupForeground = Brushes.Red;
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
         private async void ExecuteLookupCommand(object? parameter)

@@ -134,6 +134,7 @@
                 </StackPanel>
                 <Button 
                      HorizontalAlignment="Center"
+                    Command="{Binding LookupDrugCommand}"
                      VerticalAlignment="Bottom"
                      Background="Green"
                      Foreground="White"
