@@ -153,11 +153,12 @@ namespace PharmaTrack.WPF.ViewModels
         public string DIN
         {
             get => _din;
-            set 
+            set
             {
                 _din = value;
                 IsDrugLookupEnabled = !string.IsNullOrEmpty(value); // Update the button state
-                OnPropertyChanged(); }
+                OnPropertyChanged();
+            }
         }
 
         public string Brand
@@ -269,10 +270,7 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly DrugService _drugService;
         public StockTransferViewModel(InventoryService inventoryService, DrugService drugService)
         {
-            // Initialize defaults
-            ScannerStatusText = "Ready to Scan";
-            ScannerForeground = Brushes.Green;
-            Quantity = "1";
+
 
             _inventoryService = inventoryService;
             _drugService = drugService;
@@ -309,7 +307,8 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 StatusText = "UPC, Product and Quantity are needed for submission.";
                 StatusForeground = Brushes.Red;
-            } else
+            }
+            else
             {
                 StatusText = "Ready to submit";
                 StatusForeground = Brushes.Green;
@@ -330,7 +329,7 @@ namespace PharmaTrack.WPF.ViewModels
                     UpdateCollections(drugInfo);
                     DrugInfoIsExpanded = true;
 
-                    DrugLookupStatusText = "Drug Information Found!";
+                    DrugLookupStatusText = "Drug Information Found";
                     DrugLookupForeground = Brushes.Green;
                 }
                 else
@@ -440,7 +439,8 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 TransactionType transactionType = new();
 
-                if (IsStockIn) { transactionType = TransactionType.In; } else
+                if (IsStockIn) { transactionType = TransactionType.In; }
+                else
                 {
                     transactionType = TransactionType.Out;
                 }
@@ -460,7 +460,7 @@ namespace PharmaTrack.WPF.ViewModels
 
                 StatusText = "Stock Transfer Submitted Successfully!";
                 StatusForeground = Brushes.Blue;
-                
+
                 MessageBoxResult result = MessageBox.Show("Stock Transfer Submitted Successfully!", "Confirmation", MessageBoxButton.OK, MessageBoxImage.Information);
                 if (result == MessageBoxResult.OK)
                 {
@@ -472,7 +472,7 @@ namespace PharmaTrack.WPF.ViewModels
                 StatusText = ex.Message;
                 StatusForeground = Brushes.Red;
             }
-            finally 
+            finally
             {
                 IsLoading = false;
             }
