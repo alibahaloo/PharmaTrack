@@ -153,6 +153,8 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <DataGrid Grid.Row="0" 
+                       SelectionMode="Single"
+                      SelectionUnit="Cell"
                       ItemsSource="{Binding Transactions}" 
                       AutoGenerateColumns="False" Margin="1" 
                       HorizontalAlignment="Stretch"

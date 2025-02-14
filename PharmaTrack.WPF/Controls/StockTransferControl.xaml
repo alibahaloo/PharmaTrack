@@ -27,6 +27,8 @@
         <ScrollViewer>
             <StackPanel Margin="10">
                 <TextBlock Text="Stock Transfer" FontSize="32" Margin="5"></TextBlock>
+                
+                <!-- Barcode Scanning -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <Button FontWeight="Regular"
                 FontSize="16"
@@ -57,20 +59,19 @@
                    Foreground="{Binding ScannerForeground}"
                    VerticalAlignment="Center" />
                 </StackPanel>
-
-
-                <!-- Barcode Scanning -->
+                
+                <!-- UPC -->
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
                     <TextBlock Text="UPC" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBox x:Name="UPCInputTextBox"
-                     Padding="5"
-                     Text="{Binding UPCInput, UpdateSourceTrigger=PropertyChanged}"
-                     Width="200"
-                     Margin="5"
-                     ToolTip="Enter UPC here"
-                     GotFocus="UPCInputTextBox_GotFocus"
-                     LostFocus="UPCInputTextBox_LostFocus">
+                                 Padding="5"
+                                 Text="{Binding UPCInput, UpdateSourceTrigger=PropertyChanged}"
+                                 Width="200"
+                                 Margin="5"
+                                 ToolTip="Enter UPC here"
+                                 GotFocus="UPCInputTextBox_GotFocus"
+                                 LostFocus="UPCInputTextBox_LostFocus">
                             <i:Interaction.Behaviors>
                                 <behaviors:FocusBehavior IsFocused="{Binding IsUPCInputFocused}" />
                             </i:Interaction.Behaviors>
@@ -80,34 +81,62 @@
                         </TextBox>
 
                         <Button IsEnabled="{Binding LookUpBtnEnabled}"
-                    Command="{Binding LookupCommand}"
-                    x:Name="LoockupBarcode"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    Background="Green"
-                    Foreground="White"
-                    Margin="5">
+                                Command="{Binding LookupCommand}"
+                                x:Name="LoockupBarcode"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Background="Green"
+                                Foreground="White"
+                                Margin="5">
                             <Button.Content>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <bi:BootstrapIcon Icon="Search" 
-                                          Margin="5"
-                                          Width="16" Height="16" 
-                                          Foreground="White" />
-                                    <TextBlock Text="Lookup Product"
-                                   Margin="5"
-                                   VerticalAlignment="Center" />
+                                                      Margin="5"
+                                                      Width="16" Height="16" 
+                                                      Foreground="White" />
+                                    <TextBlock Text="Lookup UPC"
+                                               Margin="5"
+                                               VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button.Content>
                         </Button>
 
                         <TextBlock Text="{Binding LookupStatusText}"
-                       Foreground="{Binding LookupForeground}"
-                       VerticalAlignment="Center" />
-
-
+                                   Foreground="{Binding LookupForeground}"
+                                   VerticalAlignment="Center" />
                     </StackPanel>
                 </StackPanel>
-
+                
+                <!-- DIN -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <StackPanel>
+                        <TextBlock Text="DIN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"  Margin="5"/>
+                        <TextBox Text="{Binding DIN, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="5"
+                                 Width="200"
+                                 Margin="5" />
+                    </StackPanel>
+                    <Button 
+                        HorizontalAlignment="Center"
+                        Command="{Binding LookupDrugCommand}"
+                        VerticalAlignment="Bottom"
+                        Background="Green"
+                        Foreground="White"
+                        Margin="5">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <bi:BootstrapIcon Icon="CapsulePill" 
+                                                  Margin="5"
+                                                  Width="16" Height="16" 
+                                                  Foreground="White" />
+                                <TextBlock Text="Lookup DIN"
+                                           Margin="5"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+                
                 <!-- Additional Input Fields -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                     <StackPanel>
@@ -124,36 +153,9 @@
                      Width="150"
                      Margin="5" />
                     </StackPanel>
-
-
-                    <StackPanel>
-                        <TextBlock Text="DIN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"  Margin="5"/>
-                        <TextBox Text="{Binding DIN, UpdateSourceTrigger=PropertyChanged}"
-                     Padding="5"
-                     Width="150"
-                     Margin="5" />
-                    </StackPanel>
-                    <Button 
-             HorizontalAlignment="Center"
-            Command="{Binding LookupDrugCommand}"
-             VerticalAlignment="Bottom"
-             Background="Green"
-             Foreground="White"
-             Margin="5">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <bi:BootstrapIcon Icon="CapsulePill" 
-                                      Margin="5"
-                                      Width="16" Height="16" 
-                                      Foreground="White" />
-                                <TextBlock Text="Lookup Drug Info"
-                               Margin="5"
-                               VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
                 </StackPanel>
-
+                
+                <!-- Drug Info -->
                 <Expander Header="Look Up Result" Width="auto" Margin="5">
                     <StackPanel>
                         <!-- Product Info -->

@@ -111,6 +111,8 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <DataGrid Grid.Row="0" 
+                      SelectionMode="Single"
+                      SelectionUnit="FullRow"
                       ItemsSource="{Binding Products}" 
                       SelectedItem="{Binding SelectedProduct}"                     
                       AutoGenerateColumns="False" Margin="1" 

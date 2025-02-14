@@ -75,6 +75,8 @@
             </Grid.RowDefinitions>
             <DataGrid Grid.Row="0" 
                   ItemsSource="{Binding Drugs}" 
+                      SelectionMode="Single"
+                     SelectionUnit="Cell"
                   SelectedItem="{Binding SelectedDrug}"                     
                   AutoGenerateColumns="False" Margin="1" 
                   HorizontalAlignment="Stretch"
