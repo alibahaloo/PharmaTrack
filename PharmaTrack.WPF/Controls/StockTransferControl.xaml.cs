@@ -15,6 +15,12 @@ namespace PharmaTrack.WPF.Controls
         private void StockTransferControl_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
             UPCInputTextBox.Focus();
+            var viewModel = DataContext as StockTransferViewModel;
+            if (viewModel != null)
+            {
+                viewModel.IsStockIn = true;
+                viewModel.IsStockOut = false;
+            }
         }
 
         private void UPCInputTextBox_GotFocus(object sender, System.Windows.RoutedEventArgs e)
