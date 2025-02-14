@@ -62,7 +62,13 @@
                 
                 <!-- UPC -->
                 <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
-                    <TextBlock Text="UPC" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Width="30" Margin="5"/>
+                    <TextBlock Text="UPC" 
+                               FontSize="14" 
+                               FontWeight="Bold" 
+                               VerticalAlignment="Center" 
+                               HorizontalAlignment="Left" 
+                               Width="30" 
+                               Margin="5"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBox x:Name="UPCInputTextBox"
                                  Padding="5"
@@ -108,55 +114,42 @@
                 </StackPanel>
                 
                 <!-- DIN -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <StackPanel>
-                        <TextBlock Text="DIN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"  Margin="5"/>
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Left">
+                    <TextBlock Text="DIN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left"  Margin="5"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                         <TextBox Text="{Binding DIN, UpdateSourceTrigger=PropertyChanged}"
                                  Padding="5"
                                  Width="200"
                                  Margin="5" />
-                    </StackPanel>
-                    <Button 
-                        HorizontalAlignment="Center"
-                        Command="{Binding LookupDrugCommand}"
-                        VerticalAlignment="Bottom"
-                        Background="Green"
-                        Foreground="White"
-                        Margin="5">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <bi:BootstrapIcon Icon="CapsulePill" 
-                                                  Margin="5"
-                                                  Width="16" Height="16" 
-                                                  Foreground="White" />
-                                <TextBlock Text="Lookup DIN"
-                                           Margin="5"
-                                           VerticalAlignment="Center" />
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-                </StackPanel>
-                
-                <!-- Additional Input Fields -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                    <StackPanel>
-                        <TextBlock Text="Brand" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>
-                        <TextBox Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"
-                     Padding="5"
-                     Width="200"
-                     Margin="5" />
-                    </StackPanel>
-                    <StackPanel>
-                        <TextBlock Text="NPN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>
-                        <TextBox Text="{Binding NPN, UpdateSourceTrigger=PropertyChanged}"
-                     Padding="5"
-                     Width="150"
-                     Margin="5" />
+
+                        <Button HorizontalAlignment="Center"
+                                Command="{Binding LookupDrugCommand}"
+                                VerticalAlignment="Bottom"
+                                Background="Green"
+                                Foreground="White"
+                                Margin="5">
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <bi:BootstrapIcon Icon="CapsulePill" 
+                              Margin="5"
+                              Width="16" Height="16" 
+                              Foreground="White" />
+                                    <TextBlock Text="Lookup DIN"
+                                               Margin="5"/>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
+
+                        <TextBlock Text="{Binding DrugLookupStatusText}"
+                                   Foreground="{Binding DrugLookupForeground}"
+                                   VerticalAlignment="Center" />
                     </StackPanel>
                 </StackPanel>
-                
+
                 <!-- Drug Info -->
-                <Expander Header="Look Up Result" Width="auto" Margin="5">
+                <Expander Header="Drug Information"
+                          IsExpanded="{Binding DrugInfoIsExpanded}"
+                          Width="auto" Margin="5">
                     <StackPanel>
                         <!-- Product Info -->
                         <GroupBox Header="Drug Information">
@@ -187,11 +180,11 @@
                         <!-- Ingredients Table -->
                         <GroupBox Header="Ingredients">
                             <DataGrid ItemsSource="{Binding Ingredients}" 
-                                      AutoGenerateColumns="False"
-                                      Focusable="False"
-                                      CanUserAddRows="False" 
-                                      CanUserDeleteRows="False"
-                                      IsHitTestVisible="False">
+                      AutoGenerateColumns="False"
+                      Focusable="False"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsHitTestVisible="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Code" Binding="{Binding ActiveIngredientCode}"></DataGridTextColumn>
                                     <DataGridTextColumn Header="Ingredient" Width="*" Binding="{Binding Ingredient}"></DataGridTextColumn>
@@ -209,11 +202,11 @@
                         <!-- Companies Table -->
                         <GroupBox Header="Companies">
                             <DataGrid ItemsSource="{Binding Companies}" 
-                                      AutoGenerateColumns="False"
-                                      Focusable="False"
-                                      CanUserAddRows="False" 
-                                      CanUserDeleteRows="False"
-                                      IsHitTestVisible="False">
+                      AutoGenerateColumns="False"
+                      Focusable="False"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsHitTestVisible="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Code" Binding="{Binding CompanyCode}"></DataGridTextColumn>
                                     <DataGridTextColumn Header="MFR" Binding="{Binding MfrCode}"></DataGridTextColumn>
@@ -230,11 +223,11 @@
                         <!-- Statuses Table -->
                         <GroupBox Header="Statuses">
                             <DataGrid ItemsSource="{Binding Statuses}" 
-                                      AutoGenerateColumns="False"
-                                      Focusable="False"
-                                      CanUserAddRows="False" 
-                                      CanUserDeleteRows="False"
-                                      IsHitTestVisible="False">
+                      AutoGenerateColumns="False"
+                      Focusable="False"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsHitTestVisible="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Flag" Binding="{Binding CurrentStatusFlag}"></DataGridTextColumn>
                                     <DataGridTextColumn Header="Status" Width="*" Binding="{Binding Status}"></DataGridTextColumn>
@@ -246,11 +239,11 @@
                         <!-- Forms Table -->
                         <GroupBox Header="Forms">
                             <DataGrid ItemsSource="{Binding Forms}"
-                                      AutoGenerateColumns="False"
-                                      Focusable="False"
-                                      CanUserAddRows="False" 
-                                      CanUserDeleteRows="False"
-                                      IsHitTestVisible="False">
+                      AutoGenerateColumns="False"
+                      Focusable="False"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsHitTestVisible="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Code" Binding="{Binding PharmFormCode}"></DataGridTextColumn>
                                     <DataGridTextColumn Header="Form" Width="*" Binding="{Binding PharmaceuticalForm}"></DataGridTextColumn>
@@ -261,11 +254,11 @@
                         <!-- Packages Table -->
                         <GroupBox Header="Packaging">
                             <DataGrid ItemsSource="{Binding Packagings}"
-                                      AutoGenerateColumns="False"
-                                      Focusable="False"
-                                      CanUserAddRows="False" 
-                                      CanUserDeleteRows="False"
-                                      IsHitTestVisible="False">
+                      AutoGenerateColumns="False"
+                      Focusable="False"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsHitTestVisible="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Upc" Binding="{Binding Upc}"></DataGridTextColumn>
                                     <DataGridTextColumn Header="Type" Binding="{Binding PackageType}"></DataGridTextColumn>
@@ -279,11 +272,11 @@
                         <!-- Routes Table -->
                         <GroupBox Header="Routes">
                             <DataGrid ItemsSource="{Binding Routes}"
-                                      AutoGenerateColumns="False"
-                                      Focusable="False"
-                                      CanUserAddRows="False" 
-                                      CanUserDeleteRows="False"
-                                      IsHitTestVisible="False">
+                      AutoGenerateColumns="False"
+                      Focusable="False"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsHitTestVisible="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Code" Binding="{Binding RouteOfAdministrationCode}"></DataGridTextColumn>
                                     <DataGridTextColumn Header="Route" Width="*" Binding="{Binding RouteOfAdministration}"></DataGridTextColumn>
@@ -294,11 +287,11 @@
                         <!-- PharmaceuticalStds Table -->
                         <GroupBox Header="Pharmaceutical STDs">
                             <DataGrid ItemsSource="{Binding PharmaceuticalStds}"
-                                      AutoGenerateColumns="False"
-                                      Focusable="False"
-                                      CanUserAddRows="False" 
-                                      CanUserDeleteRows="False"
-                                      IsHitTestVisible="False">
+                      AutoGenerateColumns="False"
+                      Focusable="False"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsHitTestVisible="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="STD" Width="*" Binding="{Binding PharmaceuticalStd}"></DataGridTextColumn>
                                 </DataGrid.Columns>
@@ -308,11 +301,11 @@
                         <!-- Schedules Table -->
                         <GroupBox Header="Schedules">
                             <DataGrid ItemsSource="{Binding Schedules}"
-                                      AutoGenerateColumns="False"
-                                      Focusable="False"
-                                      CanUserAddRows="False" 
-                                      CanUserDeleteRows="False"
-                                      IsHitTestVisible="False">
+                      AutoGenerateColumns="False"
+                      Focusable="False"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsHitTestVisible="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Schedule" Width="*" Binding="{Binding Schedule}"></DataGridTextColumn>
                                 </DataGrid.Columns>
@@ -322,11 +315,11 @@
                         <!-- Therapeutic Classes Table -->
                         <GroupBox Header="Therapeutic Classes">
                             <DataGrid ItemsSource="{Binding TherapeuticClasses}"
-                                      AutoGenerateColumns="False"
-                                      Focusable="False"
-                                      CanUserAddRows="False" 
-                                      CanUserDeleteRows="False"
-                                      IsHitTestVisible="False">
+                      AutoGenerateColumns="False"
+                      Focusable="False"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsHitTestVisible="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="ATC Number" Binding="{Binding TcAtcNumber}"></DataGridTextColumn>
                                     <DataGridTextColumn Header="ATC" Binding="{Binding TcAtc}"></DataGridTextColumn>
@@ -338,11 +331,11 @@
                         <!-- Veterinary Species Table -->
                         <GroupBox Header="Veterinary Species">
                             <DataGrid ItemsSource="{Binding VeterinarySpecies}"
-                                      AutoGenerateColumns="False"
-                                      Focusable="False"
-                                      CanUserAddRows="False" 
-                                      CanUserDeleteRows="False"
-                                      IsHitTestVisible="False">
+                      AutoGenerateColumns="False"
+                      Focusable="False"
+                      CanUserAddRows="False" 
+                      CanUserDeleteRows="False"
+                      IsHitTestVisible="False">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Species" Width="*" Binding="{Binding VetSpecies}"></DataGridTextColumn>
                                     <DataGridTextColumn Header="Sub Species" Width="*" Binding="{Binding VetSubSpecies}"></DataGridTextColumn>
@@ -351,6 +344,26 @@
                         </GroupBox>
                     </StackPanel>
                 </Expander>
+
+                <!-- Additional Input Fields -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <StackPanel>
+                        <TextBlock Text="Brand" FontSize="14" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>
+                        <TextBox Text="{Binding Brand, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="5"
+                     Width="200"
+                     Margin="5" />
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="NPN" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5"/>
+                        <TextBox Text="{Binding NPN, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="5"
+                     Width="150"
+                     Margin="5" />
+                    </StackPanel>
+                </StackPanel>
+                
+                
 
                 <!-- Product Description -->
                 <StackPanel Orientation="Vertical">

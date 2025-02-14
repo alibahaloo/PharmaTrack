@@ -190,6 +190,16 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(IsUPCInputFocused));
             }
         }
+        private bool _drugInfoIsExpanded;
+        public bool DrugInfoIsExpanded
+        {
+            get => _drugInfoIsExpanded;
+            set
+            {
+                _drugInfoIsExpanded = value;
+                OnPropertyChanged(nameof(DrugInfoIsExpanded));
+            }
+        }
         private DrugInfoDto? _drugInfo;
         public DrugInfoDto? DrugInfo
         {
@@ -200,6 +210,29 @@ namespace PharmaTrack.WPF.ViewModels
                 OnPropertyChanged(nameof(DrugInfo));
             }
         }
+
+        private string _drugLookupStatusText = default!;
+        public string DrugLookupStatusText
+        {
+            get => _drugLookupStatusText;
+            set
+            {
+                _drugLookupStatusText = value;
+                OnPropertyChanged(nameof(DrugLookupStatusText));
+            }
+        }
+
+        private Brush _drugLookupForeground = default!;
+        public Brush DrugLookupForeground
+        {
+            get => _drugLookupForeground;
+            set
+            {
+                _drugLookupForeground = value;
+                OnPropertyChanged(nameof(DrugLookupForeground));
+            }
+        }
+
         public ObservableCollection<DrugIngredient> Ingredients { get; } = [];
         public ObservableCollection<DrugCompany> Companies { get; } = [];
         public ObservableCollection<DrugStatus> Statuses { get; } = [];
@@ -280,11 +313,23 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     DrugInfo = drugInfo;
                     UpdateCollections(drugInfo);
+                    DrugInfoIsExpanded = true;
+
+                    DrugLookupStatusText = "Drug Information Found!";
+                    DrugLookupForeground = Brushes.Green;
+                }
+                else
+                {
+                    DrugLookupStatusText = "Drug Information Not Found!";
+                    DrugLookupForeground = Brushes.Red;
                 }
             }
             catch (Exception ex)
             {
                 // Handle error
+                DrugLookupStatusText = ex.Message;
+                DrugLookupForeground = Brushes.Red;
+                DrugInfoIsExpanded = false;
             }
             finally
             {
@@ -349,7 +394,10 @@ namespace PharmaTrack.WPF.ViewModels
 
                 LookupStatusText = "Product Information Found";
                 LookupForeground = Brushes.Green;
-                
+
+                ExecuteLookupDrugCommand(null);
+
+
             }
             catch (Exception ex)
             {
