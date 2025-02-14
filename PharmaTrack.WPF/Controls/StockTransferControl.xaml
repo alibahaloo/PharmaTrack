@@ -123,6 +123,7 @@
                                  Margin="5" />
 
                         <Button HorizontalAlignment="Center"
+                                IsEnabled="{Binding IsDrugLookupEnabled}"
                                 Command="{Binding LookupDrugCommand}"
                                 VerticalAlignment="Bottom"
                                 Background="Green"

@@ -153,7 +153,11 @@ namespace PharmaTrack.WPF.ViewModels
         public string DIN
         {
             get => _din;
-            set { _din = value; OnPropertyChanged(); }
+            set 
+            {
+                _din = value;
+                IsDrugLookupEnabled = !string.IsNullOrEmpty(value); // Update the button state
+                OnPropertyChanged(); }
         }
 
         public string Brand
@@ -230,6 +234,17 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 _drugLookupForeground = value;
                 OnPropertyChanged(nameof(DrugLookupForeground));
+            }
+        }
+
+        private bool _isDrugLookupEnabled = default!;
+        public bool IsDrugLookupEnabled
+        {
+            get => _isDrugLookupEnabled;
+            set
+            {
+                _isDrugLookupEnabled = value;
+                OnPropertyChanged(nameof(IsDrugLookupEnabled));
             }
         }
 
