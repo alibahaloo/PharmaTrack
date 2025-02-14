@@ -294,6 +294,19 @@ namespace PharmaTrack.WPF.ViewModels
             Brand = string.Empty;
             LookupStatusText = string.Empty;
 
+            Ingredients.Clear();
+            Companies.Clear();
+            Statuses.Clear();
+            Forms.Clear();
+            Packagings.Clear();
+            PharmaceuticalStds.Clear();
+            Routes.Clear();
+            Schedules.Clear();
+            TherapeuticClasses.Clear();
+            VeterinarySpecies.Clear();
+
+            DrugInfoIsExpanded = false;
+
             IsUPCInputFocused = true; // Set focus
         }
         private void UpdateSubmitButtonState()
@@ -327,6 +340,10 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     DrugInfo = drugInfo;
                     UpdateCollections(drugInfo);
+
+                    Brand = DrugInfo.Product?.BrandName ?? string.Empty;
+                    ProductDescription = Brand;
+
                     DrugInfoIsExpanded = true;
 
                     DrugLookupStatusText = "Drug Information Found";
