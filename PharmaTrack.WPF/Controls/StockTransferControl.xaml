@@ -206,37 +206,146 @@
 
                         <!-- Companies Table -->
                         <GroupBox Header="Companies">
-                            <DataGrid ItemsSource="{Binding Companies}" AutoGenerateColumns="True" Height="150"/>
+                            <DataGrid ItemsSource="{Binding Companies}" 
+                                      AutoGenerateColumns="False"
+                                      Focusable="False"
+                                      CanUserAddRows="False" 
+                                      CanUserDeleteRows="False"
+                                      IsHitTestVisible="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Code" Binding="{Binding CompanyCode}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="MFR" Binding="{Binding MfrCode}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Name" Width="*" Binding="{Binding CompanyName}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Type" Binding="{Binding CompanyType}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="City" Binding="{Binding CityName}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Province/State" Binding="{Binding Province}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Country" Binding="{Binding Country}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Postal Code" Binding="{Binding PostalCode}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </GroupBox>
 
                         <!-- Statuses Table -->
                         <GroupBox Header="Statuses">
-                            <DataGrid ItemsSource="{Binding Statuses}" AutoGenerateColumns="True" Height="100"/>
+                            <DataGrid ItemsSource="{Binding Statuses}" 
+                                      AutoGenerateColumns="False"
+                                      Focusable="False"
+                                      CanUserAddRows="False" 
+                                      CanUserDeleteRows="False"
+                                      IsHitTestVisible="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Flag" Binding="{Binding CurrentStatusFlag}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Status" Width="*" Binding="{Binding Status}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="History Date" Binding="{Binding HistoryDate}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </GroupBox>
 
                         <!-- Forms Table -->
                         <GroupBox Header="Forms">
-                            <DataGrid ItemsSource="{Binding Forms}" AutoGenerateColumns="True" Height="100"/>
+                            <DataGrid ItemsSource="{Binding Forms}"
+                                      AutoGenerateColumns="False"
+                                      Focusable="False"
+                                      CanUserAddRows="False" 
+                                      CanUserDeleteRows="False"
+                                      IsHitTestVisible="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Code" Binding="{Binding PharmFormCode}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Form" Width="*" Binding="{Binding PharmaceuticalForm}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </GroupBox>
+
+                        <!-- Packages Table -->
+                        <GroupBox Header="Packaging">
+                            <DataGrid ItemsSource="{Binding Packagings}"
+                                      AutoGenerateColumns="False"
+                                      Focusable="False"
+                                      CanUserAddRows="False" 
+                                      CanUserDeleteRows="False"
+                                      IsHitTestVisible="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Upc" Binding="{Binding Upc}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Type" Binding="{Binding PackageType}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Size" Binding="{Binding PackPackageSizeageType}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Unit"  Binding="{Binding PackageSizeUnit}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Information" Width="*" Binding="{Binding ProductInformation}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </GroupBox>
 
                         <!-- Routes Table -->
                         <GroupBox Header="Routes">
-                            <DataGrid ItemsSource="{Binding Routes}" AutoGenerateColumns="True" Height="100"/>
+                            <DataGrid ItemsSource="{Binding Routes}"
+                                      AutoGenerateColumns="False"
+                                      Focusable="False"
+                                      CanUserAddRows="False" 
+                                      CanUserDeleteRows="False"
+                                      IsHitTestVisible="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Code" Binding="{Binding RouteOfAdministrationCode}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Route" Width="*" Binding="{Binding RouteOfAdministration}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </GroupBox>
+
+                        <!-- PharmaceuticalStds Table -->
+                        <GroupBox Header="Pharmaceutical STDs">
+                            <DataGrid ItemsSource="{Binding PharmaceuticalStds}"
+                                      AutoGenerateColumns="False"
+                                      Focusable="False"
+                                      CanUserAddRows="False" 
+                                      CanUserDeleteRows="False"
+                                      IsHitTestVisible="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="STD" Width="*" Binding="{Binding PharmaceuticalStd}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </GroupBox>
 
                         <!-- Schedules Table -->
                         <GroupBox Header="Schedules">
-                            <DataGrid ItemsSource="{Binding Schedules}" AutoGenerateColumns="True" Height="100"/>
+                            <DataGrid ItemsSource="{Binding Schedules}"
+                                      AutoGenerateColumns="False"
+                                      Focusable="False"
+                                      CanUserAddRows="False" 
+                                      CanUserDeleteRows="False"
+                                      IsHitTestVisible="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Schedule" Width="*" Binding="{Binding Schedule}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </GroupBox>
 
                         <!-- Therapeutic Classes Table -->
                         <GroupBox Header="Therapeutic Classes">
-                            <DataGrid ItemsSource="{Binding TherapeuticClasses}" AutoGenerateColumns="True" Height="100"/>
+                            <DataGrid ItemsSource="{Binding TherapeuticClasses}"
+                                      AutoGenerateColumns="False"
+                                      Focusable="False"
+                                      CanUserAddRows="False" 
+                                      CanUserDeleteRows="False"
+                                      IsHitTestVisible="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="ATC Number" Binding="{Binding TcAtcNumber}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="ATC" Binding="{Binding TcAtc}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="AHFS" Binding="{Binding TcAhfsNumber}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </GroupBox>
 
                         <!-- Veterinary Species Table -->
                         <GroupBox Header="Veterinary Species">
-                            <DataGrid ItemsSource="{Binding VeterinarySpecies}" AutoGenerateColumns="True" Height="100"/>
+                            <DataGrid ItemsSource="{Binding VeterinarySpecies}"
+                                      AutoGenerateColumns="False"
+                                      Focusable="False"
+                                      CanUserAddRows="False" 
+                                      CanUserDeleteRows="False"
+                                      IsHitTestVisible="False">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Species" Width="*" Binding="{Binding VetSpecies}"></DataGridTextColumn>
+                                    <DataGridTextColumn Header="Sub Species" Width="*" Binding="{Binding VetSubSpecies}"></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
                         </GroupBox>
                     </StackPanel>
                 </Expander>
