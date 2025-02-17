@@ -12,6 +12,23 @@ using System.Text.Json.Serialization;
 
 namespace Drug.API.Services
 {
+    public class DrugInteractionCsvModel
+    {
+        [CsvHelper.Configuration.Attributes.Name("DDInterID_A")]
+        public string DDInterID_A { get; set; } = default!;
+
+        [CsvHelper.Configuration.Attributes.Name("Drug_A")]
+        public string Drug_A { get; set; } = default!;
+
+        [CsvHelper.Configuration.Attributes.Name("DDInterID_B")]
+        public string DDInterID_B { get; set; } = default!;
+
+        [CsvHelper.Configuration.Attributes.Name("Drug_B")]
+        public string Drug_B { get; set; } = default!;
+
+        [CsvHelper.Configuration.Attributes.Name("Level")]
+        public string Level { get; set; } = default!;
+    }
     public class DrugJobService
     {
         private readonly DrugDBContext _context;
@@ -26,25 +43,7 @@ namespace Drug.API.Services
             Console.WriteLine($"Processing Drugs");
             await Task.Delay(500);
             Console.WriteLine($"Processing Done");
-        }
-
-        public class DrugInteractionCsvModel
-        {
-            [CsvHelper.Configuration.Attributes.Name("DDInterID_A")]
-            public string DDInterID_A { get; set; } = default!;
-
-            [CsvHelper.Configuration.Attributes.Name("Drug_A")]
-            public string Drug_A { get; set; } = default!;
-
-            [CsvHelper.Configuration.Attributes.Name("DDInterID_B")]
-            public string DDInterID_B { get; set; } = default!;
-
-            [CsvHelper.Configuration.Attributes.Name("Drug_B")]
-            public string Drug_B { get; set; } = default!;
-
-            [CsvHelper.Configuration.Attributes.Name("Level")]
-            public string Level { get; set; } = default!;
-        }
+        }        
 
         public async Task ImportDrugInteractionDataAsync()
         {
@@ -119,7 +118,6 @@ namespace Drug.API.Services
                 Console.WriteLine($"Error importing data: {ex.Message}");
             }
         }
-
         public async Task ImportDrugInfoDataAsync()
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -148,8 +146,16 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugVeterinarySpecies(ExcelPackage package)
         {
-            var worksheet = package.Workbook.Worksheets["vet"]; // Ensure this matches the actual sheet name
-            if (worksheet == null) return;
+            var worksheet = package.Workbook.Worksheets["vet"];
+            if (worksheet == null || worksheet.Dimension == null) return;
+
+            // Preload existing veterinary species hashes from the database.
+            var existingHashes = await _context.DrugVeterinarySpecies
+                                                 .Select(dvs => dvs.Hash)
+                                                 .ToListAsync();
+            var hashSet = new HashSet<string>(
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
 
             var veterinarySpecies = new List<DrugVeterinarySpecies>();
 
@@ -164,15 +170,15 @@ namespace Drug.API.Services
                         VetSubSpecies = GetStringValue(worksheet.Cells[row, 3].Text)
                     };
 
-                    // Generate a unique hash for this veterinary species row
+                    // Generate a unique hash for this veterinary species row.
                     vetSpecies.Hash = GenerateHash(vetSpecies);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.DrugVeterinarySpecies.AnyAsync(d => d.Hash == vetSpecies.Hash);
-                    if (!exists)
-                    {
-                        veterinarySpecies.Add(vetSpecies);
-                    }
+                    // Skip if a record with the same hash already exists.
+                    if (hashSet.Contains(vetSpecies.Hash))
+                        continue;
+
+                    veterinarySpecies.Add(vetSpecies);
+                    hashSet.Add(vetSpecies.Hash); // Prevent duplicates within the file.
                 }
                 catch (Exception ex)
                 {
@@ -180,13 +186,23 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.DrugVeterinarySpecies.AddRangeAsync(veterinarySpecies);
+            if (veterinarySpecies.Count != 0)
+            {
+                await _context.DrugVeterinarySpecies.AddRangeAsync(veterinarySpecies);
+            }
         }
-
         private async Task ImportDrugTherapeuticClasses(ExcelPackage package)
         {
-            var worksheet = package.Workbook.Worksheets["ther"]; // Ensure this matches the actual sheet name
-            if (worksheet == null) return;
+            var worksheet = package.Workbook.Worksheets["ther"];
+            if (worksheet == null || worksheet.Dimension == null) return;
+
+            // Preload existing therapeutic class hashes from the database.
+            var existingHashes = await _context.DrugTherapeuticClasses
+                                                 .Select(dt => dt.Hash)
+                                                 .ToListAsync();
+            var hashSet = new HashSet<string>(
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
 
             var therapeuticClasses = new List<DrugTherapeuticClass>();
 
@@ -202,15 +218,15 @@ namespace Drug.API.Services
                         TcAhfsNumber = GetStringValue(worksheet.Cells[row, 4].Text),
                     };
 
-                    // Generate a unique hash for this therapeutic class row
+                    // Generate a unique hash for this therapeutic class row.
                     therapeuticClass.Hash = GenerateHash(therapeuticClass);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.DrugTherapeuticClasses.AnyAsync(d => d.Hash == therapeuticClass.Hash);
-                    if (!exists)
-                    {
-                        therapeuticClasses.Add(therapeuticClass);
-                    }
+                    // Skip if a record with the same hash already exists.
+                    if (hashSet.Contains(therapeuticClass.Hash))
+                        continue;
+
+                    therapeuticClasses.Add(therapeuticClass);
+                    hashSet.Add(therapeuticClass.Hash); // Update the hash set to prevent duplicates within the file.
                 }
                 catch (Exception ex)
                 {
@@ -218,13 +234,23 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.DrugTherapeuticClasses.AddRangeAsync(therapeuticClasses);
+            if (therapeuticClasses.Count != 0)
+            {
+                await _context.DrugTherapeuticClasses.AddRangeAsync(therapeuticClasses);
+            }
         }
-
         private async Task ImportDrugSchedules(ExcelPackage package)
         {
-            var worksheet = package.Workbook.Worksheets["schedule"]; // Ensure this matches the actual sheet name
-            if (worksheet == null) return;
+            var worksheet = package.Workbook.Worksheets["schedule"];
+            if (worksheet == null || worksheet.Dimension == null) return;
+
+            // Preload existing schedule hashes from the database, filtering out any null values.
+            var existingHashes = await _context.DrugSchedules
+                                                 .Select(ds => ds.Hash)
+                                                 .ToListAsync();
+            var hashSet = new HashSet<string>(
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
 
             var schedules = new List<DrugSchedule>();
 
@@ -238,15 +264,15 @@ namespace Drug.API.Services
                         Schedule = GetStringValue(worksheet.Cells[row, 2].Text)
                     };
 
-                    // Generate a unique hash for this schedule row
+                    // Generate a unique hash for this schedule row.
                     schedule.Hash = GenerateHash(schedule);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.DrugSchedules.AnyAsync(d => d.Hash == schedule.Hash);
-                    if (!exists)
-                    {
-                        schedules.Add(schedule);
-                    }
+                    // Skip if a record with the same hash already exists.
+                    if (hashSet.Contains(schedule.Hash))
+                        continue;
+
+                    schedules.Add(schedule);
+                    hashSet.Add(schedule.Hash); // Prevent duplicates within the file.
                 }
                 catch (Exception ex)
                 {
@@ -254,13 +280,23 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.DrugSchedules.AddRangeAsync(schedules);
+            if (schedules.Count != 0)
+            {
+                await _context.DrugSchedules.AddRangeAsync(schedules);
+            }
         }
-
         private async Task ImportDrugRoutes(ExcelPackage package)
         {
-            var worksheet = package.Workbook.Worksheets["route"]; // Ensure this matches the actual sheet name
-            if (worksheet == null) return;
+            var worksheet = package.Workbook.Worksheets["route"];
+            if (worksheet == null || worksheet.Dimension == null) return;
+
+            // Preload existing route hashes from the database, filtering out any null values.
+            var existingHashes = await _context.DrugRoutes
+                                                 .Select(dr => dr.Hash)
+                                                 .ToListAsync();
+            var hashSet = new HashSet<string>(
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
 
             var routes = new List<DrugRoute>();
 
@@ -275,15 +311,15 @@ namespace Drug.API.Services
                         RouteOfAdministration = GetStringValue(worksheet.Cells[row, 3].Text)
                     };
 
-                    // Generate a unique hash for this route row
+                    // Generate a unique hash for this route row.
                     route.Hash = GenerateHash(route);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.DrugRoutes.AnyAsync(d => d.Hash == route.Hash);
-                    if (!exists)
-                    {
-                        routes.Add(route);
-                    }
+                    // Skip this row if a record with the same hash already exists.
+                    if (hashSet.Contains(route.Hash))
+                        continue;
+
+                    routes.Add(route);
+                    hashSet.Add(route.Hash); // Update the hash set to prevent duplicates within the file.
                 }
                 catch (Exception ex)
                 {
@@ -291,13 +327,23 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.DrugRoutes.AddRangeAsync(routes);
+            if (routes.Count != 0)
+            {
+                await _context.DrugRoutes.AddRangeAsync(routes);
+            }
         }
-
         private async Task ImportDrugPharmaceuticalStds(ExcelPackage package)
         {
-            var worksheet = package.Workbook.Worksheets["pharm"]; // Ensure this matches the actual sheet name
-            if (worksheet == null) return;
+            var worksheet = package.Workbook.Worksheets["pharm"];
+            if (worksheet == null || worksheet.Dimension == null) return;
+
+            // Preload existing pharmaceutical standard hashes from the database.
+            var existingHashes = await _context.DrugPharmaceuticalStds
+                                                 .Select(dps => dps.Hash)
+                                                 .ToListAsync();
+            var hashSet = new HashSet<string>(
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
 
             var pharmaceuticalStds = new List<DrugPharmaceuticalStd>();
 
@@ -311,15 +357,15 @@ namespace Drug.API.Services
                         PharmaceuticalStd = GetStringValue(worksheet.Cells[row, 2].Text)
                     };
 
-                    // Generate a unique hash for this pharmaceutical standard row
+                    // Generate a unique hash for this pharmaceutical standard row.
                     pharmStd.Hash = GenerateHash(pharmStd);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.DrugPharmaceuticalStds.AnyAsync(d => d.Hash == pharmStd.Hash);
-                    if (!exists)
-                    {
-                        pharmaceuticalStds.Add(pharmStd);
-                    }
+                    // Skip the row if the hash already exists.
+                    if (hashSet.Contains(pharmStd.Hash))
+                        continue;
+
+                    pharmaceuticalStds.Add(pharmStd);
+                    hashSet.Add(pharmStd.Hash); // Prevent duplicates within the file.
                 }
                 catch (Exception ex)
                 {
@@ -327,13 +373,23 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.DrugPharmaceuticalStds.AddRangeAsync(pharmaceuticalStds);
+            if (pharmaceuticalStds.Count != 0)
+            {
+                await _context.DrugPharmaceuticalStds.AddRangeAsync(pharmaceuticalStds);
+            }
         }
-
         private async Task ImportDrugPackaging(ExcelPackage package)
         {
-            var worksheet = package.Workbook.Worksheets["package"]; // Ensure this matches the actual sheet name
-            if (worksheet == null) return;
+            var worksheet = package.Workbook.Worksheets["package"];
+            if (worksheet == null || worksheet.Dimension == null) return;
+
+            // Preload existing packaging hashes from the database.
+            var existingHashes = await _context.DrugPackagings
+                                                 .Select(dp => dp.Hash)
+                                                 .ToListAsync();
+            var hashSet = new HashSet<string>(
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
 
             var packagings = new List<DrugPackaging>();
 
@@ -344,7 +400,6 @@ namespace Drug.API.Services
                     var packaging = new DrugPackaging
                     {
                         DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                       
                         Upc = GetStringValue(worksheet.Cells[row, 2].Text),
                         PackageSizeUnit = GetStringValue(worksheet.Cells[row, 3].Text),
                         PackageType = GetStringValue(worksheet.Cells[row, 4].Text),
@@ -352,15 +407,15 @@ namespace Drug.API.Services
                         ProductInformation = GetStringValue(worksheet.Cells[row, 6].Text)
                     };
 
-                    // Generate a unique hash for this packaging row
+                    // Generate a unique hash for this packaging row.
                     packaging.Hash = GenerateHash(packaging);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.DrugPackagings.AnyAsync(d => d.Hash == packaging.Hash);
-                    if (!exists)
-                    {
-                        packagings.Add(packaging);
-                    }
+                    // Skip if a record with the same hash already exists.
+                    if (hashSet.Contains(packaging.Hash))
+                        continue;
+
+                    packagings.Add(packaging);
+                    hashSet.Add(packaging.Hash); // Prevent duplicates within the file.
                 }
                 catch (Exception ex)
                 {
@@ -368,13 +423,23 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.DrugPackagings.AddRangeAsync(packagings);
+            if (packagings.Count != 0)
+            {
+                await _context.DrugPackagings.AddRangeAsync(packagings);
+            }
         }
-
         private async Task ImportDrugForms(ExcelPackage package)
         {
-            var worksheet = package.Workbook.Worksheets["form"]; // Ensure this matches the actual sheet name
-            if (worksheet == null) return;
+            var worksheet = package.Workbook.Worksheets["form"];
+            if (worksheet == null || worksheet.Dimension == null) return;
+
+            // Preload existing form hashes from the database.
+            var existingHashes = await _context.DrugForms
+                                                 .Select(df => df.Hash)
+                                                 .ToListAsync();
+            var hashSet = new HashSet<string>(
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
 
             var forms = new List<DrugForm>();
 
@@ -389,15 +454,15 @@ namespace Drug.API.Services
                         PharmaceuticalForm = GetStringValue(worksheet.Cells[row, 3].Text)
                     };
 
-                    // Generate a unique hash for this form row
+                    // Generate a unique hash for this form row.
                     form.Hash = GenerateHash(form);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.DrugForms.AnyAsync(d => d.Hash == form.Hash);
-                    if (!exists)
-                    {
-                        forms.Add(form);
-                    }
+                    // Skip if a record with the same hash already exists.
+                    if (hashSet.Contains(form.Hash))
+                        continue;
+
+                    forms.Add(form);
+                    hashSet.Add(form.Hash); // Prevent duplicates within the file.
                 }
                 catch (Exception ex)
                 {
@@ -405,13 +470,23 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.DrugForms.AddRangeAsync(forms);
+            if (forms.Count != 0)
+            {
+                await _context.DrugForms.AddRangeAsync(forms);
+            }
         }
-
         private async Task ImportDrugStatus(ExcelPackage package)
         {
-            var worksheet = package.Workbook.Worksheets["status"]; // Ensure this matches the actual sheet name
-            if (worksheet == null) return;
+            var worksheet = package.Workbook.Worksheets["status"];
+            if (worksheet == null || worksheet.Dimension == null) return;
+
+            // Preload existing status hashes from the database.
+            var existingHashes = await _context.DrugStatuses
+                                                 .Select(ds => ds.Hash)
+                                                 .ToListAsync();
+            var hashSet = new HashSet<string>(
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
 
             var statuses = new List<DrugStatus>();
 
@@ -427,15 +502,15 @@ namespace Drug.API.Services
                         HistoryDate = GetDateValue(worksheet.Cells[row, 4].Text)
                     };
 
-                    // Generate a unique hash for this status row
+                    // Generate a unique hash for this status row.
                     status.Hash = GenerateHash(status);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.DrugStatuses.AnyAsync(d => d.Hash == status.Hash);
-                    if (!exists)
-                    {
-                        statuses.Add(status);
-                    }
+                    // Skip if a record with the same hash exists.
+                    if (hashSet.Contains(status.Hash))
+                        continue;
+
+                    statuses.Add(status);
+                    hashSet.Add(status.Hash); // Prevent duplicates within the file.
                 }
                 catch (Exception ex)
                 {
@@ -443,13 +518,23 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.DrugStatuses.AddRangeAsync(statuses);
+            if (statuses.Count != 0)
+            {
+                await _context.DrugStatuses.AddRangeAsync(statuses);
+            }
         }
-
         private async Task ImportDrugCompanies(ExcelPackage package)
         {
-            var worksheet = package.Workbook.Worksheets["comp"]; // Ensure this matches the actual sheet name
-            if (worksheet == null) return;
+            var worksheet = package.Workbook.Worksheets["comp"];
+            if (worksheet == null || worksheet.Dimension == null) return;
+
+            // Preload existing company hashes from the database.
+            var existingHashes = await _context.DrugCompanies
+                                                 .Select(dc => dc.Hash)
+                                                 .ToListAsync();
+            var hashSet = new HashSet<string>(
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
 
             var companies = new List<DrugCompany>();
 
@@ -477,15 +562,15 @@ namespace Drug.API.Services
                         PostOfficeBox = GetStringValue(worksheet.Cells[row, 16].Text)
                     };
 
-                    // Generate a unique hash for this company row
+                    // Generate a unique hash for this company row.
                     company.Hash = GenerateHash(company);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.DrugCompanies.AnyAsync(d => d.Hash == company.Hash);
-                    if (!exists)
-                    {
-                        companies.Add(company);
-                    }
+                    // Skip if the record with the same hash already exists.
+                    if (hashSet.Contains(company.Hash))
+                        continue;
+
+                    companies.Add(company);
+                    hashSet.Add(company.Hash); // Update the hashSet to prevent duplicates within the file.
                 }
                 catch (Exception ex)
                 {
@@ -493,14 +578,23 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.DrugCompanies.AddRangeAsync(companies);
+            if (companies.Count != 0)
+            {
+                await _context.DrugCompanies.AddRangeAsync(companies);
+            }
         }
-
         private async Task ImportDrugIngredients(ExcelPackage package)
         {
-            var worksheet = package.Workbook.Worksheets["ingred"]; // Ensure this matches the actual sheet name
-            if (worksheet == null) return;
+            var worksheet = package.Workbook.Worksheets["ingred"];
+            if (worksheet == null || worksheet.Dimension == null) return;
 
+            // Preload existing ingredient hashes from the database.
+            var existingHashes = await _context.DrugIngredients
+                                                 .Select(di => di.Hash)
+                                                 .ToListAsync();
+            var hashSet = new HashSet<string>(
+                            existingHashes.Where(x => x != null).Select(x => x!)
+                        );
             var ingredients = new List<DrugIngredient>();
 
             for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
@@ -521,17 +615,16 @@ namespace Drug.API.Services
                         DosageUnit = GetStringValue(worksheet.Cells[row, 10].Text),
                         Notes = GetStringValue(worksheet.Cells[row, 11].Text)
                     };
-                    
-                    // Generate a unique hash for this ingredient row
+
+                    // Generate a unique hash for this ingredient row.
                     ingredient.Hash = GenerateHash(ingredient);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.DrugIngredients.AnyAsync(d => d.Hash == ingredient.Hash);
-                    if (!exists)
-                    {
-                        ingredients.Add(ingredient);
-                    }
-                    
+                    // Skip if a record with the same hash exists.
+                    if (hashSet.Contains(ingredient.Hash))
+                        continue;
+
+                    ingredients.Add(ingredient);
+                    hashSet.Add(ingredient.Hash); // Update to prevent duplicates within the file.
                 }
                 catch (Exception ex)
                 {
@@ -539,13 +632,24 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.DrugIngredients.AddRangeAsync(ingredients);
+            if (ingredients.Count != 0)
+            {
+                await _context.DrugIngredients.AddRangeAsync(ingredients);
+            }
         }
-
         private async Task ImportDrugs(ExcelPackage package)
         {
             var worksheet = package.Workbook.Worksheets["drug"];
-            if (worksheet == null) return;
+            if (worksheet == null || worksheet.Dimension == null) return;
+
+            // Preload existing hashes from the database.
+            var existingHashes = await _context.Drugs
+                                                 .Select(d => d.Hash)
+                                                 .ToListAsync();
+
+            var hashSet = new HashSet<string>(
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
 
             var drugs = new List<DrugProduct>();
 
@@ -568,15 +672,15 @@ namespace Drug.API.Services
                         AiGroupNo = GetStringValue(worksheet.Cells[row, 11].Text)
                     };
 
-                    // Generate a unique hash for this row
+                    // Generate a unique hash for this row.
                     drug.Hash = GenerateHash(drug);
 
-                    // Check if a record with the same hash exists
-                    bool exists = await _context.Drugs.AnyAsync(d => d.Hash == drug.Hash);
-                    if (!exists)
-                    {
-                        drugs.Add(drug);
-                    }
+                    // If the hash already exists (in DB or within the same file), skip it.
+                    if (hashSet.Contains(drug.Hash))
+                        continue;
+
+                    drugs.Add(drug);
+                    hashSet.Add(drug.Hash); // Update the hash set to avoid duplicates.
                 }
                 catch (Exception ex)
                 {
@@ -584,24 +688,24 @@ namespace Drug.API.Services
                 }
             }
 
-            await _context.Drugs.AddRangeAsync(drugs);
+            if (drugs.Count != 0)
+            {
+                await _context.Drugs.AddRangeAsync(drugs);
+            }
         }
 
         private static int GetIntValue(string value)
         {
             return int.TryParse(value, out int result) ? result : 0;
         }
-
         private static string? GetStringValue(string value)
         {
             return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
         }
-
         private static DateTime? GetDateValue(string value)
         {
             return DateTime.TryParse(value, out DateTime result) ? result : (DateTime?)null;
         }
-
         private static string GenerateHash<T>(T obj)
         {
 
