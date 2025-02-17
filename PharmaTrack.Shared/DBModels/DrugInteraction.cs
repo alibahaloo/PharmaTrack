@@ -12,21 +12,21 @@ namespace PharmaTrack.Shared.DBModels
         public string? Hash { get; set; }
 
         [Column("DDInterID_A")]
-        public string DrugAID { get; set; } = default!;
+        public string? DrugAID { get; set; }
 
         [Column("DDInterID_B")]
-        public string DrugBID { get; set; } = default!;
+        public string? DrugBID { get; set; }
 
         [Column("Drug_A")]
-        public string DrugA { get; set; } = default!;
+        public string? DrugA { get; set; }
 
         [Column("Drug_B")]
-        public string DrugB { get; set; } = default!;
+        public string? DrugB { get; set; }
         
         [Column("Level")]
-        public string Level { get; set; } = default!;
-        public string Description { get; set; } = default!;
-        public string Management { get; set; } = default!;
+        public string? Level { get; set; }
+        public string? Description { get; set; }
+        public string? Management { get; set; }
         public int InteractionID { get; set; }
     }
 }
