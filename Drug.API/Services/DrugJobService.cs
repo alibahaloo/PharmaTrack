@@ -1,7 +1,10 @@
-﻿using Drug.API.Data;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using Drug.API.Data;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using PharmaTrack.Shared.DBModels;
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -25,7 +28,94 @@ namespace Drug.API.Services
             Console.WriteLine($"Processing Done");
         }
 
-        public async Task ImportDataAsync()
+        public class DrugInteractionCsvModel
+        {
+            [CsvHelper.Configuration.Attributes.Name("DDInterID_A")]
+            public string DDInterID_A { get; set; } = default!;
+
+            [CsvHelper.Configuration.Attributes.Name("Drug_A")]
+            public string Drug_A { get; set; } = default!;
+
+            [CsvHelper.Configuration.Attributes.Name("DDInterID_B")]
+            public string DDInterID_B { get; set; } = default!;
+
+            [CsvHelper.Configuration.Attributes.Name("Drug_B")]
+            public string Drug_B { get; set; } = default!;
+
+            [CsvHelper.Configuration.Attributes.Name("Level")]
+            public string Level { get; set; } = default!;
+        }
+
+        public async Task ImportDrugInteractionDataAsync()
+        {
+            try
+            {
+                // List all file paths to be processed.
+                var filePaths = new[]
+                {
+                    "/app/DataFiles/ddinter_downloads_code_A",
+                    "/app/DataFiles/ddinter_downloads_code_B",
+                    "/app/DataFiles/ddinter_downloads_code_C"
+                };
+
+                // Preload existing hashes from the database.
+                var existingHashes = await _context.DrugInteractions
+                                                     .Select(di => di.Hash)
+                                                     .ToListAsync();
+                var hashSet = new HashSet<string>(
+                    existingHashes.Where(x => x != null).Select(x => x!)
+                );
+
+                var drugInteractions = new List<DrugInteraction>();
+
+                // Loop through each file.
+                foreach (var filePath in filePaths)
+                {
+                    using var reader = new StreamReader(filePath);
+                    using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+                    {
+                        HasHeaderRecord = true,
+                        MissingFieldFound = null,
+                        BadDataFound = null
+                    });
+
+                    // Get the records for the current file.
+                    var records = csv.GetRecords<DrugInteractionCsvModel>().ToList();
+
+                    foreach (var record in records)
+                    {
+                        var hashValue = GenerateHash(record);
+
+                        // Skip if the record's hash already exists (either in the DB or added earlier).
+                        if (hashSet.Contains(hashValue))
+                            continue;
+
+                        var drugInteraction = new DrugInteraction
+                        {
+                            DrugA = record.Drug_A,
+                            DrugB = record.Drug_B,
+                            DrugAID = record.DDInterID_A,
+                            DrugBID = record.DDInterID_B,
+                            Level = record.Level,
+                            Hash = hashValue
+                        };
+
+                        drugInteractions.Add(drugInteraction);
+                        hashSet.Add(hashValue); // Prevent duplicates across files.
+                    }
+                }
+
+                // Add all new records in one go.
+                _context.DrugInteractions.AddRange(drugInteractions);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error importing data: {ex.Message}");
+            }
+        }
+
+        public async Task ImportDrugInfoDataAsync()
         {
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             string filePath = "/app/DataFiles/DPD.xlsx";
@@ -65,8 +155,8 @@ namespace Drug.API.Services
                     var vetSpecies = new DrugVeterinarySpecies
                     {
                         DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        VetSpecies = GetStringValue(worksheet.Cells[row, 3].Text),
-                        VetSubSpecies = GetStringValue(worksheet.Cells[row, 4].Text)
+                        VetSpecies = GetStringValue(worksheet.Cells[row, 2].Text),
+                        VetSubSpecies = GetStringValue(worksheet.Cells[row, 3].Text)
                     };
 
                     // Generate a unique hash for this veterinary species row

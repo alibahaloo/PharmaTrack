@@ -27,7 +27,7 @@ namespace Drug.API.Controllers
         public IActionResult EnqueueImportDrugData()
         {
             // Enqueue a background job
-            BackgroundJob.Enqueue(() => _jobService.ImportDataAsync());
+            BackgroundJob.Enqueue(() => _jobService.ImportDrugInfoDataAsync());
             return Ok("Import job has been enqueued!");
         }
 

@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DataFiles\ddinter_downloads_code_A.csv" />
+    <None Remove="DataFiles\ddinter_downloads_code_B.csv" />
+    <None Remove="DataFiles\ddinter_downloads_code_D.csv" />
+    <None Remove="DataFiles\ddinter_downloads_code_H.csv" />
+    <None Remove="DataFiles\ddinter_downloads_code_L.csv" />
+    <None Remove="DataFiles\ddinter_downloads_code_P.csv" />
+    <None Remove="DataFiles\ddinter_downloads_code_R.csv" />
+    <None Remove="DataFiles\ddinter_downloads_code_V.csv" />
     <None Remove="DataFiles\DPD.xlsx" />
   </ItemGroup>
 
@@ -17,6 +25,7 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CsvHelper" Version="33.0.1" />
 		<PackageReference Include="EPPlus" Version="7.5.3" />
 		<PackageReference Include="Hangfire" Version="1.8.17" />
 		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.17" />
@@ -34,6 +43,33 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PharmaTrack.Shared\PharmaTrack.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="DataFiles\ddinter_downloads_code_A.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\ddinter_downloads_code_B.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\ddinter_downloads_code_D.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\ddinter_downloads_code_H.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\ddinter_downloads_code_L.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\ddinter_downloads_code_P.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\ddinter_downloads_code_R.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\ddinter_downloads_code_V.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

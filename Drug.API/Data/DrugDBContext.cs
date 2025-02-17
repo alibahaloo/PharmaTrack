@@ -19,6 +19,7 @@ namespace Drug.API.Data
         public DbSet<DrugSchedule> DrugSchedules { get; set; } = null!;
         public DbSet<DrugTherapeuticClass> DrugTherapeuticClasses { get; set; } = null!;
         public DbSet<DrugVeterinarySpecies> DrugVeterinarySpecies { get; set; } = null!;
+        public DbSet<DrugInteraction> DrugInteractions { get; set; }
 
     }
 }
