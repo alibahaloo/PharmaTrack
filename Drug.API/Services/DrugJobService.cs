@@ -53,9 +53,14 @@ namespace Drug.API.Services
                 // List all file paths to be processed.
                 var filePaths = new[]
                 {
-                    "/app/DataFiles/ddinter_downloads_code_A",
-                    "/app/DataFiles/ddinter_downloads_code_B",
-                    "/app/DataFiles/ddinter_downloads_code_C"
+                    "/app/DataFiles/ddinter_downloads_code_A.csv",
+                    "/app/DataFiles/ddinter_downloads_code_B.csv",
+                    "/app/DataFiles/ddinter_downloads_code_D.csv",
+                    "/app/DataFiles/ddinter_downloads_code_H.csv",
+                    "/app/DataFiles/ddinter_downloads_code_L.csv",
+                    "/app/DataFiles/ddinter_downloads_code_P.csv",
+                    "/app/DataFiles/ddinter_downloads_code_R.csv",
+                    "/app/DataFiles/ddinter_downloads_code_V.csv",
                 };
 
                 // Preload existing hashes from the database.
