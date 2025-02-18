@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="DataFiles\biosimilar.txt" />
+    <None Remove="DataFiles\comp.txt" />
     <None Remove="DataFiles\ddinter_downloads_code_A.csv" />
     <None Remove="DataFiles\ddinter_downloads_code_B.csv" />
     <None Remove="DataFiles\ddinter_downloads_code_D.csv" />
@@ -15,18 +17,59 @@
     <None Remove="DataFiles\ddinter_downloads_code_P.csv" />
     <None Remove="DataFiles\ddinter_downloads_code_R.csv" />
     <None Remove="DataFiles\ddinter_downloads_code_V.csv" />
-    <None Remove="DataFiles\DPD.xlsx" />
+    <None Remove="DataFiles\drug.txt" />
+    <None Remove="DataFiles\form.txt" />
+    <None Remove="DataFiles\ingred.txt" />
+    <None Remove="DataFiles\package.txt" />
+    <None Remove="DataFiles\pharm.txt" />
+    <None Remove="DataFiles\route.txt" />
+    <None Remove="DataFiles\schedule.txt" />
+    <None Remove="DataFiles\status.txt" />
+    <None Remove="DataFiles\ther.txt" />
+    <None Remove="DataFiles\vet.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="DataFiles\DPD.xlsx">
+    <Content Include="DataFiles\biosimilar.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\comp.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\drug.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\form.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\ingred.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\package.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\pharm.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\route.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\schedule.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\status.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\ther.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="DataFiles\vet.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="CsvHelper" Version="33.0.1" />
-		<PackageReference Include="EPPlus" Version="7.5.3" />
 		<PackageReference Include="Hangfire" Version="1.8.17" />
 		<PackageReference Include="Hangfire.AspNetCore" Version="1.8.17" />
 		<PackageReference Include="Hangfire.Dashboard.Authorization" Version="3.1.0" />

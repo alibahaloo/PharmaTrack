@@ -2,7 +2,6 @@
 using CsvHelper.Configuration;
 using Drug.API.Data;
 using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml;
 using PharmaTrack.Shared.DBModels;
 using System.Globalization;
 using System.Security.Cryptography;
@@ -12,23 +11,6 @@ using System.Text.Json.Serialization;
 
 namespace Drug.API.Services
 {
-    public class DrugInteractionCsvModel
-    {
-        [CsvHelper.Configuration.Attributes.Name("DDInterID_A")]
-        public string DDInterID_A { get; set; } = default!;
-
-        [CsvHelper.Configuration.Attributes.Name("Drug_A")]
-        public string Drug_A { get; set; } = default!;
-
-        [CsvHelper.Configuration.Attributes.Name("DDInterID_B")]
-        public string DDInterID_B { get; set; } = default!;
-
-        [CsvHelper.Configuration.Attributes.Name("Drug_B")]
-        public string Drug_B { get; set; } = default!;
-
-        [CsvHelper.Configuration.Attributes.Name("Level")]
-        public string Level { get; set; } = default!;
-    }
     public class DrugJobService
     {
         private readonly DrugDBContext _context;
@@ -43,7 +25,7 @@ namespace Drug.API.Services
             Console.WriteLine($"Processing Drugs");
             await Task.Delay(500);
             Console.WriteLine($"Processing Done");
-        }        
+        }
 
         public async Task ImportDrugInteractionDataAsync()
         {
@@ -75,43 +57,52 @@ namespace Drug.API.Services
                 // Loop through each file.
                 foreach (var filePath in filePaths)
                 {
+                    if (!File.Exists(filePath))
+                    {
+                        Console.WriteLine($"File not found: {filePath}");
+                        continue;
+                    }
+
                     using var reader = new StreamReader(filePath);
                     using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
                     {
-                        HasHeaderRecord = true,
+                        HasHeaderRecord = false,
+                        HeaderValidated = null,
                         MissingFieldFound = null,
                         BadDataFound = null
                     });
 
-                    // Get the records for the current file.
-                    var records = csv.GetRecords<DrugInteractionCsvModel>().ToList();
-
+                    // Get the records for the current file mapped directly to our DrugInteraction entity.
+                    var records = csv.GetRecords<DrugInteraction>().ToList();
+                    int row = 1; // Header is row 1.
                     foreach (var record in records)
                     {
-                        var hashValue = GenerateHash(record);
-
-                        // Skip if the record's hash already exists (either in the DB or added earlier).
-                        if (hashSet.Contains(hashValue))
-                            continue;
-
-                        var drugInteraction = new DrugInteraction
+                        row++;
+                        try
                         {
-                            DrugA = record.Drug_A,
-                            DrugB = record.Drug_B,
-                            DrugAID = record.DDInterID_A,
-                            DrugBID = record.DDInterID_B,
-                            Level = record.Level,
-                            Hash = hashValue
-                        };
+                            // Generate a unique hash for this record.
+                            record.Hash = GenerateHash(record);
 
-                        drugInteractions.Add(drugInteraction);
-                        hashSet.Add(hashValue); // Prevent duplicates across files.
+                            // Skip if a record with the same hash already exists.
+                            if (hashSet.Contains(record.Hash))
+                                continue;
+
+                            drugInteractions.Add(record);
+                            hashSet.Add(record.Hash); // Prevent duplicates across files.
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Error importing Drug Interaction row {row} from {filePath}: {ex.Message}");
+                        }
                     }
                 }
 
                 // Add all new records in one go.
-                _context.DrugInteractions.AddRange(drugInteractions);
-                await _context.SaveChangesAsync();
+                if (drugInteractions.Count != 0)
+                {
+                    _context.DrugInteractions.AddRange(drugInteractions);
+                    await _context.SaveChangesAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -120,34 +111,28 @@ namespace Drug.API.Services
         }
         public async Task ImportDrugInfoDataAsync()
         {
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            string filePath = "/app/DataFiles/DPD.xlsx";
-
-            if (!File.Exists(filePath))
-            {
-                throw new FileNotFoundException($"Excel file not found at {filePath}");
-            }
-
-            using var package = new ExcelPackage(new FileInfo(filePath));
-
-            await ImportDrugs(package);
-            await ImportDrugIngredients(package);
-            await ImportDrugCompanies(package);
-            await ImportDrugStatus(package);
-            await ImportDrugForms(package);
-            await ImportDrugPackaging(package);
-            await ImportDrugPharmaceuticalStds(package);
-            await ImportDrugRoutes(package);
-            await ImportDrugSchedules(package);
-            await ImportDrugTherapeuticClasses(package);
-            await ImportDrugVeterinarySpecies(package);
+            await ImportDrugs();
+            await ImportDrugIngredients();
+            await ImportDrugCompanies();
+            await ImportDrugStatus();
+            await ImportDrugForms();
+            await ImportDrugPackaging();
+            await ImportDrugPharmaceuticalStds();
+            await ImportDrugRoutes();
+            await ImportDrugSchedules();
+            await ImportDrugTherapeuticClasses();
+            await ImportDrugVeterinarySpecies();
 
             await _context.SaveChangesAsync();
         }
-        private async Task ImportDrugVeterinarySpecies(ExcelPackage package)
+        private async Task ImportDrugVeterinarySpecies()
         {
-            var worksheet = package.Workbook.Worksheets["vet"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/vet.txt";
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
 
             // Preload existing veterinary species hashes from the database.
             var existingHashes = await _context.DrugVeterinarySpecies
@@ -159,30 +144,36 @@ namespace Drug.API.Services
 
             var veterinarySpecies = new List<DrugVeterinarySpecies>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                var records = csv.GetRecords<DrugVeterinarySpecies>().ToList();
+                int row = 1; // Header is row 1.
+                foreach (var record in records)
                 {
-                    var vetSpecies = new DrugVeterinarySpecies
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        VetSpecies = GetStringValue(worksheet.Cells[row, 2].Text),
-                        VetSubSpecies = GetStringValue(worksheet.Cells[row, 3].Text)
-                    };
+                        // Generate a unique hash for this record.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this veterinary species row.
-                    vetSpecies.Hash = GenerateHash(vetSpecies);
+                        // Skip if a record with the same hash already exists.
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // Skip if a record with the same hash already exists.
-                    if (hashSet.Contains(vetSpecies.Hash))
-                        continue;
-
-                    veterinarySpecies.Add(vetSpecies);
-                    hashSet.Add(vetSpecies.Hash); // Prevent duplicates within the file.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug Veterinary Species row {row}: {ex.Message}");
+                        veterinarySpecies.Add(record);
+                        hashSet.Add(record.Hash); // Prevent duplicates.
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug Veterinary Species row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -191,10 +182,14 @@ namespace Drug.API.Services
                 await _context.DrugVeterinarySpecies.AddRangeAsync(veterinarySpecies);
             }
         }
-        private async Task ImportDrugTherapeuticClasses(ExcelPackage package)
+        private async Task ImportDrugTherapeuticClasses()
         {
-            var worksheet = package.Workbook.Worksheets["ther"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/ther.txt";
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
 
             // Preload existing therapeutic class hashes from the database.
             var existingHashes = await _context.DrugTherapeuticClasses
@@ -206,31 +201,36 @@ namespace Drug.API.Services
 
             var therapeuticClasses = new List<DrugTherapeuticClass>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                var records = csv.GetRecords<DrugTherapeuticClass>().ToList();
+                int row = 1; // Header is row 1.
+                foreach (var record in records)
                 {
-                    var therapeuticClass = new DrugTherapeuticClass
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        TcAtcNumber = GetStringValue(worksheet.Cells[row, 2].Text),
-                        TcAtc = GetStringValue(worksheet.Cells[row, 3].Text),
-                        TcAhfsNumber = GetStringValue(worksheet.Cells[row, 4].Text),
-                    };
+                        // Generate a unique hash for this therapeutic class record.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this therapeutic class row.
-                    therapeuticClass.Hash = GenerateHash(therapeuticClass);
+                        // Skip if a record with the same hash already exists.
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // Skip if a record with the same hash already exists.
-                    if (hashSet.Contains(therapeuticClass.Hash))
-                        continue;
-
-                    therapeuticClasses.Add(therapeuticClass);
-                    hashSet.Add(therapeuticClass.Hash); // Update the hash set to prevent duplicates within the file.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug Therapeutic Class row {row}: {ex.Message}");
+                        therapeuticClasses.Add(record);
+                        hashSet.Add(record.Hash); // Prevent duplicates.
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug Therapeutic Class row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -239,12 +239,16 @@ namespace Drug.API.Services
                 await _context.DrugTherapeuticClasses.AddRangeAsync(therapeuticClasses);
             }
         }
-        private async Task ImportDrugSchedules(ExcelPackage package)
+        private async Task ImportDrugSchedules()
         {
-            var worksheet = package.Workbook.Worksheets["schedule"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/schedule.txt";
 
-            // Preload existing schedule hashes from the database, filtering out any null values.
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
+
+            // Preload existing schedule hashes from the database.
             var existingHashes = await _context.DrugSchedules
                                                  .Select(ds => ds.Hash)
                                                  .ToListAsync();
@@ -254,29 +258,36 @@ namespace Drug.API.Services
 
             var schedules = new List<DrugSchedule>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                var records = csv.GetRecords<DrugSchedule>().ToList();
+                int row = 1; // header is row 1.
+                foreach (var record in records)
                 {
-                    var schedule = new DrugSchedule
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        Schedule = GetStringValue(worksheet.Cells[row, 2].Text)
-                    };
+                        // Generate a unique hash for this schedule record.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this schedule row.
-                    schedule.Hash = GenerateHash(schedule);
+                        // Skip if a record with the same hash already exists.
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // Skip if a record with the same hash already exists.
-                    if (hashSet.Contains(schedule.Hash))
-                        continue;
-
-                    schedules.Add(schedule);
-                    hashSet.Add(schedule.Hash); // Prevent duplicates within the file.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug Schedule row {row}: {ex.Message}");
+                        schedules.Add(record);
+                        hashSet.Add(record.Hash); // Prevent duplicates.
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug Schedule row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -285,10 +296,14 @@ namespace Drug.API.Services
                 await _context.DrugSchedules.AddRangeAsync(schedules);
             }
         }
-        private async Task ImportDrugRoutes(ExcelPackage package)
+        private async Task ImportDrugRoutes()
         {
-            var worksheet = package.Workbook.Worksheets["route"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/route.txt";
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
 
             // Preload existing route hashes from the database, filtering out any null values.
             var existingHashes = await _context.DrugRoutes
@@ -300,30 +315,36 @@ namespace Drug.API.Services
 
             var routes = new List<DrugRoute>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                var records = csv.GetRecords<DrugRoute>().ToList();
+                int row = 1; // Header is row 1.
+                foreach (var record in records)
                 {
-                    var route = new DrugRoute
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        RouteOfAdministrationCode = GetIntValue(worksheet.Cells[row, 2].Text),
-                        RouteOfAdministration = GetStringValue(worksheet.Cells[row, 3].Text)
-                    };
+                        // Generate a unique hash for this route record.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this route row.
-                    route.Hash = GenerateHash(route);
+                        // Skip this record if a record with the same hash already exists.
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // Skip this row if a record with the same hash already exists.
-                    if (hashSet.Contains(route.Hash))
-                        continue;
-
-                    routes.Add(route);
-                    hashSet.Add(route.Hash); // Update the hash set to prevent duplicates within the file.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug Route row {row}: {ex.Message}");
+                        routes.Add(record);
+                        hashSet.Add(record.Hash); // Prevent duplicates.
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug Route row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -332,10 +353,14 @@ namespace Drug.API.Services
                 await _context.DrugRoutes.AddRangeAsync(routes);
             }
         }
-        private async Task ImportDrugPharmaceuticalStds(ExcelPackage package)
+        private async Task ImportDrugPharmaceuticalStds()
         {
-            var worksheet = package.Workbook.Worksheets["pharm"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/pharm.txt";
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
 
             // Preload existing pharmaceutical standard hashes from the database.
             var existingHashes = await _context.DrugPharmaceuticalStds
@@ -347,29 +372,36 @@ namespace Drug.API.Services
 
             var pharmaceuticalStds = new List<DrugPharmaceuticalStd>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                var records = csv.GetRecords<DrugPharmaceuticalStd>().ToList();
+                int row = 1; // Header is row 1.
+                foreach (var record in records)
                 {
-                    var pharmStd = new DrugPharmaceuticalStd
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        PharmaceuticalStd = GetStringValue(worksheet.Cells[row, 2].Text)
-                    };
+                        // Generate a unique hash for this record.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this pharmaceutical standard row.
-                    pharmStd.Hash = GenerateHash(pharmStd);
+                        // Skip if a record with the same hash already exists.
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // Skip the row if the hash already exists.
-                    if (hashSet.Contains(pharmStd.Hash))
-                        continue;
-
-                    pharmaceuticalStds.Add(pharmStd);
-                    hashSet.Add(pharmStd.Hash); // Prevent duplicates within the file.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug Pharmaceutical Std row {row}: {ex.Message}");
+                        pharmaceuticalStds.Add(record);
+                        hashSet.Add(record.Hash);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug Pharmaceutical Std row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -378,10 +410,14 @@ namespace Drug.API.Services
                 await _context.DrugPharmaceuticalStds.AddRangeAsync(pharmaceuticalStds);
             }
         }
-        private async Task ImportDrugPackaging(ExcelPackage package)
+        private async Task ImportDrugPackaging()
         {
-            var worksheet = package.Workbook.Worksheets["package"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/package.txt";
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
 
             // Preload existing packaging hashes from the database.
             var existingHashes = await _context.DrugPackagings
@@ -393,33 +429,36 @@ namespace Drug.API.Services
 
             var packagings = new List<DrugPackaging>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                var records = csv.GetRecords<DrugPackaging>().ToList();
+                int row = 1; // header is row 1
+                foreach (var record in records)
                 {
-                    var packaging = new DrugPackaging
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        Upc = GetStringValue(worksheet.Cells[row, 2].Text),
-                        PackageSizeUnit = GetStringValue(worksheet.Cells[row, 3].Text),
-                        PackageType = GetStringValue(worksheet.Cells[row, 4].Text),
-                        PackageSize = GetStringValue(worksheet.Cells[row, 5].Text),
-                        ProductInformation = GetStringValue(worksheet.Cells[row, 6].Text)
-                    };
+                        // Generate a unique hash for this packaging record.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this packaging row.
-                    packaging.Hash = GenerateHash(packaging);
+                        // Skip if a record with the same hash already exists.
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // Skip if a record with the same hash already exists.
-                    if (hashSet.Contains(packaging.Hash))
-                        continue;
-
-                    packagings.Add(packaging);
-                    hashSet.Add(packaging.Hash); // Prevent duplicates within the file.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug Packaging row {row}: {ex.Message}");
+                        packagings.Add(record);
+                        hashSet.Add(record.Hash); // Prevent duplicates.
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug Packaging row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -428,10 +467,14 @@ namespace Drug.API.Services
                 await _context.DrugPackagings.AddRangeAsync(packagings);
             }
         }
-        private async Task ImportDrugForms(ExcelPackage package)
+        private async Task ImportDrugForms()
         {
-            var worksheet = package.Workbook.Worksheets["form"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/form.txt";
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
 
             // Preload existing form hashes from the database.
             var existingHashes = await _context.DrugForms
@@ -443,30 +486,36 @@ namespace Drug.API.Services
 
             var forms = new List<DrugForm>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                var records = csv.GetRecords<DrugForm>().ToList();
+                int row = 1; // header is row 1
+                foreach (var record in records)
                 {
-                    var form = new DrugForm
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        PharmFormCode = GetIntValue(worksheet.Cells[row, 2].Text),
-                        PharmaceuticalForm = GetStringValue(worksheet.Cells[row, 3].Text)
-                    };
+                        // Generate a unique hash for this form record.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this form row.
-                    form.Hash = GenerateHash(form);
+                        // Skip if a record with the same hash already exists.
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // Skip if a record with the same hash already exists.
-                    if (hashSet.Contains(form.Hash))
-                        continue;
-
-                    forms.Add(form);
-                    hashSet.Add(form.Hash); // Prevent duplicates within the file.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug Form row {row}: {ex.Message}");
+                        forms.Add(record);
+                        hashSet.Add(record.Hash); // Prevent duplicates.
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug Form row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -475,10 +524,14 @@ namespace Drug.API.Services
                 await _context.DrugForms.AddRangeAsync(forms);
             }
         }
-        private async Task ImportDrugStatus(ExcelPackage package)
+        private async Task ImportDrugStatus()
         {
-            var worksheet = package.Workbook.Worksheets["status"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/status.txt";
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
 
             // Preload existing status hashes from the database.
             var existingHashes = await _context.DrugStatuses
@@ -490,31 +543,37 @@ namespace Drug.API.Services
 
             var statuses = new List<DrugStatus>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                // CsvHelper automatically maps CSV rows to DrugStatus instances.
+                var records = csv.GetRecords<DrugStatus>().ToList();
+                int row = 1; // Assume header is row 1.
+                foreach (var record in records)
                 {
-                    var status = new DrugStatus
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        CurrentStatusFlag = GetStringValue(worksheet.Cells[row, 2].Text),
-                        Status = GetStringValue(worksheet.Cells[row, 3].Text),
-                        HistoryDate = GetDateValue(worksheet.Cells[row, 4].Text)
-                    };
+                        // Generate a unique hash for this status record.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this status row.
-                    status.Hash = GenerateHash(status);
+                        // Skip if a record with the same hash exists.
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // Skip if a record with the same hash exists.
-                    if (hashSet.Contains(status.Hash))
-                        continue;
-
-                    statuses.Add(status);
-                    hashSet.Add(status.Hash); // Prevent duplicates within the file.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug Status row {row}: {ex.Message}");
+                        statuses.Add(record);
+                        hashSet.Add(record.Hash); // Prevent duplicates.
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug Status row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -523,10 +582,14 @@ namespace Drug.API.Services
                 await _context.DrugStatuses.AddRangeAsync(statuses);
             }
         }
-        private async Task ImportDrugCompanies(ExcelPackage package)
+        private async Task ImportDrugCompanies()
         {
-            var worksheet = package.Workbook.Worksheets["comp"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/comp.txt";
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
 
             // Preload existing company hashes from the database.
             var existingHashes = await _context.DrugCompanies
@@ -538,43 +601,37 @@ namespace Drug.API.Services
 
             var companies = new List<DrugCompany>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                // Get all records from the CSV mapped directly into DrugCompany instances.
+                var records = csv.GetRecords<DrugCompany>().ToList();
+                int row = 1; // Header is row 1
+                foreach (var record in records)
                 {
-                    var company = new DrugCompany
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        MfrCode = GetStringValue(worksheet.Cells[row, 2].Text),
-                        CompanyCode = GetIntValue(worksheet.Cells[row, 3].Text),
-                        CompanyName = GetStringValue(worksheet.Cells[row, 4].Text),
-                        CompanyType = GetStringValue(worksheet.Cells[row, 5].Text),
-                        AddressMailingFlag = GetStringValue(worksheet.Cells[row, 6].Text),
-                        AddressBillingFlag = GetStringValue(worksheet.Cells[row, 7].Text),
-                        AddressNotificationFlag = GetStringValue(worksheet.Cells[row, 8].Text),
-                        AddressOther = GetStringValue(worksheet.Cells[row, 9].Text),
-                        SuiteNumber = GetStringValue(worksheet.Cells[row, 10].Text),
-                        StreetName = GetStringValue(worksheet.Cells[row, 11].Text),
-                        CityName = GetStringValue(worksheet.Cells[row, 12].Text),
-                        Province = GetStringValue(worksheet.Cells[row, 13].Text),
-                        Country = GetStringValue(worksheet.Cells[row, 14].Text),
-                        PostalCode = GetStringValue(worksheet.Cells[row, 15].Text),
-                        PostOfficeBox = GetStringValue(worksheet.Cells[row, 16].Text)
-                    };
+                        // Generate a unique hash for this company record.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this company row.
-                    company.Hash = GenerateHash(company);
+                        // Skip the record if a record with the same hash already exists.
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // Skip if the record with the same hash already exists.
-                    if (hashSet.Contains(company.Hash))
-                        continue;
-
-                    companies.Add(company);
-                    hashSet.Add(company.Hash); // Update the hashSet to prevent duplicates within the file.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug Company row {row}: {ex.Message}");
+                        companies.Add(record);
+                        hashSet.Add(record.Hash); // Prevent duplicates across files.
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug Company row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -583,52 +640,57 @@ namespace Drug.API.Services
                 await _context.DrugCompanies.AddRangeAsync(companies);
             }
         }
-        private async Task ImportDrugIngredients(ExcelPackage package)
+        private async Task ImportDrugIngredients()
         {
-            var worksheet = package.Workbook.Worksheets["ingred"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/ingred.txt";
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
 
             // Preload existing ingredient hashes from the database.
             var existingHashes = await _context.DrugIngredients
                                                  .Select(di => di.Hash)
                                                  .ToListAsync();
             var hashSet = new HashSet<string>(
-                            existingHashes.Where(x => x != null).Select(x => x!)
-                        );
+                existingHashes.Where(x => x != null).Select(x => x!)
+            );
+
             var ingredients = new List<DrugIngredient>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                // CsvHelper will use your DrugIngredient class directly.
+                var records = csv.GetRecords<DrugIngredient>().ToList();
+
+                int row = 1; // assume header is row 1.
+                foreach (var record in records)
                 {
-                    var ingredient = new DrugIngredient
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        ActiveIngredientCode = GetIntValue(worksheet.Cells[row, 2].Text),
-                        Ingredient = GetStringValue(worksheet.Cells[row, 3].Text),
-                        IngredientSuppliedInd = GetStringValue(worksheet.Cells[row, 4].Text),
-                        Strength = GetStringValue(worksheet.Cells[row, 5].Text),
-                        StrengthUnit = GetStringValue(worksheet.Cells[row, 6].Text),
-                        StrengthType = GetStringValue(worksheet.Cells[row, 7].Text),
-                        DosageValue = GetStringValue(worksheet.Cells[row, 8].Text),
-                        Base = GetStringValue(worksheet.Cells[row, 9].Text),
-                        DosageUnit = GetStringValue(worksheet.Cells[row, 10].Text),
-                        Notes = GetStringValue(worksheet.Cells[row, 11].Text)
-                    };
+                        // Generate a unique hash for this ingredient row.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this ingredient row.
-                    ingredient.Hash = GenerateHash(ingredient);
+                        // Skip if a record with the same hash already exists.
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // Skip if a record with the same hash exists.
-                    if (hashSet.Contains(ingredient.Hash))
-                        continue;
-
-                    ingredients.Add(ingredient);
-                    hashSet.Add(ingredient.Hash); // Update to prevent duplicates within the file.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug Ingredient row {row}: {ex.Message}");
+                        ingredients.Add(record);
+                        hashSet.Add(record.Hash); // Prevent duplicates.
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug Ingredient row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -637,54 +699,57 @@ namespace Drug.API.Services
                 await _context.DrugIngredients.AddRangeAsync(ingredients);
             }
         }
-        private async Task ImportDrugs(ExcelPackage package)
+        private async Task ImportDrugs()
         {
-            var worksheet = package.Workbook.Worksheets["drug"];
-            if (worksheet == null || worksheet.Dimension == null) return;
+            string filePath = "/app/DataFiles/drug.txt";
 
-            // Preload existing hashes from the database.
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Text file not found at {filePath}");
+            }
+
+            // Preload existing drug hashes from the database.
             var existingHashes = await _context.Drugs
                                                  .Select(d => d.Hash)
                                                  .ToListAsync();
-
             var hashSet = new HashSet<string>(
                 existingHashes.Where(x => x != null).Select(x => x!)
             );
 
             var drugs = new List<DrugProduct>();
 
-            for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                try
+                HasHeaderRecord = false,
+                HeaderValidated = null,
+                MissingFieldFound = null,
+                BadDataFound = null
+            }))
+            {
+                // CsvHelper will create instances of DrugProduct using the CSV headers
+                var records = csv.GetRecords<DrugProduct>().ToList();
+
+                int row = 1; // Header is row 1.
+                foreach (var record in records)
                 {
-                    var drug = new DrugProduct
+                    row++;
+                    try
                     {
-                        DrugCode = GetIntValue(worksheet.Cells[row, 1].Text),
-                        ProductCategorization = GetStringValue(worksheet.Cells[row, 2].Text),
-                        Class = GetStringValue(worksheet.Cells[row, 3].Text),
-                        DrugIdentificationNumber = GetStringValue(worksheet.Cells[row, 4].Text),
-                        BrandName = GetStringValue(worksheet.Cells[row, 5].Text),
-                        Descriptor = GetStringValue(worksheet.Cells[row, 6].Text),
-                        PediatricFlag = GetStringValue(worksheet.Cells[row, 7].Text),
-                        AccessionNumber = GetStringValue(worksheet.Cells[row, 8].Text),
-                        NumberOfAis = GetStringValue(worksheet.Cells[row, 9].Text),
-                        LastUpdateDate = GetDateValue(worksheet.Cells[row, 10].Text),
-                        AiGroupNo = GetStringValue(worksheet.Cells[row, 11].Text)
-                    };
+                        // Generate a unique hash for the record.
+                        record.Hash = GenerateHash(record);
 
-                    // Generate a unique hash for this row.
-                    drug.Hash = GenerateHash(drug);
+                        // Skip if this record already exists (in the DB or in this batch).
+                        if (hashSet.Contains(record.Hash))
+                            continue;
 
-                    // If the hash already exists (in DB or within the same file), skip it.
-                    if (hashSet.Contains(drug.Hash))
-                        continue;
-
-                    drugs.Add(drug);
-                    hashSet.Add(drug.Hash); // Update the hash set to avoid duplicates.
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error importing Drug row {row}: {ex.Message}");
+                        drugs.Add(record);
+                        hashSet.Add(record.Hash); // Prevent duplicates.
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error importing Drug row {row}: {ex.Message}");
+                    }
                 }
             }
 
@@ -694,18 +759,6 @@ namespace Drug.API.Services
             }
         }
 
-        private static int GetIntValue(string value)
-        {
-            return int.TryParse(value, out int result) ? result : 0;
-        }
-        private static string? GetStringValue(string value)
-        {
-            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-        }
-        private static DateTime? GetDateValue(string value)
-        {
-            return DateTime.TryParse(value, out DateTime result) ? result : (DateTime?)null;
-        }
         private static string GenerateHash<T>(T obj)
         {
 
