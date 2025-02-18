@@ -66,7 +66,7 @@ namespace Drug.API.Services
                     using var reader = new StreamReader(filePath);
                     using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
                     {
-                        HasHeaderRecord = false,
+                        HasHeaderRecord = true,
                         HeaderValidated = null,
                         MissingFieldFound = null,
                         BadDataFound = null

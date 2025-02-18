@@ -400,23 +400,23 @@ namespace PharmaTrack.Shared.DBModels
         public string? Hash { get; set; }
 
         [Column("DDInterID_A")]
-        [Index(0)]
+        [Name("DDInterID_A")]
         public string? DrugAID { get; set; }
 
         [Column("DDInterID_B")]
-        [Index(1)]
+        [Name("DDInterID_B")]
         public string? DrugBID { get; set; }
 
         [Column("Drug_A")]
-        [Index(2)]
+        [Name("Drug_A")]
         public string? DrugA { get; set; }
 
         [Column("Drug_B")]
-        [Index(3)]
+        [Name("Drug_B")]
         public string? DrugB { get; set; }
 
         [Column("Level")]
-        [Index(4)]
+        [Name("Level")]
         public string? Level { get; set; }
 
         [Ignore] // Not imported from CSV.
