@@ -18,6 +18,60 @@ namespace Drug.API.Controllers
             _context = context;
         }
 
+
+        [HttpGet("interactions")]
+        public async Task<IActionResult> GetInteractions(string drugCodes)
+        {
+            // Validate that we received input.
+            if (string.IsNullOrWhiteSpace(drugCodes))
+            {
+                return BadRequest("No drug codes provided.");
+            }
+
+            // Split the comma-separated string.
+            var codesArray = drugCodes.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+            // Introduce a maximum limit, e.g., 20 codes.
+            const int MAX_CODES = 20;
+            if (codesArray.Length > MAX_CODES)
+            {
+                return BadRequest($"Too many drug codes provided. Maximum allowed is {MAX_CODES}.");
+            }
+
+            // Parse each code into an integer.
+            var codeList = new List<int>();
+            foreach (var code in codesArray)
+            {
+                if (!int.TryParse(code, out int intCode))
+                {
+                    return BadRequest($"Invalid drug code: {code}");
+                }
+                codeList.Add(intCode);
+            }
+
+            // Retrieve the ingredients for these drug codes.
+            var ingredientNames = await _context.DrugIngredients
+                                    .Where(di => codeList.Contains(di.DrugCode))
+                                    .Select(di => di.Ingredient)
+                                    .ToListAsync();
+
+            // Filter out null/empty values, convert to lower-case, and remove duplicates.
+            var lowerIngredients = ingredientNames
+                                    .Where(ingredient => !string.IsNullOrEmpty(ingredient))
+                                    .Select(ingredient => ingredient!.ToLower())
+                                    .Distinct()
+                                    .ToList();
+
+            // Query the interactions table based on the ingredients.
+            // This example assumes an entity 'DrugInteraction' with properties 'IngredientA' and 'IngredientB'.
+            var interactions = await _context.DrugInteractions
+                                  .Where(i => (i.DrugA != null && lowerIngredients.Contains(i.DrugA.ToLower())) ||
+                                              (i.DrugB != null && lowerIngredients.Contains(i.DrugB.ToLower())))
+                                  .ToListAsync();
+
+            return Ok(interactions);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetDrugs([FromQuery] DrugInfoRequest request, int curPage = 1)
         {

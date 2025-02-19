@@ -17,6 +17,7 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly LoadingControl _loadingControl = new();
         private readonly ScheduleControl _scheduleControl;
         private readonly DrugListControl _drugListControl;
+        private readonly IngredientListControl _ingredientListControl;
         private object _currentContent = default!;
         private bool _isLoggedIn;
         private bool _isUserAdmin = false;
@@ -34,6 +35,7 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ShowUsersCommand { get; }
         public ICommand RetryCommand { get; }
         public ICommand ShowDrugsCommand { get; }
+        public ICommand ShowIngredientsCommand { get; }
 
         public bool IsLoaded
         {
@@ -102,7 +104,8 @@ namespace PharmaTrack.WPF.ViewModels
             TransactionsControl transactionsControl,
             UsersControl usersControl,
             ScheduleControl scheduleControl,
-            DrugListControl drugListControl)
+            DrugListControl drugListControl,
+            IngredientListControl ingredientListControl)
         {
             _authService = authService;
             _loginControl = loginControl;
@@ -130,6 +133,8 @@ namespace PharmaTrack.WPF.ViewModels
             ShowUsersCommand = new RelayCommand(_ => LoadUsers());
             RetryCommand = new RelayCommand(_ => Retry());
             ShowDrugsCommand = new RelayCommand(_ => LoadDrugs());
+            ShowIngredientsCommand = new RelayCommand(_ => LoadIngredients());
+            _ingredientListControl = ingredientListControl;
         }
 
         private async void Retry()
@@ -184,6 +189,11 @@ namespace PharmaTrack.WPF.ViewModels
                     LoadLogin();
                 }
             }
+        }
+
+        private void LoadIngredients()
+        {
+            CurrentContent = _ingredientListControl;
         }
         private void LoadDrugs()
         {

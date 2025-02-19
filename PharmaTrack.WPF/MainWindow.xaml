@@ -69,12 +69,26 @@
                     </MenuItem>
                 </MenuItem>
 
-                <MenuItem Header="Drugs" 
-                          Command="{Binding ShowDrugsCommand}" 
+                <MenuItem Header="Drug Info" 
                           Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                     <MenuItem.Icon>
-                        <bi:BootstrapIcon Icon="CapsulePill" />
+                        <bi:BootstrapIcon Icon="JournalMedical" />
                     </MenuItem.Icon>
+                    <MenuItem Header="Brands" 
+                              Command="{Binding ShowDrugsCommand}" 
+                              Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                        <MenuItem.Icon>
+                            <bi:BootstrapIcon Icon="Prescription2" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="Ingredients" 
+                              Command="{Binding ShowIngredientsCommand}" 
+                              Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                        <MenuItem.Icon>
+                            <bi:BootstrapIcon Icon="CapsulePill" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </MenuItem>
 
                 <MenuItem Header="Users" 

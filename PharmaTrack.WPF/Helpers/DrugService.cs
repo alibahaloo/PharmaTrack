@@ -80,7 +80,7 @@ namespace PharmaTrack.WPF.Helpers
                 System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
-        } 
+        }
 
         public async Task<PagedResponse<DrugProduct>?> GetDrugsAsync(DrugInfoRequest request, int curPage = 1)
         {
@@ -119,6 +119,56 @@ namespace PharmaTrack.WPF.Helpers
                 // Parse the response (deserialize JSON into PagedResponse<Transaction>)
                 var responseData = await response.Content.ReadAsStringAsync();
                 return JsonSerializer.Deserialize<PagedResponse<DrugProduct>>(responseData, new System.Text.Json.JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+
+            // Handle errors
+            throw response.StatusCode switch
+            {
+                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
+            };
+        }
+
+        public async Task<PagedResponse<DrugIngredient>?> GetIngredientsAsync(DrugIngredientRequest request, int curPage = 1)
+        {
+            string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
+
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            // Convert TransactionsRequest to query parameters
+            var queryParameters = new List<string>
+                {
+                    $"curPage={curPage}"
+                };
+            if (request.DrugCode != null)
+            {
+                queryParameters.Add($"DrugCode={Uri.EscapeDataString(request.DrugCode.Value.ToString())}");
+            }
+            if (request.ActiveIngredientCode != null)
+            {
+                queryParameters.Add($"ActiveIngredientCode={Uri.EscapeDataString(request.ActiveIngredientCode.Value.ToString())}");
+            }
+            if (!string.IsNullOrEmpty(request.Ingredient))
+            {
+                queryParameters.Add($"Ingredient={Uri.EscapeDataString(request.Ingredient)}");
+            }
+
+            string queryString = string.Join("&", queryParameters);
+            string requestUrl = $"{_drugsUrl}/Ingredients?{queryString}";
+
+            // Send GET request to the API
+            var response = await _httpClient.GetAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Parse the response (deserialize JSON into PagedResponse<Transaction>)
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<PagedResponse<DrugIngredient>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });

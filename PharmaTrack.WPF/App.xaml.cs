@@ -64,6 +64,7 @@ namespace PharmaTrack.WPF
             services.AddSingleton<CalendarControlViewModel>();
             services.AddSingleton<ScheduleControlViewModel>();
             services.AddSingleton<DrugListViewModel>();
+            services.AddSingleton<IngredientListViewModel>();
 
             // Register Controls
             services.AddSingleton<LoginControl>();
@@ -74,6 +75,7 @@ namespace PharmaTrack.WPF
             services.AddSingleton<CalendarControl>();
             services.AddSingleton<ScheduleControl>();
             services.AddSingleton<DrugListControl>();
+            services.AddSingleton<IngredientListControl>();
 
             services.AddSingleton<ProductControl>();
         }

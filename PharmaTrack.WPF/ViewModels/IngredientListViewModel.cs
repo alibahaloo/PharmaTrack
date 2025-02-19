@@ -9,16 +9,16 @@ using System.Windows.Media;
 
 namespace PharmaTrack.WPF.ViewModels
 {
-    public class DrugListViewModel : INotifyPropertyChanged
+    public class IngredientListViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         private readonly DrugService _drugService;
-        public ObservableCollection<DrugProduct> Drugs { get; set; } = [];
+        public ObservableCollection<DrugIngredient> Ingredients { get; set; } = [];
+
         private string _statusMessage = default!;
         public string StatusMessage
         {
@@ -69,17 +69,18 @@ namespace PharmaTrack.WPF.ViewModels
             get => _statusForeground;
             set { _statusForeground = value; OnPropertyChanged(nameof(StatusForeground)); }
         }
-        private string? _din;
-        public string? DIN
+
+        private int? _activeIngredientCode;
+        public int? ActiveIngredientCode
         {
-            get => _din;
-            set { _din = value; OnPropertyChanged(nameof(DIN)); }
+            get => _activeIngredientCode;
+            set { _activeIngredientCode = value; OnPropertyChanged(nameof(ActiveIngredientCode)); }
         }
-        private string? _brandName;
-        public string? BrandName
+        private string? _ingredient;
+        public string? Ingredient
         {
-            get => _brandName;
-            set { _brandName = value; OnPropertyChanged(nameof(BrandName)); }
+            get => _ingredient;
+            set { _ingredient = value; OnPropertyChanged(nameof(Ingredient)); }
         }
         private int? _drugCode;
         public int? DrugCode
@@ -88,59 +89,51 @@ namespace PharmaTrack.WPF.ViewModels
             set { _drugCode = value; OnPropertyChanged(nameof(DrugCode)); }
         }
 
-        private DrugProduct _selectedDrug = default!;
-        public DrugProduct SelectedDrug
-        {
-            get => _selectedDrug;
-            set
-            {
-                _selectedDrug = value;
-                OnPropertyChanged(nameof(SelectedDrug));
-            }
-        }
-        public ICommand LoadDrugsCommand { get; }
+        public ICommand LoadIngredientsCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
         public ICommand ApplyFiltersCommand { get; }
         public ICommand ResetFiltersCommand { get; }
-        public DrugListViewModel(DrugService drugService)
+
+        public IngredientListViewModel(DrugService drugService)
         {
             _drugService = drugService;
-            LoadDrugsCommand = new AsyncRelayCommand(async _ => await LoadDrugsAsync());
+            LoadIngredientsCommand = new AsyncRelayCommand(async _ => await LoadIngredientsAsync());
             NextPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(1));
             PreviousPageCommand = new AsyncRelayCommand(async _ => await ChangePageAsync(-1));
 
-            ApplyFiltersCommand = new AsyncRelayCommand(async _ => await LoadDrugsAsync());
+            ApplyFiltersCommand = new AsyncRelayCommand(async _ => await LoadIngredientsAsync());
             ResetFiltersCommand = new RelayCommand(_ => ResetFilters());
         }
 
         private async void ResetFilters()
         {
             DrugCode = null;
-            BrandName = null;
-            DIN = null;
-            await LoadDrugsAsync();
+            ActiveIngredientCode = null;
+            Ingredient = null;
+            await LoadIngredientsAsync();
         }
-        public async Task LoadDrugsAsync()
+
+        public async Task LoadIngredientsAsync()
         {
             IsLoading = true;
             try
             {
                 // Create a request with filters from ViewModel properties
-                var request = new DrugInfoRequest
+                var request = new DrugIngredientRequest
                 {
                     DrugCode = DrugCode,
-                    BrandName = BrandName,
-                    DIN = DIN,
+                    ActiveIngredientCode = ActiveIngredientCode,
+                    Ingredient = Ingredient,
                 };
 
-                var response = await _drugService.GetDrugsAsync(request, CurrentPage);
+                var response = await _drugService.GetIngredientsAsync(request, CurrentPage);
                 if (response != null)
                 {
-                    Drugs.Clear();
+                    Ingredients.Clear();
                     foreach (var drug in response.Data)
                     {
-                        Drugs.Add(drug);
+                        Ingredients.Add(drug);
                     }
 
                     CurrentPage = response.CurrentPage;
@@ -170,7 +163,7 @@ namespace PharmaTrack.WPF.ViewModels
             if ((direction == -1 && CurrentPage > 1) || (direction == 1 && CurrentPage < TotalPages))
             {
                 CurrentPage += direction;
-                await LoadDrugsAsync();
+                await LoadIngredientsAsync();
             }
         }
     }
