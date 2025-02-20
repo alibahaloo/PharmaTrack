@@ -4,9 +4,45 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:bi="https://github.com/helluvamatt/BootstrapIcons.Wpf/"
+             xmlns:local="clr-namespace:PharmaTrack.WPF.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel>
+        <!-- Save and Cancel Buttons -->
+        <ToolBarPanel DockPanel.Dock="Top" Background="#FFE8EDF9">
+            <ToolBar ToolBarTray.IsLocked="True">
+                <ToolBar.Items>
+                    <Button FontWeight="Bold"
+                            Height="20"
+                            Command="{Binding SaveCommand}">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal" 
+                                        VerticalAlignment="Center">
+                                <bi:BootstrapIcon Icon="Floppy" />
+                                <TextBlock Text="Save" 
+                                           Margin="5,0,5,0"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button Height="20"
+                            Command="{Binding GoBackCommand}">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                                <bi:BootstrapIcon Icon="XLg"/>
+                                <TextBlock Text="Cancel"
+                                           Margin="5,0,5,0"
+                                           VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+
+                </ToolBar.Items>
+            </ToolBar>
+
+        </ToolBarPanel>
+
         <!-- Status Bar -->
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
@@ -21,31 +57,32 @@
             </StatusBarItem>
         </StatusBar>
         <!-- Product Details Form -->
-        <StackPanel Margin="10">
-            <!-- Title -->
-            <TextBlock Text="Product Details" FontSize="32" Margin="5"></TextBlock>
-            <!-- Product Information -->
-            <StackPanel Orientation="Vertical" Margin="5">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
-                    <TextBlock Text="Quantity:" 
+        <ScrollViewer>
+            <StackPanel Margin="10">
+                <!-- Title -->
+                <TextBlock Text="Product Details" FontSize="32" Margin="5"></TextBlock>
+                <!-- Product Information -->
+                <StackPanel Orientation="Vertical" Margin="5">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
+                        <TextBlock Text="Quantity:" 
                                Width="100"
                                FontWeight="Bold" 
                                VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding Product.Quantity}"  Padding="5" />
-                </StackPanel>
+                        <TextBlock Text="{Binding Product.Quantity}"  Padding="5" />
+                    </StackPanel>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
-                    <TextBlock Text="UPC:"   
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
+                        <TextBlock Text="UPC:"   
                                FontWeight="Bold" 
                                Width="100" 
                                VerticalAlignment="Center"/>
-                    <TextBox Text="{Binding Product.UPC, Mode=TwoWay}" 
+                        <TextBox Text="{Binding Product.UPC, Mode=TwoWay}" 
                              x:Name="UPCInputTextBox"
                              GotFocus="UPCInputTextBox_GotFocus"
                              LostFocus="UPCInputTextBox_LostFocus"
                              Width="300" 
                              Padding="5" />
-                    <Button FontWeight="Regular"
+                        <Button FontWeight="Regular"
                             Margin="5,0,0,0"
                             x:Name="ScanButton"
                             Command="{Binding ScanBarcodeCommand}"
@@ -54,92 +91,58 @@
                             Background="Green"
                             Foreground="White"
                             Click="ScanButton_Click">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal"
+                            <Button.Content>
+                                <StackPanel Orientation="Horizontal"
                                         VerticalAlignment="Center">
-                                <bi:BootstrapIcon Icon="UpcScan"
+                                    <bi:BootstrapIcon Icon="UpcScan"
                                                   Margin="4"
                                                   Foreground="White" />
-                                <TextBlock Text="Scan Barcode"
+                                    <TextBlock Text="Scan Barcode"
                                            VerticalAlignment="Center"
                                            Margin="5"/>
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
+                                </StackPanel>
+                            </Button.Content>
+                        </Button>
 
-                    <TextBlock Text="{Binding ScannerStatusText}"
+                        <TextBlock Text="{Binding ScannerStatusText}"
                                Margin="5,0,0,0"
                                Foreground="{Binding ScannerForeground}"
                                VerticalAlignment="Center" />
-                </StackPanel>
+                    </StackPanel>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
-                    <TextBlock Text="NPN:" FontWeight="Bold" Width="100" VerticalAlignment="Center" />
-                    <TextBox Text="{Binding Product.NPN, Mode=TwoWay}" Width="300" Padding="5" />
-                </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
+                        <TextBlock Text="NPN:" FontWeight="Bold" Width="100" VerticalAlignment="Center" />
+                        <TextBox Text="{Binding Product.NPN, Mode=TwoWay}" Width="300" Padding="5" />
+                    </StackPanel>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
-                    <TextBlock Text="DIN:" FontWeight="Bold" Width="100" VerticalAlignment="Center" />
-                    <TextBox Text="{Binding Product.DIN, Mode=TwoWay}" Width="300" Padding="5" />
-                </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
+                        <TextBlock Text="DIN:" FontWeight="Bold" Width="100" VerticalAlignment="Center" />
+                        <TextBox Text="{Binding Product.DIN, Mode=TwoWay}" Width="300" Padding="5" />
+                    </StackPanel>
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
-                    <TextBlock Text="Brand:" FontWeight="Bold" Width="100" VerticalAlignment="Center" />
-                    <TextBox Text="{Binding Product.Brand, Mode=TwoWay}" Width="300" Padding="5" />
-                </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
+                        <TextBlock Text="Brand:" FontWeight="Bold" Width="100" VerticalAlignment="Center" />
+                        <TextBox Text="{Binding Product.Brand, Mode=TwoWay}" Width="300" Padding="5" />
+                    </StackPanel>
 
-                <!-- Description -->
-                <StackPanel Margin="5">
-                    <TextBlock Text="Product:" FontWeight="Bold" Margin="0,0,0,5" />
-                    <TextBox Text="{Binding Product.Name, Mode=TwoWay}"
+                    <!-- Description -->
+                    <StackPanel Margin="5">
+                        <TextBlock Text="Product:" FontWeight="Bold" Margin="0,0,0,5" />
+                        <TextBox Text="{Binding Product.Name, Mode=TwoWay}"
              AcceptsReturn="True"
              TextWrapping="Wrap"
              MinHeight="80"
              Padding="5" />
+                    </StackPanel>
                 </StackPanel>
+
+                <!-- Drug Info -->
+                <Expander Header="Drug Information"
+                          IsExpanded="{Binding DrugInfoIsExpanded}"
+                          Width="auto" Margin="5">
+                    <local:DrugInfoControl DrugInfo="{Binding DrugInfo}" />
+                </Expander>
             </StackPanel>
-
-            
-
-            <!-- Save and Cancel Buttons -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button FontWeight="Bold"
-                        FontSize="16"
-                        Command="{Binding SaveCommand}"
-                        Background="Blue"
-                        Foreground="White">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <bi:BootstrapIcon Icon="Floppy" 
-                                              Margin="5"
-                                              Foreground="White" />
-                            <TextBlock Text="Save" 
-                                       Margin="5,0,5,0"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-
-                <Button FontWeight="Bold"
-                        Margin="5,0,10,0"
-                        FontSize="16"
-                        Command="{Binding GoBackCommand}"
-                        Background="Gray"
-                        Foreground="White">
-                    <Button.Content>
-                        <StackPanel Orientation="Horizontal"
-                                    VerticalAlignment="Center">
-                            <bi:BootstrapIcon Icon="X"
-                                              Margin="5"
-                                              Foreground="White" />
-                            <TextBlock Text="Cancel"
-                                       Margin="5,0,5,0"
-                                       VerticalAlignment="Center" />
-                        </StackPanel>
-                    </Button.Content>
-                </Button>
-            </StackPanel>
-        </StackPanel>
-
+        </ScrollViewer>
     </DockPanel>
 </UserControl>

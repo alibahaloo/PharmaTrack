@@ -145,7 +145,7 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand ApplyFiltersCommand { get; }
         public ICommand ResetFiltersCommand { get; }
         public ICommand ScanBarcodeCommand { get; }
-        public InventoryViewModel(InventoryService inventoryService)
+        public InventoryViewModel(InventoryService inventoryService, DrugService drugService)
         {
             _inventoryService = inventoryService ?? throw new ArgumentNullException(nameof(inventoryService));
             LoadProductsCommand = new AsyncRelayCommand(async _ => await LoadProductsAsync());
@@ -164,7 +164,7 @@ namespace PharmaTrack.WPF.ViewModels
                     {
                         if (Application.Current.MainWindow.DataContext is MainWindowViewModel mainViewModel)
                         {
-                            var productControl = new ProductControl(SelectedProduct.Id, inventoryService);
+                            var productControl = new ProductControl(SelectedProduct.Id, inventoryService, drugService);
                             mainViewModel.CurrentContent = productControl;
                         }
                     }

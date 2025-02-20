@@ -9,10 +9,10 @@ namespace PharmaTrack.WPF.Controls
     /// </summary>
     public partial class ProductControl : UserControl
     {
-        public ProductControl(int productId, InventoryService inventoryService)
+        public ProductControl(int productId, InventoryService inventoryService, DrugService drugService)
         {
             InitializeComponent();
-            DataContext = new ProductViewModel(productId, inventoryService);
+            DataContext = new ProductViewModel(productId, inventoryService, drugService);
         }
 
         private void UPCInputTextBox_GotFocus(object sender, System.Windows.RoutedEventArgs e)

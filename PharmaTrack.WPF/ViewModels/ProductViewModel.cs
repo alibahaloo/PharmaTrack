@@ -1,4 +1,5 @@
-﻿using PharmaTrack.Shared.DBModels;
+﻿using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Helpers;
 using PharmaTrack.WPF.ViewModels;
 using System.ComponentModel;
@@ -10,7 +11,7 @@ using System.Windows.Media;
 public class ProductViewModel : INotifyPropertyChanged
 {
     private readonly InventoryService _inventoryService;
-
+    private readonly DrugService _drugService;
     public event PropertyChangedEventHandler? PropertyChanged;
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -66,12 +67,33 @@ public class ProductViewModel : INotifyPropertyChanged
         get => _statusForeground;
         set { _statusForeground = value; OnPropertyChanged(); }
     }
+    private DrugInfoDto? _drugInfo;
+    public DrugInfoDto? DrugInfo
+    {
+        get => _drugInfo;
+        set
+        {
+            _drugInfo = value;
+            OnPropertyChanged(nameof(DrugInfo));
+        }
+    }
+    private bool _drugInfoIsExpanded;
+    public bool DrugInfoIsExpanded
+    {
+        get => _drugInfoIsExpanded;
+        set
+        {
+            _drugInfoIsExpanded = value;
+            OnPropertyChanged(nameof(DrugInfoIsExpanded));
+        }
+    }
     public ICommand GoBackCommand { get; }
     public ICommand SaveCommand { get; }
     public ICommand ScanBarcodeCommand { get; }
-    public ProductViewModel(int productId, InventoryService inventoryService)
+    public ProductViewModel(int productId, InventoryService inventoryService, DrugService drugService)
     {
         _inventoryService = inventoryService;
+        _drugService = drugService;
         GoBackCommand = new RelayCommand(_ => GoBackToInventory());
         SaveCommand = new AsyncRelayCommand(async _ => await SaveProductAsync());
         ScanBarcodeCommand = new RelayCommand(ExecuteScanBarcodeCommand);
@@ -89,10 +111,16 @@ public class ProductViewModel : INotifyPropertyChanged
     private async void LoadProductAsync(int productId)
     {
         IsLoading = true;
+        DrugInfoIsExpanded = false;
         try
         {
-            await Task.Delay(500);
             Product = await _inventoryService.GetProductByIdAsync(productId) ?? new Product();
+
+            if (!string.IsNullOrEmpty(Product.DIN))
+            {
+                DrugInfo = await _drugService.GetDrugInfoByDINAsync(Product.DIN);
+                if (DrugInfo != null) DrugInfoIsExpanded = true;
+            }
 
             StatusText = "Product Loaded Successfully!";
             StatusForeground = Brushes.Green;
