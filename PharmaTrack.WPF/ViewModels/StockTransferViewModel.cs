@@ -1,7 +1,6 @@
 ﻿using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Helpers;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -249,17 +248,6 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
-        public ObservableCollection<DrugIngredient> Ingredients { get; } = [];
-        public ObservableCollection<DrugCompany> Companies { get; } = [];
-        public ObservableCollection<DrugStatus> Statuses { get; } = [];
-        public ObservableCollection<DrugForm> Forms { get; } = [];
-        public ObservableCollection<DrugPackaging> Packagings { get; } = [];
-        public ObservableCollection<DrugPharmaceuticalStd> PharmaceuticalStds { get; } = [];
-        public ObservableCollection<DrugRoute> Routes { get; } = [];
-        public ObservableCollection<DrugSchedule> Schedules { get; } = [];
-        public ObservableCollection<DrugTherapeuticClass> TherapeuticClasses { get; } = [];
-        public ObservableCollection<DrugVeterinarySpecies> VeterinarySpecies { get; } = [];
-
         public ICommand ScanBarcodeCommand { get; }
         public ICommand SubmitCommand { get; }
         public ICommand LookupCommand { get; }
@@ -294,16 +282,7 @@ namespace PharmaTrack.WPF.ViewModels
             Brand = string.Empty;
             LookupStatusText = string.Empty;
 
-            Ingredients.Clear();
-            Companies.Clear();
-            Statuses.Clear();
-            Forms.Clear();
-            Packagings.Clear();
-            PharmaceuticalStds.Clear();
-            Routes.Clear();
-            Schedules.Clear();
-            TherapeuticClasses.Clear();
-            VeterinarySpecies.Clear();
+            DrugInfo = null;
 
             DrugInfoIsExpanded = false;
 
@@ -339,7 +318,6 @@ namespace PharmaTrack.WPF.ViewModels
                 if (drugInfo != null)
                 {
                     DrugInfo = drugInfo;
-                    UpdateCollections(drugInfo);
 
                     Brand = DrugInfo.Product?.BrandName ?? string.Empty;
                     ProductDescription = Brand;
@@ -366,38 +344,6 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 IsLoading = false;
             }
-        }
-        private void UpdateCollections(DrugInfoDto drugInfo)
-        {
-            Ingredients.Clear();
-            foreach (var item in drugInfo.Ingredients) Ingredients.Add(item);
-
-            Companies.Clear();
-            foreach (var item in drugInfo.Companies) Companies.Add(item);
-
-            Statuses.Clear();
-            foreach (var item in drugInfo.Statuses) Statuses.Add(item);
-
-            Forms.Clear();
-            foreach (var item in drugInfo.Forms) Forms.Add(item);
-
-            Packagings.Clear();
-            foreach (var item in drugInfo.Packagings) Packagings.Add(item);
-
-            PharmaceuticalStds.Clear();
-            foreach (var item in drugInfo.PharmaceuticalStds) PharmaceuticalStds.Add(item);
-
-            Routes.Clear();
-            foreach (var item in drugInfo.Routes) Routes.Add(item);
-
-            Schedules.Clear();
-            foreach (var item in drugInfo.Schedules) Schedules.Add(item);
-
-            TherapeuticClasses.Clear();
-            foreach (var item in drugInfo.TherapeuticClasses) TherapeuticClasses.Add(item);
-
-            VeterinarySpecies.Clear();
-            foreach (var item in drugInfo.VeterinarySpecies) VeterinarySpecies.Add(item);
         }
 
         private async void ExecuteLookupCommand(object? parameter)
