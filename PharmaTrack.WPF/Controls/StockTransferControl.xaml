@@ -151,7 +151,7 @@
                 <Expander Header="Drug Information"
                           IsExpanded="{Binding DrugInfoIsExpanded}"
                           Width="auto" Margin="5">
-                    <local:DrugInfoUserControl DrugInfo="{Binding DrugInfo}" />
+                    <local:DrugInfoControl DrugInfo="{Binding DrugInfo}" />
                 </Expander>
 
                 <!-- Additional Input Fields -->

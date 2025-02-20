@@ -6,9 +6,9 @@ namespace PharmaTrack.WPF.Controls
     /// <summary>
     /// Interaction logic for DrugInfoUserControl.xaml
     /// </summary>
-    public partial class DrugInfoUserControl : UserControl
+    public partial class DrugInfoControl : UserControl
     {
-        public DrugInfoUserControl()
+        public DrugInfoControl()
         {
             InitializeComponent();
         }
@@ -21,6 +21,6 @@ namespace PharmaTrack.WPF.Controls
         }
 
         public static readonly DependencyProperty DrugInfoProperty =
-            DependencyProperty.Register("DrugInfo", typeof(object), typeof(DrugInfoUserControl), new PropertyMetadata(null));
+            DependencyProperty.Register("DrugInfo", typeof(object), typeof(DrugInfoControl), new PropertyMetadata(null));
     }
 }
