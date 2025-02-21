@@ -141,8 +141,9 @@
                             </Button>
 
                             <TextBlock Text="{Binding DrugLookupStatusText}"
-                                   Foreground="{Binding DrugLookupForeground}"
-                                   VerticalAlignment="Center" />
+                                       Foreground="{Binding DrugLookupForeground}"
+                                       Margin="5,0,0,0"
+                                       VerticalAlignment="Center" />
                         </StackPanel>
                     </StackPanel>
 
