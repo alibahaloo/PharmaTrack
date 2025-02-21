@@ -10,6 +10,41 @@
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel>
+        <!-- Save and Cancel Buttons -->
+        <ToolBarPanel DockPanel.Dock="Top" Background="#FFE8EDF9">
+            <ToolBar ToolBarTray.IsLocked="True">
+                <ToolBar.Items>
+                    <Button FontWeight="Bold"
+                            Height="20"
+                            Command="{Binding SubmitCommand}"
+                            IsEnabled="{Binding SubmitButtonEnabled}">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal" 
+                                 VerticalAlignment="Center">
+                                <bi:BootstrapIcon Icon="CheckLg" />
+                                <TextBlock Text="Submit" 
+                                    Margin="5,0,5,0"
+                                    VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+                    <Button Height="20"
+                     Command="{Binding ClearCommand}">
+                        <Button.Content>
+                            <StackPanel Orientation="Horizontal"
+                             VerticalAlignment="Center">
+                                <bi:BootstrapIcon Icon="Eraser"/>
+                                <TextBlock Text="Clear"
+                                    Margin="5,0,5,0"
+                                    VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button.Content>
+                    </Button>
+
+                </ToolBar.Items>
+            </ToolBar>
+
+        </ToolBarPanel>
         <!-- Status Bar -->
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
@@ -230,57 +265,6 @@
                             </RadioButton>
                         </StackPanel>
                     </StackPanel>
-                </StackPanel>
-
-                <!-- Submit Button -->
-                <StackPanel Orientation="Horizontal">
-                    <Button 
-                FontWeight="Bold" 
-                FontSize="16"
-                Command="{Binding SubmitCommand}"
-                IsEnabled="{Binding SubmitButtonEnabled}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Background="Blue"
-                Foreground="White"
-                Margin="5"
-                Padding="5">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <bi:BootstrapIcon Icon="CheckLg"
-                                      Margin="5"
-                                      Width="20"
-                                      Height="20"
-                                      Foreground="White" />
-                                <TextBlock Text="Submit Stock Transfer" 
-                               VerticalAlignment="Center"
-                               Margin="5"/>
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
-                    <Button 
-            FontWeight="Bold" 
-            FontSize="16"
-            Command="{Binding ClearCommand}"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Background="Gray"
-            Foreground="White"
-            Margin="5"
-            Padding="5">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <bi:BootstrapIcon Icon="Eraser"
-                      Margin="5"
-                      Width="20"
-                      Height="20"
-                      Foreground="White" />
-                                <TextBlock Text="Clear" 
-                               VerticalAlignment="Center"
-                               Margin="5"/>
-                            </StackPanel>
-                        </Button.Content>
-                    </Button>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

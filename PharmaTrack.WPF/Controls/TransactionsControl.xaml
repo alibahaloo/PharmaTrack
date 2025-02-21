@@ -172,9 +172,9 @@ Click="ScanButton_Click">
                     <DataGridTextColumn Header="UPC" Binding="{Binding Product.UPC}"/>
                     <DataGridTextColumn Header="Product" Binding="{Binding Product.Name}" Width="*"/>
                     <DataGridTextColumn Header="Brand" Binding="{Binding Product.Brand}"/>
-                    <DataGridTextColumn Header="#" Binding="{Binding Quantity}" Width="auto"/>
-                    <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" Width="auto"/>
-                    <DataGridTextColumn Header="Created By" Binding="{Binding CreatedBy}" Width="auto"/>
+                    <DataGridTextColumn Header="#" Binding="{Binding Quantity}" />
+                    <DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" />
+                    <DataGridTextColumn Header="Created By" Binding="{Binding CreatedBy}" />
                 </DataGrid.Columns>
             </DataGrid>
 
