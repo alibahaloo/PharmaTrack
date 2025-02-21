@@ -117,8 +117,35 @@
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
                         <TextBlock Text="DIN:" FontWeight="Bold" Width="100" VerticalAlignment="Center" />
-                        <TextBox Text="{Binding Product.DIN, Mode=TwoWay}" Width="300" Padding="5" />
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <TextBox Text="{Binding Product.DIN, UpdateSourceTrigger=PropertyChanged}"
+                                     Padding="5"
+                                     Width="300"/>
+
+                            <Button HorizontalAlignment="Center"
+                                IsEnabled="{Binding IsDrugLookupEnabled}"
+                                Command="{Binding LookupDrugCommand}"
+                                VerticalAlignment="Bottom"
+                                Background="Green"
+                                Foreground="White"
+                                Margin="5,0,0,0">
+                                <Button.Content>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <bi:BootstrapIcon Icon="CapsulePill" 
+                                                          Margin="5"
+                                                          Foreground="White" />
+                                        <TextBlock Text="Lookup DIN"
+                                               Margin="5"/>
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
+
+                            <TextBlock Text="{Binding DrugLookupStatusText}"
+                                   Foreground="{Binding DrugLookupForeground}"
+                                   VerticalAlignment="Center" />
+                        </StackPanel>
                     </StackPanel>
+
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="5">
                         <TextBlock Text="Brand:" FontWeight="Bold" Width="100" VerticalAlignment="Center" />

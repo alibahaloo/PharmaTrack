@@ -3,6 +3,8 @@ using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Helpers;
 using PharmaTrack.WPF.ViewModels;
 using System.ComponentModel;
+using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
@@ -87,9 +89,32 @@ public class ProductViewModel : INotifyPropertyChanged
             OnPropertyChanged(nameof(DrugInfoIsExpanded));
         }
     }
+    private string _drugLookupStatusText = default!;
+    public string DrugLookupStatusText
+    {
+        get => _drugLookupStatusText;
+        set
+        {
+            _drugLookupStatusText = value;
+            OnPropertyChanged(nameof(DrugLookupStatusText));
+        }
+    }
+
+    private Brush _drugLookupForeground = default!;
+    public Brush DrugLookupForeground
+    {
+        get => _drugLookupForeground;
+        set
+        {
+            _drugLookupForeground = value;
+            OnPropertyChanged(nameof(DrugLookupForeground));
+        }
+    }
     public ICommand GoBackCommand { get; }
     public ICommand SaveCommand { get; }
     public ICommand ScanBarcodeCommand { get; }
+    public ICommand LookupDrugCommand { get; }
+
     public ProductViewModel(int productId, InventoryService inventoryService, DrugService drugService)
     {
         _inventoryService = inventoryService;
@@ -97,6 +122,7 @@ public class ProductViewModel : INotifyPropertyChanged
         GoBackCommand = new RelayCommand(_ => GoBackToInventory());
         SaveCommand = new AsyncRelayCommand(async _ => await SaveProductAsync());
         ScanBarcodeCommand = new RelayCommand(ExecuteScanBarcodeCommand);
+        LookupDrugCommand = new RelayCommand(ExecuteLookupDrugCommand);
         LoadProductAsync(productId);
     }
 
@@ -107,6 +133,46 @@ public class ProductViewModel : INotifyPropertyChanged
         ScannerForeground = Brushes.Green;
         //ScanBarcodeBtnEnabled = false;
     }
+
+    private async void ExecuteLookupDrugCommand(object? parameter)
+    {
+        if (string.IsNullOrWhiteSpace(Product.DIN))
+            return;
+
+        IsLoading = true;
+        try
+        {
+            DrugInfoDto? drugInfo = await _drugService.GetDrugInfoByDINAsync(Product.DIN);
+            if (drugInfo != null)
+            {
+                DrugInfo = drugInfo;
+
+                Product.Brand = DrugInfo.Product?.BrandName ?? string.Empty;
+
+                DrugInfoIsExpanded = true;
+
+                DrugLookupStatusText = "Drug Information Found";
+                DrugLookupForeground = Brushes.Green;
+            }
+            else
+            {
+                DrugLookupStatusText = "Drug Information Not Found!";
+                DrugLookupForeground = Brushes.Red;
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle error
+            DrugLookupStatusText = ex.Message;
+            DrugLookupForeground = Brushes.Red;
+            DrugInfoIsExpanded = false;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
 
     private async void LoadProductAsync(int productId)
     {
