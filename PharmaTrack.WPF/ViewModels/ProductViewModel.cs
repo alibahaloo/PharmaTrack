@@ -134,7 +134,7 @@ public class ProductViewModel : INotifyPropertyChanged
         //ScanBarcodeBtnEnabled = false;
     }
 
-    private async void ExecuteLookupDrugCommand(object? parameter)
+    private async void ExecuteLookupDrugCommand(object? parameter = null)
     {
         if (string.IsNullOrWhiteSpace(Product.DIN))
             return;
@@ -142,22 +142,22 @@ public class ProductViewModel : INotifyPropertyChanged
         IsLoading = true;
         try
         {
-            DrugInfoDto? drugInfo = await _drugService.GetDrugInfoByDINAsync(Product.DIN);
-            if (drugInfo != null)
+            DrugInfo = await _drugService.GetDrugInfoByDINAsync(Product.DIN);
+            if (DrugInfo != null)
             {
-                DrugInfo = drugInfo;
-
                 Product.Brand = DrugInfo.Product?.BrandName ?? string.Empty;
-
-                DrugInfoIsExpanded = true;
 
                 DrugLookupStatusText = "Drug Information Found";
                 DrugLookupForeground = Brushes.Green;
+
+                DrugInfoIsExpanded = true;
             }
             else
             {
                 DrugLookupStatusText = "Drug Information Not Found!";
                 DrugLookupForeground = Brushes.Red;
+
+                DrugInfoIsExpanded = false;
             }
         }
         catch (Exception ex)
@@ -182,11 +182,7 @@ public class ProductViewModel : INotifyPropertyChanged
         {
             Product = await _inventoryService.GetProductByIdAsync(productId) ?? new Product();
 
-            if (!string.IsNullOrEmpty(Product.DIN))
-            {
-                DrugInfo = await _drugService.GetDrugInfoByDINAsync(Product.DIN);
-                if (DrugInfo != null) DrugInfoIsExpanded = true;
-            }
+            ExecuteLookupDrugCommand();
 
             StatusText = "Product Loaded Successfully!";
             StatusForeground = Brushes.Green;

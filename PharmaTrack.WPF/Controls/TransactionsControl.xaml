@@ -34,25 +34,29 @@
                            Margin="5,0,5,0" 
                            VerticalAlignment="Center" 
                            FontWeight="Bold"/>
+                <Button Margin="5,0,0,0"        
+Command="{Binding ScanBarcodeCommand}"
+ToolTip="Scan Barcode"
+Click="ScanButton_Click">
+                    <Button.Content>
+                        <bi:BootstrapIcon Icon="UpcScan" />
+                    </Button.Content>
+                </Button>
                 <TextBox Width="100" 
-         x:Name="UPCInputTextBox"
-         GotFocus="UPCInputTextBox_GotFocus"
-         LostFocus="UPCInputTextBox_LostFocus"
-         Text="{Binding UPC, UpdateSourceTrigger=PropertyChanged}"
-         VerticalContentAlignment="Center">
+                         x:Name="UPCInputTextBox"
+                         GotFocus="UPCInputTextBox_GotFocus"
+                         LostFocus="UPCInputTextBox_LostFocus"
+                         Text="{Binding UPC, UpdateSourceTrigger=PropertyChanged}"
+                         VerticalContentAlignment="Center">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding ApplyFiltersCommand}" />
+                    </TextBox.InputBindings>
                     <i:Interaction.Behaviors>
                         <behaviors:FocusBehavior IsFocused="{Binding IsUPCInputFocused}" />
                     </i:Interaction.Behaviors>
                 </TextBox>
 
-                <Button Margin="5,0,0,0"        
-        Command="{Binding ScanBarcodeCommand}"
-        ToolTip="Scan Barcode"
-        Click="ScanButton_Click">
-                    <Button.Content>
-                        <bi:BootstrapIcon Icon="UpcScan" />
-                    </Button.Content>
-                </Button>
+                
 
                 <TextBlock Text="{Binding ScannerStatusText}"
            Margin="5,0,0,0"

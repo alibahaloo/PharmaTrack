@@ -12,7 +12,11 @@ namespace PharmaTrack.WPF.Controls
         {
             InitializeComponent();
             DataContext = viewModel;
-            Loaded += async (_, _) => await viewModel.ViewModelLoaded();
+            Loaded += async (_, _) =>
+            {
+                await viewModel.ViewModelLoaded();
+                UPCInputTextBox.Focus();
+            };
         }
 
         private void UPCInputTextBox_GotFocus(object sender, System.Windows.RoutedEventArgs e)

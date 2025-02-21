@@ -1,4 +1,5 @@
 ﻿using PharmaTrack.WPF.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace PharmaTrack.WPF.Controls
@@ -12,7 +13,10 @@ namespace PharmaTrack.WPF.Controls
         {
             InitializeComponent();
             DataContext = viewModel;
-            Loaded += async (_, _) => await viewModel.LoadProductsAsync();
+            Loaded += async (_, _) => { 
+                await viewModel.LoadProductsAsync();
+                UPCInputTextBox.Focus();
+            };
         }
 
         private void DataGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)

@@ -171,7 +171,7 @@ namespace PharmaTrack.WPF.ViewModels
                 },
                 param => SelectedProduct != null);
         }
-        private void ExecuteScanBarcodeCommand(object? parameter)
+        public void ExecuteScanBarcodeCommand(object? parameter)
         {
             UPC = string.Empty;
             ScannerStatusText = "Ready to Scan";
