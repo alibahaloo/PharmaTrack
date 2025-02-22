@@ -74,7 +74,7 @@
                     <MenuItem.Icon>
                         <bi:BootstrapIcon Icon="JournalMedical" />
                     </MenuItem.Icon>
-                    <MenuItem Header="Brands" 
+                    <MenuItem Header="Drug Brands" 
                               Command="{Binding ShowDrugsCommand}" 
                               Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                         <MenuItem.Icon>
@@ -90,7 +90,29 @@
                         </MenuItem.Icon>
                     </MenuItem>
                 </MenuItem>
-
+                
+                <MenuItem Header="Interactions"
+                          Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                    <MenuItem.Icon>
+                        <bi:BootstrapIcon Icon="Activity" />
+                    </MenuItem.Icon>
+                    <MenuItem Header="By Drug Brand" 
+                              Command="{Binding ShowDrugInteractionCommand}" 
+                              Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                        <MenuItem.Icon>
+                            <bi:BootstrapIcon Icon="Prescription2" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="By Ingredient" 
+                              Command="" 
+                              Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
+                        <MenuItem.Icon>
+                            <bi:BootstrapIcon Icon="CapsulePill" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </MenuItem>
+                
                 <MenuItem Header="Users" 
                           Command="{Binding ShowUsersCommand}" 
                           Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">

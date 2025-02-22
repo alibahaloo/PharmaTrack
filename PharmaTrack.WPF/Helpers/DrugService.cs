@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Shared.DTOs;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -19,6 +19,43 @@ namespace PharmaTrack.WPF.Helpers
             // Safely handle null or empty configuration value
             _drugsUrl = configuration["DrugsUrls:Drugs"]
                         ?? throw new ArgumentException("Drugs URL is not configured in the application settings.", nameof(configuration));
+        }
+
+        public async Task<List<DrugListDto>?> GetDrugList(string startWith)
+        {
+            string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
+
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            string requestUrl = $"{_drugsUrl}/lists/drugs?startWith={startWith}";
+
+            // Send GET request to the API
+            var response = await _httpClient.GetAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Deserialize JSON into a DrugInfoDto object
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<DrugListDto>>(
+                    responseData,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+            }
+
+            // If the resource was not found, return null
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            // For other error statuses, throw an exception
+            throw response.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
+            };
         }
 
         public async Task<DrugInfoDto?> GetDrugInfoByDINAsync(string DIN)
@@ -53,7 +90,7 @@ namespace PharmaTrack.WPF.Helpers
             // For other error statuses, throw an exception
             throw response.StatusCode switch
             {
-                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
                 _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
             };
         }
@@ -90,7 +127,7 @@ namespace PharmaTrack.WPF.Helpers
             // For other error statuses, throw an exception
             throw response.StatusCode switch
             {
-                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
                 _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
             };
         }
@@ -146,7 +183,7 @@ namespace PharmaTrack.WPF.Helpers
             // Handle errors
             throw response.StatusCode switch
             {
-                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
@@ -202,7 +239,7 @@ namespace PharmaTrack.WPF.Helpers
             // Handle errors
             throw response.StatusCode switch
             {
-                System.Net.HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
                 _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
             };
         }

@@ -18,6 +18,7 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly ScheduleControl _scheduleControl;
         private readonly DrugListControl _drugListControl;
         private readonly IngredientListControl _ingredientListControl;
+        private readonly DrugInteractionControl _drugInteractionControl;
         private object _currentContent = default!;
         private bool _isLoggedIn;
         private bool _isUserAdmin = false;
@@ -36,6 +37,7 @@ namespace PharmaTrack.WPF.ViewModels
         public ICommand RetryCommand { get; }
         public ICommand ShowDrugsCommand { get; }
         public ICommand ShowIngredientsCommand { get; }
+        public ICommand ShowDrugInteractionCommand { get; }
 
         public bool IsLoaded
         {
@@ -105,7 +107,8 @@ namespace PharmaTrack.WPF.ViewModels
             UsersControl usersControl,
             ScheduleControl scheduleControl,
             DrugListControl drugListControl,
-            IngredientListControl ingredientListControl)
+            IngredientListControl ingredientListControl,
+            DrugInteractionControl drugInteractionControl)
         {
             _authService = authService;
             _loginControl = loginControl;
@@ -116,6 +119,8 @@ namespace PharmaTrack.WPF.ViewModels
             _usersControl = usersControl;
             _scheduleControl = scheduleControl;
             _drugListControl = drugListControl;
+            _drugInteractionControl = drugInteractionControl;
+            _ingredientListControl = ingredientListControl;
 
             // Subscribe to LoginViewModel's LoginSuccessful event
             if (_loginControl.DataContext is LoginViewModel loginViewModel)
@@ -134,7 +139,7 @@ namespace PharmaTrack.WPF.ViewModels
             RetryCommand = new RelayCommand(_ => Retry());
             ShowDrugsCommand = new RelayCommand(_ => LoadDrugs());
             ShowIngredientsCommand = new RelayCommand(_ => LoadIngredients());
-            _ingredientListControl = ingredientListControl;
+            ShowDrugInteractionCommand = new RelayCommand(_ => LoadDrugInteractions());
         }
 
         private async void Retry()
@@ -189,6 +194,11 @@ namespace PharmaTrack.WPF.ViewModels
                     LoadLogin();
                 }
             }
+        }
+
+        private void LoadDrugInteractions()
+        {
+            CurrentContent = _drugInteractionControl;
         }
 
         private void LoadIngredients()
