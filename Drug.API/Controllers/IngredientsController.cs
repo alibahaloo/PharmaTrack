@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Shared.DTOs;
 using PharmaTrack.Shared.Services;
 
 namespace Drug.API.Controllers
@@ -16,6 +17,21 @@ namespace Drug.API.Controllers
         public IngredientsController(DrugDBContext context)
         {
             _context = context;
+        }
+
+        [HttpGet("list")]
+        public async Task<IActionResult> GetDrugsList(string startWith)
+        {
+            var list = await _context.DrugIngredients
+                .Where(u => u.Ingredient != null && u.Ingredient.StartsWith(startWith))
+                .Select(u => new IngredientListDto
+                {
+                    Id = u.Id,
+                    Ingredient = u.Ingredient
+                }).Distinct()
+                .Take(10)
+                .ToListAsync();
+            return Ok(list);
         }
 
         [HttpGet("drugCode/{drugCode}")]
