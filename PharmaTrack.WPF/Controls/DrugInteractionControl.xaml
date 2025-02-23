@@ -25,6 +25,7 @@
                           Width="300"/>
 
                 <Button Margin="5,0,0,0"
+                        Command="{Binding AddSelectedDrug}"
                         ToolTip="Add">
                     <Button.Content>
                         <bi:BootstrapIcon Icon="Plus" />

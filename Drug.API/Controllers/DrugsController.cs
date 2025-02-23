@@ -27,6 +27,7 @@ namespace Drug.API.Controllers
                 .Select(u => new DrugListDto
                 {
                     Id = u.Id,
+                    DrugCode = u.DrugCode,
                     BrandName = u.BrandName
                 })
                 .Distinct()

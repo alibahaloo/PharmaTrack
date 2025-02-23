@@ -3,6 +3,7 @@ using PharmaTrack.Shared.DTOs;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows.Input;
 
 namespace PharmaTrack.WPF.ViewModels
 {
@@ -14,6 +15,7 @@ namespace PharmaTrack.WPF.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         public ObservableCollection<DrugListDto> DrugList { get; set; } = [];
+        public ObservableCollection<DrugProduct> SelectedDrugs { get; set; } = [];
         private string _searchText = string.Empty;
         public string SearchText
         {
@@ -70,9 +72,17 @@ namespace PharmaTrack.WPF.ViewModels
         }
 
         private readonly DrugService _drugService;
+        public ICommand AddSelectedDrug { get; }
         public DrugInteractionViewModel(DrugService drugService)
         {
             _drugService = drugService;
+            AddSelectedDrug = new RelayCommand(ExecuteAddSelectedDrug);
+        }
+
+        private async void ExecuteAddSelectedDrug(object? parameter)
+        {
+            if (SelectedDrug?.DrugCode == null) return;
+            var drugProduct = await _drugService.GetDrugInfoByCodeAsync(SelectedDrug.DrugCode);
         }
 
         public async void LoadDrugListAsync(string? startWith = null)
