@@ -14,7 +14,7 @@ namespace PharmaTrack.WPF.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         public ObservableCollection<DrugListDto> DrugList { get; set; } = [];
-        private string _searchText = default!;
+        private string _searchText = string.Empty;
         public string SearchText
         {
             get => _searchText;
@@ -24,23 +24,36 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     _searchText = value;
                     OnPropertyChanged(nameof(SearchText));
-                    LoadDrugListAsync(SearchText);
+                    // Only call API if the user is typing; not when updating from selection.
+                    if (!_suppressSearch)
+                        LoadDrugListAsync(SearchText);
                 }
             }
         }
-        private int _selectedItemId;
-        public int SelectedItemId
+
+        // Flag to avoid triggering search when updating text from selection.
+        private bool _suppressSearch = false;
+
+        private DrugListDto? _selectedDrug;
+        public DrugListDto? SelectedDrug
         {
-            get => _selectedItemId;
+            get => _selectedDrug;
             set
             {
-                if (_selectedItemId != value)
+                if (_selectedDrug != value)
                 {
-                    _selectedItemId = value;
-                    OnPropertyChanged(nameof(SelectedItemId));
+                    _selectedDrug = value;
+                    OnPropertyChanged(nameof(SelectedDrug));
+                    // When an item is selected, update the text accordingly.
+                    _suppressSearch = true;
+                    SearchText = _selectedDrug?.BrandName ?? string.Empty;
+                    _suppressSearch = false;
                 }
             }
         }
+
+        // If you need the selected item's ID separately.
+        public int SelectedItemId => SelectedDrug?.Id ?? 0;
 
         private bool _isDropdownOpen;
         public bool IsDropdownOpen
