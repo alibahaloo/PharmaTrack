@@ -1,4 +1,4 @@
-﻿using PharmaTrack.Shared.APIModels;
+﻿using PharmaTrack.Shared.DTOs;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Shared.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;

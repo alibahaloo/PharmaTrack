@@ -1,5 +1,5 @@
-﻿using PharmaTrack.Shared.APIModels;
-using PharmaTrack.Shared.DBModels;
+﻿using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Shared.DTOs;
 using PharmaTrack.WPF.Helpers;
 using PharmaTrack.WPF.ViewModels;
 using System.ComponentModel;

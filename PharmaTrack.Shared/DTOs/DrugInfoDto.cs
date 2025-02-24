@@ -1,6 +1,6 @@
 ﻿using PharmaTrack.Shared.DBModels;
 
-namespace PharmaTrack.Shared.APIModels
+namespace PharmaTrack.Shared.DTOs
 {
     public class DrugInfoDto
     {

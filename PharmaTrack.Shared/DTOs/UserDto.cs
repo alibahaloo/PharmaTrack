@@ -1,4 +1,4 @@
-﻿namespace PharmaTrack.Shared.APIModels
+﻿namespace PharmaTrack.Shared.DTOs
 {
     public class UserDto
     {

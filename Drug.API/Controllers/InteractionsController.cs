@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Shared.DTOs;
 
 namespace Drug.API.Controllers
 {
@@ -46,18 +47,24 @@ namespace Drug.API.Controllers
                 codeList.Add(intCode);
             }
 
-            // Retrieve the ingredients for these drug codes.
-            var ingredientNames = await _context.DrugIngredients
-                                    .Where(di => codeList.Contains(di.DrugCode))
-                                    .Select(di => di.Ingredient)
-                                    .ToListAsync();
+            // Retrieve all ingredient names for the provided drug codes.
+            var allIngredientsData = await _context.DrugIngredients
+                .Where(di => codeList.Contains(di.DrugCode))
+                .Select(di => new { di.DrugCode, di.Ingredient })
+                .ToListAsync();
 
-            // Filter out null/empty values, convert to lower-case, and remove duplicates.
-            var lowerIngredients = ingredientNames
-                                    .Where(ingredient => !string.IsNullOrWhiteSpace(ingredient))
-                                    .Select(ingredient => ingredient!.ToLower())
-                                    .Distinct()
-                                    .ToList();
+            // Prepare the list of ingredients (lower-cased, distinct) for interactions.
+            var lowerIngredients = allIngredientsData
+                .Where(x => !string.IsNullOrWhiteSpace(x.Ingredient))
+                .Select(x => x.Ingredient!.ToLower())
+                .Distinct()
+                .ToList();
+
+            // Retrieve drug names for these drug codes.
+            var drugsInfo = await _context.Drugs
+                .Where(d => codeList.Contains(d.DrugCode))
+                .Select(d => new { d.DrugCode, d.BrandName })
+                .ToListAsync();
 
             // Prepare a list to hold the interactions.
             List<DrugInteraction> interactions = [];
@@ -65,7 +72,7 @@ namespace Drug.API.Controllers
             if (lowerIngredients.Count == 0)
             {
                 // No valid ingredients found.
-                return Ok(interactions);
+                interactions = [];
             }
             else if (lowerIngredients.Count == 1)
             {
@@ -109,10 +116,62 @@ namespace Drug.API.Controllers
                         }
                     }
                 }
-                interactions = interactionSet.ToList();
+                interactions = [.. interactionSet];
             }
 
-            return Ok(interactions);
+            // Build the first part of the result: group drugs with their ingredients.
+            var drugsDto = allIngredientsData
+                .GroupBy(x => x.DrugCode)
+                .Select(g => new DrugIngredientsDto
+                {
+                    DrugCode = g.Key,
+                    DrugName = drugsInfo.FirstOrDefault(di => di.DrugCode == g.Key)?.BrandName,
+                    Ingredients = g.Where(x => !string.IsNullOrWhiteSpace(x.Ingredient))
+                                   .Select(x => x.Ingredient!.ToLower())
+                                   .Distinct()
+                                   .Select(ing => new IngredientDto { Ingredient = ing })
+                                   .ToList()
+                })
+                .ToList();
+
+            // Create a set of ingredients that are involved in an interaction.
+            var interactionIngredients = new HashSet<string>();
+            foreach (var inter in interactions)
+            {
+                if (!string.IsNullOrWhiteSpace(inter.DrugA))
+                {
+                    interactionIngredients.Add(inter.DrugA.ToLower());
+                }
+                if (!string.IsNullOrWhiteSpace(inter.DrugB))
+                {
+                    interactionIngredients.Add(inter.DrugB.ToLower());
+                }
+            }
+
+            // For each drug's ingredient, mark if it has an interaction.
+            foreach (var drug in drugsDto)
+            {
+                foreach (var ing in drug.Ingredients)
+                {
+                    ing.HasInteraction = interactionIngredients.Contains(ing.Ingredient);
+                }
+            }
+
+            var interactionsDto = interactions.Select(interaction => new InteractionDto
+            {
+                IngredientA = interaction.DrugA,
+                IngredientB = interaction.DrugB,
+                Level = interaction.Level,
+            }).ToList();
+
+            // Compose the final result with both parts.
+            var result = new DrugInteractionResultDto
+            {
+                Drugs = drugsDto,
+                Interactions = interactionsDto
+            };
+
+            return Ok(result);
         }
 
     }

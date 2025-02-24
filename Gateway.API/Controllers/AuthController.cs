@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Shared.DTOs;
 using System.Text.Json;
 
 namespace Gateway.API.Controllers

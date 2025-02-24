@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
 using PharmaTrack.Shared.Services;
+using PharmaTrack.Shared.DTOs;
 
 namespace Auth.API.Controllers
 {
