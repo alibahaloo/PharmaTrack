@@ -73,16 +73,35 @@ namespace PharmaTrack.WPF.ViewModels
 
         private readonly DrugService _drugService;
         public ICommand AddSelectedDrug { get; }
+        public ICommand RemoveDrugCommand { get; }
         public DrugInteractionViewModel(DrugService drugService)
         {
             _drugService = drugService;
             AddSelectedDrug = new RelayCommand(ExecuteAddSelectedDrug);
+            RemoveDrugCommand = new RelayCommand(ExecuteRemoveDrug);
         }
-
+        private void ExecuteRemoveDrug(object? parameter)
+        {
+            if (parameter is DrugProduct drug)
+            {
+                SelectedDrugs.Remove(drug);
+            }
+        }
         private async void ExecuteAddSelectedDrug(object? parameter)
         {
             if (SelectedDrug?.DrugCode == null) return;
             var drugProduct = await _drugService.GetDrugInfoByCodeAsync(SelectedDrug.DrugCode);
+
+            if (drugProduct?.Product != null)
+            {
+                var product = drugProduct.Product;
+                // Check if the product is already in the list by comparing a unique property (e.g., DrugCode)
+                if (!SelectedDrugs.Any(d => d.DrugCode == product.DrugCode) && SelectedDrugs.Count < 11)
+                {
+                    SelectedDrugs.Add(product);
+                    SelectedDrug = null;
+                }
+            }
         }
 
         public async void LoadDrugListAsync(string? startWith = null)
