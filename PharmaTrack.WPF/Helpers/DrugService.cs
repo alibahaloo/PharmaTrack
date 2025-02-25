@@ -12,6 +12,7 @@ namespace PharmaTrack.WPF.Helpers
     {
         private readonly HttpClient _httpClient;
         private readonly string _drugsUrl;
+        private readonly string _interactionsUrl;
 
         public DrugService(HttpClient httpClient, IConfiguration configuration)
         {
@@ -19,6 +20,41 @@ namespace PharmaTrack.WPF.Helpers
             // Safely handle null or empty configuration value
             _drugsUrl = configuration["DrugsUrls:Drugs"]
                         ?? throw new ArgumentException("Drugs URL is not configured in the application settings.", nameof(configuration));
+            _interactionsUrl = configuration["DrugsUrls:Interactions"]
+                        ?? throw new ArgumentException("Interactions URL is not configured in the application settings.", nameof(configuration));
+        }
+
+        public async Task<DrugInteractionResultDto?> GetDrugInteractions(List<int> drugCodes)
+        {
+            string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
+
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            string drugCodesString = string.Join(",", drugCodes);
+
+            string requestUrl = $"{_interactionsUrl}/drugs/{drugCodesString}";
+
+            // Send GET request to the API
+            var response = await _httpClient.GetAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Deserialize JSON into a DrugInfoDto object
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<DrugInteractionResultDto>(
+                    responseData,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+            }
+
+            // For other error statuses, throw an exception
+            throw response.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
+            };
         }
 
         public async Task<List<DrugListDto>?> GetDrugList(string startWith)
@@ -29,7 +65,7 @@ namespace PharmaTrack.WPF.Helpers
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
-            string requestUrl = $"{_drugsUrl}/lists/drugs?startWith={startWith}";
+            string requestUrl = $"{_drugsUrl}/list?startWith={startWith}";
 
             // Send GET request to the API
             var response = await _httpClient.GetAsync(requestUrl);
@@ -42,12 +78,6 @@ namespace PharmaTrack.WPF.Helpers
                     responseData,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
                 );
-            }
-
-            // If the resource was not found, return null
-            if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                return null;
             }
 
             // For other error statuses, throw an exception

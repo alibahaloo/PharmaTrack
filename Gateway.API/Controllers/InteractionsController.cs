@@ -48,10 +48,10 @@ namespace Gateway.API.Controllers
                 // Deserialize the response JSON into a list of Product objects
                 var responseJson = await response.Content.ReadAsStringAsync();
 
-                InteractionResultDto? apiResponse;
+                DrugInteractionResultDto? apiResponse;
                 try
                 {
-                    apiResponse = JsonSerializer.Deserialize<InteractionResultDto>(responseJson, new JsonSerializerOptions
+                    apiResponse = JsonSerializer.Deserialize<DrugInteractionResultDto>(responseJson, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });

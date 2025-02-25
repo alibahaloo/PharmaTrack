@@ -74,11 +74,13 @@ namespace PharmaTrack.WPF.ViewModels
         private readonly DrugService _drugService;
         public ICommand AddSelectedDrug { get; }
         public ICommand RemoveDrugCommand { get; }
+        public ICommand FindInteractions { get; }
         public DrugInteractionViewModel(DrugService drugService)
         {
             _drugService = drugService;
             AddSelectedDrug = new RelayCommand(ExecuteAddSelectedDrug);
             RemoveDrugCommand = new RelayCommand(ExecuteRemoveDrug);
+            FindInteractions = new RelayCommand(ExecuteFindInteractions);
         }
         private void ExecuteRemoveDrug(object? parameter)
         {
@@ -86,6 +88,12 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 SelectedDrugs.Remove(drug);
             }
+        }
+        private async void ExecuteFindInteractions(object? parameter)
+        {
+            List<int> drugCodes = [.. SelectedDrugs.Select(s => s.DrugCode)];
+            var interactions = await _drugService.GetDrugInteractions(drugCodes);
+            return;
         }
         private async void ExecuteAddSelectedDrug(object? parameter)
         {

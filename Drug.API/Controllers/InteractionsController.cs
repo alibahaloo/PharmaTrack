@@ -165,7 +165,7 @@ namespace Drug.API.Controllers
             }).ToList();
 
             // Compose the final result with both parts.
-            var result = new InteractionResultDto
+            var result = new DrugInteractionResultDto
             {
                 Drugs = drugsDto,
                 Interactions = interactionsDto

@@ -1,6 +1,6 @@
 ﻿namespace PharmaTrack.Shared.DTOs
 {
-    public class InteractionResultDto
+    public class DrugInteractionResultDto
     {
         public List<InteractionDrugDto> Drugs { get; set; } = [];
         public List<InteractionIngredientDto> Interactions { get; set; } = [];
