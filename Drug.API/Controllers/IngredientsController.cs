@@ -34,16 +34,6 @@ namespace Drug.API.Controllers
             return Ok(list);
         }
 
-        [HttpGet("drugCode/{drugCode}")]
-        public async Task<IActionResult> GetIngredientsByDrugCode(int drugCode)
-        {
-            var drugIngredients = await _context.DrugIngredients.Where(di => di.DrugCode == drugCode).ToListAsync();
-
-            if (drugIngredients == null) return NotFound();
-
-            return Ok(drugIngredients);
-        }
-
         [HttpGet("{ingredientCode}")]
         public async Task<IActionResult> GetIngredientByIngredientCode(int ingredientCode)
         {

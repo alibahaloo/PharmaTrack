@@ -9,13 +9,12 @@ namespace Gateway.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DrugsController : ControllerBase
+    public class IngredientsController : ControllerBase
     {
         private readonly HttpClient _httpClient;
         private readonly string _drugApiBaseUrl;
         private readonly JwtService _jwtService;
-
-        public DrugsController(IHttpClientFactory httpClientFactory, IConfiguration configuration, JwtService jwtService)
+        public IngredientsController(IHttpClientFactory httpClientFactory, IConfiguration configuration, JwtService jwtService)
         {
             _jwtService = jwtService;
             _httpClient = httpClientFactory.CreateClient();
@@ -23,7 +22,7 @@ namespace Gateway.API.Controllers
         }
 
         [HttpGet("list")]
-        public async Task<IActionResult> GetDrugList(string startWith)
+        public async Task<IActionResult> GetIngredientList(string startWith)
         {
             try
             {
@@ -36,7 +35,7 @@ namespace Gateway.API.Controllers
                 }
                 */
 
-                var apiUrl = $"{_drugApiBaseUrl}/api/Drugs/list?startWith={startWith}";
+                var apiUrl = $"{_drugApiBaseUrl}/api/Ingredients/list?startWith={startWith}";
 
                 // Send GET request to the Inventory API
                 var response = await _httpClient.GetAsync(apiUrl);
@@ -50,10 +49,10 @@ namespace Gateway.API.Controllers
                 // Deserialize the response JSON into a list of Product objects
                 var responseJson = await response.Content.ReadAsStringAsync();
 
-                List<DrugListDto>? apiResponse;
+                List<IngredientListDto>? apiResponse;
                 try
                 {
-                    apiResponse = JsonSerializer.Deserialize<List<DrugListDto>>(responseJson, new JsonSerializerOptions
+                    apiResponse = JsonSerializer.Deserialize<List<IngredientListDto>>(responseJson, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
@@ -76,9 +75,9 @@ namespace Gateway.API.Controllers
                 return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
             }
         }
-
-        [HttpGet("{drugCode}")]
-        public async Task<IActionResult> GetDrugInfoByCode(int drugCode)
+        
+        [HttpGet("{ingredientCode}")]
+        public async Task<IActionResult> GetIngredientByIngredientCode(int ingredientCode)
         {
             try
             {
@@ -91,7 +90,7 @@ namespace Gateway.API.Controllers
                 }
                 */
 
-                var apiUrl = $"{_drugApiBaseUrl}/api/Drugs/{drugCode}";
+                var apiUrl = $"{_drugApiBaseUrl}/api/Ingredients/{ingredientCode}";
 
                 // Send GET request to the Inventory API
                 var response = await _httpClient.GetAsync(apiUrl);
@@ -105,120 +104,10 @@ namespace Gateway.API.Controllers
                 // Deserialize the response JSON into a list of Product objects
                 var responseJson = await response.Content.ReadAsStringAsync();
 
-                DrugInfoDto? apiResponse;
+                List<DrugIngredient>? apiResponse;
                 try
                 {
-                    apiResponse = JsonSerializer.Deserialize<DrugInfoDto>(responseJson, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                }
-                catch (JsonException jsonEx)
-                {
-                    return StatusCode(500, $"Error deserializing data: {jsonEx.Message}");
-                }
-
-                return Ok(apiResponse);
-            }
-            catch (HttpRequestException ex)
-            {
-                // Handle HTTP request errors
-                return StatusCode(500, $"Error communicating with API: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                // Handle unexpected errors
-                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
-            }
-        }
-
-        [HttpGet("DIN/{DIN}")]
-        public async Task<IActionResult> GetDrugInfoByDIN(string DIN)
-        {
-            try
-            {
-                // Step 1: Validate Authorization Header
-                /*
-                var (validationResult, username, isAdmin) = _jwtService.ValidateAuthorizationHeader(Request);
-                if (validationResult != null)
-                {
-                    return validationResult; // Return if validation fails
-                }
-                */
-
-                var apiUrl = $"{_drugApiBaseUrl}/api/Drugs/DIN/{DIN}";
-
-                // Send GET request to the Inventory API
-                var response = await _httpClient.GetAsync(apiUrl);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    // Return the error response from the Inventory API
-                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
-                }
-
-                // Deserialize the response JSON into a list of Product objects
-                var responseJson = await response.Content.ReadAsStringAsync();
-
-                DrugInfoDto? apiResponse;
-                try
-                {
-                    apiResponse = JsonSerializer.Deserialize<DrugInfoDto>(responseJson, new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-                }
-                catch (JsonException jsonEx)
-                {
-                    return StatusCode(500, $"Error deserializing data: {jsonEx.Message}");
-                }
-
-                return Ok(apiResponse);
-            }
-            catch (HttpRequestException ex)
-            {
-                // Handle HTTP request errors
-                return StatusCode(500, $"Error communicating with API: {ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                // Handle unexpected errors
-                return StatusCode(500, $"An unexpected error occurred: {ex.Message}");
-            }
-        }
-
-        [HttpGet("{drugCode}/ingredients")]
-        public async Task<IActionResult> GetIngredientsByDrugCode(int drugCode)
-        {
-            try
-            {
-                // Step 1: Validate Authorization Header
-                /*
-                var (validationResult, username, isAdmin) = _jwtService.ValidateAuthorizationHeader(Request);
-                if (validationResult != null)
-                {
-                    return validationResult; // Return if validation fails
-                }
-                */
-
-                var apiUrl = $"{_drugApiBaseUrl}/api/Drugs/{drugCode}/ingredients";
-
-                // Send GET request to the Inventory API
-                var response = await _httpClient.GetAsync(apiUrl);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    // Return the error response from the Inventory API
-                    return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
-                }
-
-                // Deserialize the response JSON into a list of Product objects
-                var responseJson = await response.Content.ReadAsStringAsync();
-
-                List<string>? apiResponse;
-                try
-                {
-                    apiResponse = JsonSerializer.Deserialize<List<string>>(responseJson, new JsonSerializerOptions
+                    apiResponse = JsonSerializer.Deserialize<List<DrugIngredient>>(responseJson, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
@@ -243,7 +132,7 @@ namespace Gateway.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDrugs([FromQuery] DrugInfoRequest request, int curPage = 1)
+        public async Task<IActionResult> GetIngredients([FromQuery] DrugIngredientRequest request, int curPage = 1)
         {
             try
             {
@@ -264,18 +153,17 @@ namespace Gateway.API.Controllers
                 {
                     queryParameters.Add($"DrugCode={Uri.EscapeDataString(request.DrugCode.Value.ToString())}");
                 }
-                if (!string.IsNullOrEmpty(request.DIN))
+                if (request.ActiveIngredientCode != null)
                 {
-                    queryParameters.Add($"DIN={Uri.EscapeDataString(request.DIN)}");
+                    queryParameters.Add($"ActiveIngredientCode={Uri.EscapeDataString(request.ActiveIngredientCode.Value.ToString())}");
                 }
-                if (!string.IsNullOrEmpty(request.BrandName))
+                if (!string.IsNullOrEmpty(request.Ingredient))
                 {
-                    queryParameters.Add($"BrandName={Uri.EscapeDataString(request.BrandName)}");
+                    queryParameters.Add($"Ingredient={Uri.EscapeDataString(request.Ingredient)}");
                 }
-                
 
                 var queryString = string.Join("&", queryParameters);
-                var apiUrl = $"{_drugApiBaseUrl}/api/Drugs?{queryString}";
+                var apiUrl = $"{_drugApiBaseUrl}/api/Ingredients?{queryString}";
 
                 // Send GET request to the Inventory API
                 var response = await _httpClient.GetAsync(apiUrl);
@@ -289,10 +177,10 @@ namespace Gateway.API.Controllers
                 // Deserialize the response JSON into a list of Product objects
                 var responseJson = await response.Content.ReadAsStringAsync();
 
-                PagedResponse<DrugProduct>? apiResponse;
+                PagedResponse<DrugIngredient>? apiResponse;
                 try
                 {
-                    apiResponse = JsonSerializer.Deserialize<PagedResponse<DrugProduct>>(responseJson, new JsonSerializerOptions
+                    apiResponse = JsonSerializer.Deserialize<PagedResponse<DrugIngredient>>(responseJson, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });

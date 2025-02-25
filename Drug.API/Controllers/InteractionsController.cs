@@ -122,14 +122,14 @@ namespace Drug.API.Controllers
             // Build the first part of the result: group drugs with their ingredients.
             var drugsDto = allIngredientsData
                 .GroupBy(x => x.DrugCode)
-                .Select(g => new DrugIngredientsDto
+                .Select(g => new InteractionDrugDto
                 {
                     DrugCode = g.Key,
                     DrugName = drugsInfo.FirstOrDefault(di => di.DrugCode == g.Key)?.BrandName,
                     Ingredients = g.Where(x => !string.IsNullOrWhiteSpace(x.Ingredient))
                                    .Select(x => x.Ingredient!.ToLower())
                                    .Distinct()
-                                   .Select(ing => new IngredientDto { Ingredient = ing })
+                                   .Select(ing => new InteractionDrugIngredientDto { Ingredient = ing })
                                    .ToList()
                 })
                 .ToList();
@@ -157,7 +157,7 @@ namespace Drug.API.Controllers
                 }
             }
 
-            var interactionsDto = interactions.Select(interaction => new InteractionDto
+            var interactionsDto = interactions.Select(interaction => new InteractionIngredientDto
             {
                 IngredientA = interaction.DrugA,
                 IngredientB = interaction.DrugB,
@@ -165,7 +165,7 @@ namespace Drug.API.Controllers
             }).ToList();
 
             // Compose the final result with both parts.
-            var result = new DrugInteractionResultDto
+            var result = new InteractionResultDto
             {
                 Drugs = drugsDto,
                 Interactions = interactionsDto

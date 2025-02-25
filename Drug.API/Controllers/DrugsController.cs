@@ -36,6 +36,39 @@ namespace Drug.API.Controllers
             return Ok(list);
         }
 
+        [HttpGet("{drugCode}")]
+        public async Task<IActionResult> GetDrugByCode(int drugCode)
+        {
+            var drugProduct = await _context.Drugs.Where(d => d.DrugCode == drugCode).FirstOrDefaultAsync();
+
+            if (drugProduct == null) return NotFound();
+
+            return Ok(await GetDrugInfoDtoAsync(drugProduct));
+        }
+
+        [HttpGet("DIN/{DIN}")]
+        public async Task<IActionResult> GetDrugByDIN(string DIN)
+        {
+            var drugProduct = await _context.Drugs.Where(d => d.DrugIdentificationNumber == DIN).FirstOrDefaultAsync();
+
+            if (drugProduct == null) return NotFound();
+
+            return Ok(await GetDrugInfoDtoAsync(drugProduct));
+        }
+
+        [HttpGet("{drugCode}/ingredients")]
+        public async Task<IActionResult> GetIngredientsByDrugCode(int drugCode)
+        {
+            var drugIngredients = await _context.DrugIngredients
+                .Where(di => di.DrugCode == drugCode)
+                .Select(di => di.Ingredient)
+                .ToListAsync();
+
+            if (drugIngredients == null) return NotFound();
+
+            return Ok(drugIngredients);
+        }  
+
         [HttpGet]
         public async Task<IActionResult> GetDrugs([FromQuery] DrugInfoRequest request, int curPage = 1)
         {
@@ -60,26 +93,6 @@ namespace Drug.API.Controllers
             };
 
             return Ok(response);
-        }
-
-        [HttpGet("{drugCode}")]
-        public async Task<IActionResult> GetDrugByCode(int drugCode)
-        {
-            var drugProduct = await _context.Drugs.Where(d => d.DrugCode == drugCode).FirstOrDefaultAsync();
-
-            if (drugProduct == null) return NotFound();
-
-            return Ok(await GetDrugInfoDtoAsync(drugProduct));
-        }
-
-        [HttpGet("DIN/{DIN}")]
-        public async Task<IActionResult> GetDrugByDIN(string DIN)
-        {
-            var drugProduct = await _context.Drugs.Where(d => d.DrugIdentificationNumber == DIN).FirstOrDefaultAsync();
-
-            if (drugProduct == null) return NotFound();
-
-            return Ok(await GetDrugInfoDtoAsync(drugProduct));
         }
 
         private async Task<DrugInfoDto> GetDrugInfoDtoAsync(DrugProduct drugProduct)

@@ -1,24 +1,24 @@
 ﻿namespace PharmaTrack.Shared.DTOs
 {
-    public class DrugInteractionResultDto
+    public class InteractionResultDto
     {
-        public List<DrugIngredientsDto> Drugs { get; set; } = [];
-        public List<InteractionDto> Interactions { get; set; } = [];
+        public List<InteractionDrugDto> Drugs { get; set; } = [];
+        public List<InteractionIngredientDto> Interactions { get; set; } = [];
     }
-    public class InteractionDto
+    public class InteractionIngredientDto
     {
         public string? IngredientA { get; set; }
         public string? IngredientB { get; set; }
         public string? Level { get; set; }
     }
-    public class DrugIngredientsDto
+    public class InteractionDrugDto
     {
         public int DrugCode { get; set; }
         public string? DrugName { get; set; }
-        public List<IngredientDto> Ingredients { get; set; } = [];
+        public List<InteractionDrugIngredientDto> Ingredients { get; set; } = [];
     }
 
-    public class IngredientDto
+    public class InteractionDrugIngredientDto
     {
         public string Ingredient { get; set; } = default!;
         public bool HasInteraction { get; set; }
