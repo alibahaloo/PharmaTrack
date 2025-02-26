@@ -119,11 +119,10 @@
                                 <HierarchicalDataTemplate.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding Ingredient}" />
-                                            <TextBlock Text="{Binding HasInteraction}" />
-                                        </StackPanel>
-                                        <!-- Child node: display the ingredient name -->
+                                            <TextBlock Text="{Binding Ingredient}" 
+                                                       Foreground="{Binding HasInteraction, Converter={StaticResource InteractionToBrushConverter}}"/>
 
+                                        </StackPanel>
                                     </DataTemplate>
                                 </HierarchicalDataTemplate.ItemTemplate>
                             </HierarchicalDataTemplate>

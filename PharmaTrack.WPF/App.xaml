@@ -17,6 +17,7 @@
         <converters:ParentHeightConverter x:Key="ParentHeightConverter" />
         <converters:CalendarModeToRowsConverter x:Key="CalendarModeToRowsConverter" />
         <converters:CalendarModeToVisibilityConverter x:Key="CalendarModeToVisibilityConverter" />
+        <converters:InteractionToBrushConverter x:Key="InteractionToBrushConverter" />
         <Style x:Key="GlobalDataGridHeaderStyle" TargetType="DataGridColumnHeader">
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="FontSize" Value="12" />
