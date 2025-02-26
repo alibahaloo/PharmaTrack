@@ -60,6 +60,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="0.5*" />
                 <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <!-- Selected drugs -->
             <Grid Grid.Row="0">
@@ -98,9 +99,53 @@
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
-            <TreeView Grid.Row="1">
-                
-            </TreeView>
+            <!-- Drug Ingredients -->
+            <GroupBox Header="Ingredients" Grid.Row="1" >
+                <TreeView ItemsSource="{Binding DrugInteractionResult.Drugs}">
+                    <TreeView.Resources>
+                        <Style TargetType="{x:Type TreeViewItem}">
+                            <Setter Property="IsExpanded" Value="True"/>
+                        </Style>
+                    </TreeView.Resources>
+                    <TreeView.ItemTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Ingredients}">
+                            <!-- Parent node: display DrugName -->
+                            <TextBlock Text="{Binding DrugName}" FontWeight="Bold" />
+                            <HierarchicalDataTemplate.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Ingredient}" />
+                                        <TextBlock Text="{Binding HasInteraction}" />
+                                    </StackPanel>
+                                    <!-- Child node: display the ingredient name -->
+
+                                </DataTemplate>
+                            </HierarchicalDataTemplate.ItemTemplate>
+                        </HierarchicalDataTemplate>
+                    </TreeView.ItemTemplate>
+                </TreeView>
+            </GroupBox>
+            
+            <!-- Interactions -->
+            <GroupBox Header="Possible Interactions" Grid.Row="2">
+                <DataGrid Grid.Row="2"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow"
+                          AutoGenerateColumns="False" Margin="1" 
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          CanUserAddRows="False" 
+                          CanUserDeleteRows="False"
+                          IsReadOnly="True"
+                          ColumnHeaderStyle="{StaticResource GlobalDataGridHeaderStyle}"
+                          ItemsSource="{Binding DrugInteractionResult.Interactions}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Ingredient A" Width="*" Binding="{Binding IngredientA}" />
+                        <DataGridTextColumn Header="Ingredient B" Width="*" Binding="{Binding IngredientB}" />
+                        <DataGridTextColumn Header="Level" Width="0.5*" Binding="{Binding Level}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
         </Grid>
     </DockPanel>
 </UserControl>

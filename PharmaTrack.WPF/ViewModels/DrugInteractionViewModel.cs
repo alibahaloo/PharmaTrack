@@ -71,6 +71,17 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
+        private DrugInteractionResultDto? _drugInteractionResult;
+        public DrugInteractionResultDto? DrugInteractionResult
+        {
+            get => _drugInteractionResult;
+            set
+            {
+                _drugInteractionResult = value;
+                OnPropertyChanged(nameof(DrugInteractionResult));
+            }
+        }
+
         private readonly DrugService _drugService;
         public ICommand AddSelectedDrug { get; }
         public ICommand RemoveDrugCommand { get; }
@@ -92,8 +103,7 @@ namespace PharmaTrack.WPF.ViewModels
         private async void ExecuteFindInteractions(object? parameter)
         {
             List<int> drugCodes = [.. SelectedDrugs.Select(s => s.DrugCode)];
-            var interactions = await _drugService.GetDrugInteractions(drugCodes);
-            return;
+            DrugInteractionResult = await _drugService.GetDrugInteractions(drugCodes);
         }
         private async void ExecuteAddSelectedDrug(object? parameter)
         {
