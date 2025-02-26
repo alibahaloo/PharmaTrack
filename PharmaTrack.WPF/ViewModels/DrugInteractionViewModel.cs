@@ -4,6 +4,7 @@ using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PharmaTrack.WPF.ViewModels
 {
@@ -82,6 +83,36 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
+        private string _statusMessage = default!;
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set
+            {
+                _statusMessage = value;
+                OnPropertyChanged(nameof(StatusMessage));
+            }
+        }
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading != value)
+                {
+                    _isLoading = value;
+                    OnPropertyChanged(nameof(IsLoading)); // Notify the UI
+                }
+            }
+        }
+        private Brush _statusForeground = default!;
+        public Brush StatusForeground
+        {
+            get => _statusForeground;
+            set { _statusForeground = value; OnPropertyChanged(nameof(StatusForeground)); }
+        }
+
         private readonly DrugService _drugService;
         public ICommand AddSelectedDrug { get; }
         public ICommand RemoveDrugCommand { get; }
@@ -95,30 +126,67 @@ namespace PharmaTrack.WPF.ViewModels
         }
         private void ExecuteRemoveDrug(object? parameter)
         {
+            IsLoading = true;
             if (parameter is DrugProduct drug)
             {
                 SelectedDrugs.Remove(drug);
             }
+            IsLoading = false;
         }
         private async void ExecuteFindInteractions(object? parameter)
         {
-            List<int> drugCodes = [.. SelectedDrugs.Select(s => s.DrugCode)];
-            DrugInteractionResult = await _drugService.GetDrugInteractions(drugCodes);
+            IsLoading = true;
+            try
+            {
+                List<int> drugCodes = [.. SelectedDrugs.Select(s => s.DrugCode)];
+                DrugInteractionResult = await _drugService.GetDrugInteractions(drugCodes);
+
+                if (DrugInteractionResult?.Interactions.Count == 0)
+                {
+                    StatusMessage = "No interactions found for the selected drugs!";
+                    StatusForeground = Brushes.Green;
+                } else
+                {
+                    StatusMessage = "Interactions found for the selected drugs!";
+                    StatusForeground = Brushes.Blue;
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ex.Message;
+                StatusForeground = Brushes.Red;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
         private async void ExecuteAddSelectedDrug(object? parameter)
         {
-            if (SelectedDrug?.DrugCode == null) return;
-            var drugProduct = await _drugService.GetDrugInfoByCodeAsync(SelectedDrug.DrugCode);
-
-            if (drugProduct?.Product != null)
+            IsLoading = true;
+            try
             {
-                var product = drugProduct.Product;
-                // Check if the product is already in the list by comparing a unique property (e.g., DrugCode)
-                if (!SelectedDrugs.Any(d => d.DrugCode == product.DrugCode) && SelectedDrugs.Count < 11)
+                if (SelectedDrug?.DrugCode == null) return;
+                var drugProduct = await _drugService.GetDrugInfoByCodeAsync(SelectedDrug.DrugCode);
+
+                if (drugProduct?.Product != null)
                 {
-                    SelectedDrugs.Add(product);
-                    SelectedDrug = null;
+                    var product = drugProduct.Product;
+                    // Check if the product is already in the list by comparing a unique property (e.g., DrugCode)
+                    if (!SelectedDrugs.Any(d => d.DrugCode == product.DrugCode) && SelectedDrugs.Count < 11)
+                    {
+                        SelectedDrugs.Add(product);
+                        SelectedDrug = null;
+                    }
                 }
+            }
+            catch
+            {
+
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
@@ -131,23 +199,34 @@ namespace PharmaTrack.WPF.ViewModels
                 IsDropdownOpen = false;
                 return;
             }
-
-            var response = await _drugService.GetDrugList(startWith);
-            DrugList.Clear();
-
-            if (response != null)
+            IsLoading = true;
+            try
             {
-                foreach (var item in response)
+                var response = await _drugService.GetDrugList(startWith);
+                DrugList.Clear();
+
+                if (response != null)
                 {
-                    DrugList.Add(item);
+                    foreach (var item in response)
+                    {
+                        DrugList.Add(item);
+                    }
+                    // Open the dropdown when there are results.
+                    IsDropdownOpen = true;
                 }
-                // Open the dropdown when there are results.
-                IsDropdownOpen = true;
+                else
+                {
+                    IsDropdownOpen = false;
+                }
             }
-            else
+            catch
             {
-                IsDropdownOpen = false;
+
             }
+            finally
+            {
+                IsLoading = false;
+            }            
         } 
     }
 }
