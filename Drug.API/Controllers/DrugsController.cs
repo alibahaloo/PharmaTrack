@@ -20,19 +20,38 @@ namespace Drug.API.Controllers
         }
 
         [HttpGet("list")]
-        public async Task<IActionResult> GetDrugsList(string startWith)
+        public async Task<IActionResult> GetDrugsList(string startWith = "")
         {
-            var list = await _context.Drugs
-                .Where(u => u.BrandName != null && u.BrandName.StartsWith(startWith))
-                .Select(u => new DrugListDto
-                {
-                    Id = u.Id,
-                    DrugCode = u.DrugCode,
-                    BrandName = u.BrandName
-                })
-                .Distinct()
-                .Take(10)
-                .ToListAsync();
+            List<DrugListDto>? list;
+
+            if (string.IsNullOrEmpty(startWith))
+            {
+                list = await _context.Drugs
+                    .Select(u => new DrugListDto
+                    {
+                        Id = u.Id,
+                        DrugCode = u.DrugCode,
+                        BrandName = u.BrandName
+                    })
+                    .Distinct()
+                    .OrderBy(d => d.BrandName)
+                    .Take(10)
+                    .ToListAsync();
+            } else
+            {
+                list = await _context.Drugs
+                    .Where(u => u.BrandName != null && u.BrandName.StartsWith(startWith))
+                    .Select(u => new DrugListDto
+                    {
+                        Id = u.Id,
+                        DrugCode = u.DrugCode,
+                        BrandName = u.BrandName
+                    })
+                    .Distinct()
+                    .Take(10)
+                    .ToListAsync();
+            }
+
             return Ok(list);
         }
 

@@ -190,15 +190,8 @@ namespace PharmaTrack.WPF.ViewModels
             }
         }
 
-        public async void LoadDrugListAsync(string? startWith = null)
+        public async void LoadDrugListAsync(string startWith = "")
         {
-            if (string.IsNullOrEmpty(startWith))
-            {
-                // Optionally, clear the list and close the dropdown.
-                DrugList.Clear();
-                IsDropdownOpen = false;
-                return;
-            }
             IsLoading = true;
             try
             {

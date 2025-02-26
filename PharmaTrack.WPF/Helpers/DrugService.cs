@@ -57,7 +57,7 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
-        public async Task<List<DrugListDto>?> GetDrugList(string startWith)
+        public async Task<List<DrugListDto>?> GetDrugList(string startWith = "")
         {
             string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
 
@@ -65,7 +65,15 @@ namespace PharmaTrack.WPF.Helpers
             _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 
-            string requestUrl = $"{_drugsUrl}/list?startWith={startWith}";
+
+            string requestUrl;
+            if (string.IsNullOrEmpty(startWith))
+            {
+                requestUrl = $"{_drugsUrl}/list";
+            } else
+            {
+                requestUrl = $"{_drugsUrl}/list?startWith={startWith}";
+            }
 
             // Send GET request to the API
             var response = await _httpClient.GetAsync(requestUrl);

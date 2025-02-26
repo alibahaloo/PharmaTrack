@@ -12,6 +12,10 @@ namespace PharmaTrack.WPF.Controls
         {
             InitializeComponent();
             DataContext = viewModel;
+            Loaded += (_, _) => {
+                DrugListComboBox.Focus();
+                viewModel.LoadDrugListAsync();
+            };
         }
         private void ComboBox_DropDownOpened(object sender, EventArgs e)
         {
