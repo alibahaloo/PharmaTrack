@@ -22,7 +22,7 @@ namespace Gateway.API.Controllers
         }
 
         [HttpGet("list")]
-        public async Task<IActionResult> GetIngredientList(string startWith)
+        public async Task<IActionResult> GetIngredientList(string startWith = "")
         {
             try
             {
@@ -34,8 +34,15 @@ namespace Gateway.API.Controllers
                     return validationResult; // Return if validation fails
                 }
                 */
-
-                var apiUrl = $"{_drugApiBaseUrl}/api/Ingredients/list?startWith={startWith}";
+                string apiUrl;
+                if (string.IsNullOrEmpty(startWith))
+                {
+                    apiUrl = $"{_drugApiBaseUrl}/api/Ingredients/list";
+                }
+                else
+                {
+                    apiUrl = $"{_drugApiBaseUrl}/api/Ingredients/list?startWith={startWith}";
+                }
 
                 // Send GET request to the Inventory API
                 var response = await _httpClient.GetAsync(apiUrl);
