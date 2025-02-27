@@ -68,6 +68,22 @@ namespace PharmaTrack.WPF.ViewModels
                 {
                     _isDropdownOpen = value;
                     OnPropertyChanged(nameof(IsDropdownOpen));
+
+                    // Use the property setter to notify the FocusBehavior
+                    IsDrugListFocused = value;
+                }
+            }
+        }
+        private bool _isDrugListFocused;
+        public bool IsDrugListFocused
+        {
+            get => _isDrugListFocused;
+            set
+            {
+                if (_isDrugListFocused != value)
+                {
+                    _isDrugListFocused = value;
+                    OnPropertyChanged(nameof(IsDrugListFocused));
                 }
             }
         }
