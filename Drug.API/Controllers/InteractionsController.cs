@@ -174,5 +174,110 @@ namespace Drug.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("ingredients/{ingredientCodes}")]
+        public async Task<IActionResult> GetInteractionsByIngredientCode(string ingredientCodes)
+        {
+            // Validate input.
+            if (string.IsNullOrWhiteSpace(ingredientCodes))
+            {
+                return BadRequest("No ingredient codes provided.");
+            }
+
+            // Split the comma-separated string.
+            var codesArray = ingredientCodes.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+            // Maximum limit, e.g., 20 codes.
+            const int MAX_CODES = 20;
+            if (codesArray.Length > MAX_CODES)
+            {
+                return BadRequest($"Too many ingredient codes provided. Maximum allowed is {MAX_CODES}.");
+            }
+
+            // Parse each code into an integer.
+            var codeList = new List<int>();
+            foreach (var code in codesArray)
+            {
+                if (!int.TryParse(code, out int intCode))
+                {
+                    return BadRequest($"Invalid ingredient code: {code}");
+                }
+                codeList.Add(intCode);
+            }
+
+            // Retrieve all ingredient names for the provided drug codes.
+            var allIngredientsData = await _context.DrugIngredients
+                .Where(di => codeList.Contains(di.ActiveIngredientCode))
+                .Select(di => new { di.ActiveIngredientCode, di.Ingredient })
+                .ToListAsync();
+
+            // Prepare the list of ingredients (lower-cased, distinct) for interactions.
+            var lowerIngredients = allIngredientsData
+                .Where(x => !string.IsNullOrWhiteSpace(x.Ingredient))
+                .Select(x => x.Ingredient!.ToLower())
+                .Distinct()
+                .ToList();
+
+            // Prepare a list to hold the interactions.
+            List<DrugInteraction> interactions = [];
+
+            if (lowerIngredients.Count == 0)
+            {
+                // No valid ingredients found.
+                interactions = [];
+            }
+            else if (lowerIngredients.Count == 1)
+            {
+                // If there's only one ingredient, return interactions where either side matches.
+                string ingredient = lowerIngredients.First();
+                interactions = await _context.DrugInteractions
+                    .Where(i => (i.DrugA != null && i.DrugA.ToLower() == ingredient) ||
+                                (i.DrugB != null && i.DrugB.ToLower() == ingredient))
+                    .ToListAsync();
+            }
+            else if (lowerIngredients.Count == 2)
+            {
+                // If there are two ingredients, return interactions where both are present.
+                string ingredient1 = lowerIngredients[0];
+                string ingredient2 = lowerIngredients[1];
+                interactions = await _context.DrugInteractions
+                    .Where(i => i.DrugA != null && i.DrugB != null &&
+                                ((i.DrugA.ToLower() == ingredient1 && i.DrugB.ToLower() == ingredient2) ||
+                                 (i.DrugA.ToLower() == ingredient2 && i.DrugB.ToLower() == ingredient1)))
+                    .ToListAsync();
+            }
+            else
+            {
+                // For more than two ingredients, loop through every unique pair.
+                var interactionSet = new HashSet<DrugInteraction>(); // Use a set to avoid duplicates.
+                for (int i = 0; i < lowerIngredients.Count - 1; i++)
+                {
+                    for (int j = i + 1; j < lowerIngredients.Count; j++)
+                    {
+                        string ingredient1 = lowerIngredients[i];
+                        string ingredient2 = lowerIngredients[j];
+                        var pairInteractions = await _context.DrugInteractions
+                            .Where(interaction => interaction.DrugA != null && interaction.DrugB != null &&
+                                  ((interaction.DrugA.ToLower() == ingredient1 && interaction.DrugB.ToLower() == ingredient2) ||
+                                   (interaction.DrugA.ToLower() == ingredient2 && interaction.DrugB.ToLower() == ingredient1)))
+                            .ToListAsync();
+
+                        foreach (var inter in pairInteractions)
+                        {
+                            interactionSet.Add(inter);
+                        }
+                    }
+                }
+                interactions = [.. interactionSet];
+            }
+
+            var interactionsDto = interactions.Select(interaction => new InteractionIngredientDto
+            {
+                IngredientA = interaction.DrugA,
+                IngredientB = interaction.DrugB,
+                Level = interaction.Level,
+            }).ToList();
+
+            return Ok(interactionsDto);
+        }
     }
 }
