@@ -137,13 +137,14 @@ namespace PharmaTrack.WPF.ViewModels
             AddSelectedItem = new RelayCommand(ExecuteAddSelectedItem);
             RemoveItem = new RelayCommand(ExecuteRemoveItem);
         }
-        private void ExecuteRemoveItem(object? parameter)
+        private async void ExecuteRemoveItem(object? parameter)
         {
             IsLoading = true;
             if (parameter is string ingredient)
             {
                 SelectedIngredients.Remove(ingredient);
             }
+            await ExecuteFindInteractions();
             IsLoading = false;
         }
         private async void ExecuteAddSelectedItem(object? parameter)

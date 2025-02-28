@@ -3,6 +3,7 @@ using PharmaTrack.Shared.DTOs;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -138,13 +139,14 @@ namespace PharmaTrack.WPF.ViewModels
             AddSelectedDrug = new RelayCommand(ExecuteAddSelectedDrug);
             RemoveDrugCommand = new RelayCommand(ExecuteRemoveDrug);
         }
-        private void ExecuteRemoveDrug(object? parameter)
+        private async void ExecuteRemoveDrug(object? parameter)
         {
             IsLoading = true;
             if (parameter is DrugProduct drug)
             {
                 SelectedDrugs.Remove(drug);
             }
+            await ExecuteFindInteractions();
             IsLoading = false;
         }
         private async Task ExecuteFindInteractions()
