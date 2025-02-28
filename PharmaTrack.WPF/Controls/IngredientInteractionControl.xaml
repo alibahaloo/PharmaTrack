@@ -83,7 +83,14 @@
                           IsReadOnly="True"
                           ColumnHeaderStyle="{StaticResource GlobalDataGridHeaderStyle}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Ingredient" Width="*" Binding="{Binding}" />
+                        <DataGridTextColumn Header="Ingredient" Width="*"
+                                            Binding="{Binding}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
                         <DataGridTemplateColumn Header="Remove">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
