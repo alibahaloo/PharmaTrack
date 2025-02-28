@@ -56,10 +56,10 @@ namespace Gateway.API.Controllers
                 // Deserialize the response JSON into a list of Product objects
                 var responseJson = await response.Content.ReadAsStringAsync();
 
-                List<IngredientListDto>? apiResponse;
+                List<string>? apiResponse;
                 try
                 {
-                    apiResponse = JsonSerializer.Deserialize<List<IngredientListDto>>(responseJson, new JsonSerializerOptions
+                    apiResponse = JsonSerializer.Deserialize<List<string>>(responseJson, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });
@@ -111,10 +111,10 @@ namespace Gateway.API.Controllers
                 // Deserialize the response JSON into a list of Product objects
                 var responseJson = await response.Content.ReadAsStringAsync();
 
-                List<DrugIngredient>? apiResponse;
+                DrugIngredient? apiResponse;
                 try
                 {
-                    apiResponse = JsonSerializer.Deserialize<List<DrugIngredient>>(responseJson, new JsonSerializerOptions
+                    apiResponse = JsonSerializer.Deserialize<DrugIngredient>(responseJson, new JsonSerializerOptions
                     {
                         PropertyNameCaseInsensitive = true
                     });

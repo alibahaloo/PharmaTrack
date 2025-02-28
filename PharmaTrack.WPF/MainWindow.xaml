@@ -105,7 +105,7 @@
                     </MenuItem>
                     <Separator/>
                     <MenuItem Header="By Ingredient" 
-                              Command="" 
+                              Command="{Binding ShowIngredientInteractionCommand}" 
                               Visibility="{Binding IsLoggedIn, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=false}">
                         <MenuItem.Icon>
                             <bi:BootstrapIcon Icon="CapsulePill" />

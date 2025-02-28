@@ -12,6 +12,7 @@ namespace PharmaTrack.WPF.Helpers
     {
         private readonly HttpClient _httpClient;
         private readonly string _drugsUrl;
+        private readonly string _ingredientsUrl;
         private readonly string _interactionsUrl;
 
         public DrugService(HttpClient httpClient, IConfiguration configuration)
@@ -20,6 +21,8 @@ namespace PharmaTrack.WPF.Helpers
             // Safely handle null or empty configuration value
             _drugsUrl = configuration["DrugsUrls:Drugs"]
                         ?? throw new ArgumentException("Drugs URL is not configured in the application settings.", nameof(configuration));
+            _ingredientsUrl = configuration["DrugsUrls:Ingredients"]
+                        ?? throw new ArgumentException("Ingredients URL is not configured in the application settings.", nameof(configuration));
             _interactionsUrl = configuration["DrugsUrls:Interactions"]
                         ?? throw new ArgumentException("Interactions URL is not configured in the application settings.", nameof(configuration));
         }
@@ -56,7 +59,77 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
             };
         }
+        public async Task<IngredientInteractionResultDto?> GetIngredientInteractions(List<string> ingredientNames)
+        {
+            string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
 
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            string ingredientCodesString = string.Join(",", ingredientNames);
+
+            string requestUrl = $"{_interactionsUrl}/ingredients/{ingredientCodesString}";
+
+            // Send GET request to the API
+            var response = await _httpClient.GetAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Deserialize JSON into a DrugInfoDto object
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<IngredientInteractionResultDto>(
+                    responseData,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+            }
+
+            // For other error statuses, throw an exception
+            throw response.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
+            };
+        }
+        public async Task<List<string>?> GetIngredientLists(string startWith = "")
+        {
+            string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
+
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+
+            string requestUrl;
+            if (string.IsNullOrEmpty(startWith))
+            {
+                requestUrl = $"{_ingredientsUrl}/list";
+            }
+            else
+            {
+                requestUrl = $"{_ingredientsUrl}/list?startWith={startWith}";
+            }
+
+            // Send GET request to the API
+            var response = await _httpClient.GetAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Deserialize JSON into a DrugInfoDto object
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<string>>(
+                    responseData,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+            }
+
+            // For other error statuses, throw an exception
+            throw response.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
+            };
+        }
         public async Task<List<DrugListDto>?> GetDrugList(string startWith = "")
         {
             string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
@@ -95,7 +168,6 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
             };
         }
-
         public async Task<DrugInfoDto?> GetDrugInfoByDINAsync(string DIN)
         {
             string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
@@ -132,7 +204,6 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
             };
         }
-
         public async Task<DrugInfoDto?> GetDrugInfoByCodeAsync(int drugCode)
         {
             string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
@@ -169,7 +240,42 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
             };
         }
+        public async Task<DrugIngredient?> GetIngredientByIngredientCode(int activeIngredientCode)
+        {
+            string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
 
+            // Add the JWT to the headers
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+
+            string requestUrl = $"{_ingredientsUrl}/{activeIngredientCode}";
+
+            // Send GET request to the API
+            var response = await _httpClient.GetAsync(requestUrl);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Deserialize JSON into a DrugInfoDto object
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<DrugIngredient>(
+                    responseData,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                );
+            }
+
+            // If the resource was not found, return null
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            // For other error statuses, throw an exception
+            throw response.StatusCode switch
+            {
+                HttpStatusCode.Unauthorized => new UnauthorizedAccessException($"{response.StatusCode}: Invalid or expired refresh token!"),
+                _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
+            };
+        }
         public async Task<PagedResponse<DrugProduct>?> GetDrugsAsync(DrugInfoRequest request, int curPage = 1)
         {
             string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
@@ -225,7 +331,6 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
-
         public async Task<PagedResponse<DrugIngredient>?> GetIngredientsAsync(DrugIngredientRequest request, int curPage = 1)
         {
             string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");

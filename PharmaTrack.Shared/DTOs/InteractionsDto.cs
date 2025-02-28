@@ -5,6 +5,10 @@
         public List<InteractionDrugDto> Drugs { get; set; } = [];
         public List<InteractionIngredientDto> Interactions { get; set; } = [];
     }
+    public class IngredientInteractionResultDto
+    {
+        public List<InteractionIngredientDto> Interactions { get; set; } = [];
+    }
     public class InteractionIngredientDto
     {
         public string? IngredientA { get; set; }

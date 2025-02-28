@@ -1,17 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using PharmaTrack.WPF.ViewModels;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace PharmaTrack.WPF.Controls
 {
@@ -20,9 +8,27 @@ namespace PharmaTrack.WPF.Controls
     /// </summary>
     public partial class IngredientInteractionControl : UserControl
     {
-        public IngredientInteractionControl()
+        public IngredientInteractionControl(IngredientInteractionViewModel viewModel)
         {
             InitializeComponent();
+            DataContext = viewModel;
+            Loaded += (_, _) => {
+                ListComboBox.Focus();
+                viewModel.LoadIngredientListAsync();
+            };
+        }
+        private void ComboBox_DropDownOpened(object sender, EventArgs e)
+        {
+            if (sender is ComboBox comboBox && comboBox.IsEditable)
+            {
+                // Find the internal editable TextBox
+                if (comboBox.Template.FindName("PART_EditableTextBox", comboBox) is TextBox textBox)
+                {
+                    // Clear any selection and move caret to the end of the text.
+                    textBox.SelectionLength = 0;
+                    textBox.SelectionStart = textBox.Text.Length;
+                }
+            }
         }
     }
 }
