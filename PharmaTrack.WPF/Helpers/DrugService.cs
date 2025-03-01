@@ -358,7 +358,7 @@ namespace PharmaTrack.WPF.Helpers
             }
 
             string queryString = string.Join("&", queryParameters);
-            string requestUrl = $"{_drugsUrl}/Ingredients?{queryString}";
+            string requestUrl = $"{_ingredientsUrl}?{queryString}";
 
             // Send GET request to the API
             var response = await _httpClient.GetAsync(requestUrl);

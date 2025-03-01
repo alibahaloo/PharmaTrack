@@ -105,5 +105,10 @@ namespace PharmaTrack.WPF.Controls
             if (time > new TimeSpan(23, 59, 0)) return new TimeSpan(23, 59, 0);
             return time;
         }
+
+        private void UserListComboBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            UserListComboBox.IsDropDownOpen = true;
+        }
     }
 }
