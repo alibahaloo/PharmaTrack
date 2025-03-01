@@ -214,7 +214,7 @@ namespace PharmaTrack.WPF.ViewModels
                         IngredientList.Add(item);
                     }
                     // Open the dropdown when there are results.
-                    IsDropdownOpen = true;
+                    //IsDropdownOpen = true;
                 }
                 else
                 {

@@ -28,15 +28,16 @@
                        Margin="0,0,5,0" />
 
                 <ComboBox Grid.Column="1"
-                      x:Name="ListComboBox"
-                      IsEditable="true"
-                      IsTextSearchEnabled="False"
-                      Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                      ItemsSource="{Binding IngredientList}"
-                      SelectedItem="{Binding SelectedIngredient, Mode=TwoWay}"
-                      IsDropDownOpen="{Binding IsDropdownOpen, Mode=TwoWay}"
-                      DropDownOpened="ComboBox_DropDownOpened"
-                      HorizontalAlignment="Stretch">
+                          x:Name="ListComboBox"
+                          GotFocus="ListComboBox_GotFocus"
+                          IsEditable="true"
+                          IsTextSearchEnabled="False"
+                          Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                          ItemsSource="{Binding IngredientList}"
+                          SelectedItem="{Binding SelectedIngredient, Mode=TwoWay}"
+                          IsDropDownOpen="{Binding IsDropdownOpen, Mode=TwoWay}"
+                          DropDownOpened="ComboBox_DropDownOpened"
+                          HorizontalAlignment="Stretch">
                     <i:Interaction.Behaviors>
                         <behaviors:FocusBehavior IsFocused="{Binding IsCombBoxFocused}" />
                     </i:Interaction.Behaviors>

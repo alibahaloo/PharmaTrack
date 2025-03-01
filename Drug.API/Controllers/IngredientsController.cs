@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
-using PharmaTrack.Shared.DTOs;
 using PharmaTrack.Shared.Services;
 
 namespace Drug.API.Controllers
@@ -26,21 +25,22 @@ namespace Drug.API.Controllers
 
             if (string.IsNullOrEmpty(startWith))
             {
-                list = await _context.DrugIngredients
-                    .Where(u => u.Ingredient != null)
-                    .Select(d => d.Ingredient!) 
-                    .Distinct()
-                    .OrderBy(ingredient => ingredient)
+                list = await _context.DrugInteractions
+                    .Where(di => di.DrugA != null)
+                    .Select(di => di.DrugA!)
+                    .Distinct() // Ensure uniqueness first
+                    .OrderBy(DrugA => DrugA) // Then apply ordering
                     .Take(10)
                     .ToListAsync();
+
             }
             else
             {
-                list = await _context.DrugIngredients
-                    .Where(u => u.Ingredient != null && u.Ingredient.StartsWith(startWith))
-                    .Select(d => d.Ingredient!)
+                list = await _context.DrugInteractions
+                    .Where(di => di.DrugA != null && di.DrugA.StartsWith(startWith))
+                    .Select(di => di.DrugA!)
                     .Distinct()
-                    .OrderBy(ingredient => ingredient)
+                    .OrderBy(DrugA => DrugA)
                     .Take(10)
                     .ToListAsync();
             }
