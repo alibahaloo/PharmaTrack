@@ -29,7 +29,6 @@
 
                 <ComboBox Grid.Column="1"
                           x:Name="ListComboBox"
-                          GotFocus="ListComboBox_GotFocus"
                           IsEditable="true"
                           IsTextSearchEnabled="False"
                           Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"

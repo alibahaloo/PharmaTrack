@@ -28,7 +28,6 @@
                            Margin="0,0,5,0" />
 
                 <ComboBox Grid.Column="1"
-                          GotFocus="DrugListComboBox_GotFocus"
                           x:Name="DrugListComboBox"
                           IsEditable="true"
                           IsTextSearchEnabled="False"

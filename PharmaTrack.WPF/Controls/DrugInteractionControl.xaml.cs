@@ -13,26 +13,24 @@ namespace PharmaTrack.WPF.Controls
             InitializeComponent();
             DataContext = viewModel;
             Loaded += (_, _) => {
-                viewModel.LoadDrugListAsync();
+                viewModel.IsDrugListFocused = true;
             };
         }
         private void ComboBox_DropDownOpened(object sender, EventArgs e)
         {
             if (sender is ComboBox comboBox && comboBox.IsEditable)
             {
-                // Find the internal editable TextBox
                 if (comboBox.Template.FindName("PART_EditableTextBox", comboBox) is TextBox textBox)
                 {
-                    // Clear any selection and move caret to the end of the text.
-                    textBox.SelectionLength = 0;
-                    textBox.SelectionStart = textBox.Text.Length;
+                    // Delay clearing the selection until after the ComboBox has done its own selection.
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        textBox.SelectionLength = 0;
+                        textBox.SelectionStart = textBox.Text.Length;
+                    }), System.Windows.Threading.DispatcherPriority.ContextIdle);
                 }
             }
         }
 
-        private void DrugListComboBox_GotFocus(object sender, System.Windows.RoutedEventArgs e)
-        {
-            DrugListComboBox.IsDropDownOpen = true;
-        }
     }
 }
