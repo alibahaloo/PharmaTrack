@@ -1,6 +1,6 @@
 ﻿# PharmaTrack Local Deployment
 
-This guide describes how to generate and trust SSL certificates for local HTTPS development, and how to launch the PharmaTrack API stack using Docker Compose.
+This guide describes how to generate and trust SSL certificates for local HTTPS development, deploy backend APIs using Docker, and run the PharmaTrack WPF application.
 
 ---
 
@@ -18,17 +18,33 @@ Your solution root should contain the following:
 
 ```
 PharmaTrack/
-├── generate-certs.ps1        # Certificate generator script
-├── deploy.ps1                # Trusts root cert + runs Docker Compose
-├── docker-compose.yml        # Docker services configuration
-├── PharmaTrack.sln           # Solution file
-├── Gateway.API/              # API projects...
+├── install-pharmatrack.bat      # Launches the full installer (recommended)
+├── install-pharmatrack.ps1      # Main installer script
+├── generate-certs.ps1           # Certificate generator script
+├── deploy.ps1                   # Trusts root cert + runs Docker Compose
+├── docker-compose.yml           # Docker services configuration
+├── PharmaTrack.WPF/             # WPF client
+├── Gateway.API/                 # API projects...
 └── etc.
 ```
 
 ---
 
-## Step-by-Step Deployment
+## 🧪 Option A: One-click install (Recommended)
+
+Double-click `install-pharmatrack.bat` to:
+
+- ✅ Elevate privileges (admin required)
+- ✅ Generate trusted SSL certificates
+- ✅ Publish the WPF app (self-contained executable)
+- ✅ Deploy Docker containers
+- ✅ Create a Desktop shortcut for launching the app
+
+Once complete, you'll find a shortcut on your Desktop to run PharmaTrack.
+
+---
+
+## 🛠 Option B: Manual Setup
 
 ### 1. Generate Local Certificates
 
@@ -91,12 +107,19 @@ openssl-san.cnf
 ## Troubleshooting
 
 ### Problem: Access Denied on `Import-Certificate`
-**Solution**: Make sure you run `deploy.ps1` from **an Administrator PowerShell window**.
+**Solution**: Make sure you run `deploy.ps1` or the `.bat` installer as **Administrator**.
 
 ### Problem: `The SSL connection could not be established`
-**Solution**: Ensure the certificate is correctly generated, trusted, and mounted in Docker.
+**Solution**: Ensure certificates are properly generated, trusted, and mounted into Docker containers.
+
+### Problem: `@echo` line shows weird characters (`∩╗┐@echo`)
+**Solution**: Re-save the `.bat` file using encoding: UTF-8 (without BOM) or ANSI.
 
 ---
 
 ## License
-Internal PharmaTrack deployment tooling. Not for public distribution.
+
+This project is open source and freely available under the [MIT License](https://opensource.org/licenses/MIT).
+
+You are free to use, modify, distribute, and integrate this solution in commercial or non-commercial projects. Attribution is appreciated but not required.
+

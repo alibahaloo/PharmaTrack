@@ -1,0 +1,20 @@
+﻿<Window x:Class="PharmaTrack.WPF.SplashWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Width="400" Height="300"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True"
+        ResizeMode="NoResize">
+    <Border CornerRadius="8" Background="White" Padding="20">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!-- Replace with your logo or image if you like -->
+            <TextBlock Text="PharmaTrack" FontSize="28" FontWeight="Bold" Margin="0,0,0,10" />
+            <TextBlock Text="Loading, please wait…" FontSize="16" />
+            <ProgressBar IsIndeterminate="True" Width="250" Height="20" Margin="0,20,0,0"/>
+        </StackPanel>
+    </Border>
+</Window>

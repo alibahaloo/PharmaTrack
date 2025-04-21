@@ -10,34 +10,42 @@ namespace PharmaTrack.WPF
 {
     public partial class App : Application
     {
-        private IServiceProvider _serviceProvider;
+        private IServiceProvider _serviceProvider = default!;
+        private SplashWindow _splash = default!;
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
-            // Initialize SQLitePCL
+            // 1) Show splash immediately
+            _splash = new SplashWindow();
+            _splash.Show();
+
+            // 2) Init SQLitePCL
             SQLitePCL.Batteries.Init();
 
-            // Configure Services
+            // 3) Configure & build DI container
             var serviceCollection = new ServiceCollection();
             var configuration = BuildConfiguration();
             ConfigureServices(serviceCollection, configuration);
-
             _serviceProvider = serviceCollection.BuildServiceProvider();
 
-            // Show Main Window
-            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            // 4) Run your long‑running VM init BEFORE showing MainWindow
+            var mainVm = _serviceProvider.GetRequiredService<MainWindowViewModel>();
+            await mainVm.InitializeAsync();
+
+            // 5) Create & show MainWindow, then close splash
+            var mainWindow = new MainWindow(mainVm);
             mainWindow.Show();
+
+            _splash.Close();
         }
 
         private IConfiguration BuildConfiguration()
-        {
-            return new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .Build();
-        }
+            => new ConfigurationBuilder()
+                  .SetBasePath(Directory.GetCurrentDirectory())
+                  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                  .Build();
 
         private void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
@@ -51,11 +59,8 @@ namespace PharmaTrack.WPF
             services.AddHttpClient<ScheduleService>();
             services.AddHttpClient<DrugService>();
 
-            services.AddSingleton<MainWindowViewModel>(); // Register MainWindowViewModel
-            // Register Main Window
-            services.AddSingleton<MainWindow>();
-
-            // Register ViewModels
+            // ViewModels
+            services.AddSingleton<MainWindowViewModel>();
             services.AddSingleton<LoginViewModel>();
             services.AddSingleton<StockTransferViewModel>();
             services.AddSingleton<InventoryViewModel>();
@@ -68,7 +73,8 @@ namespace PharmaTrack.WPF
             services.AddSingleton<DrugInteractionViewModel>();
             services.AddSingleton<IngredientInteractionViewModel>();
 
-            // Register Controls
+            // Views / Controls
+            services.AddSingleton<MainWindow>();
             services.AddSingleton<LoginControl>();
             services.AddSingleton<StockTransferControl>();
             services.AddSingleton<InventoryControl>();
@@ -80,7 +86,6 @@ namespace PharmaTrack.WPF
             services.AddSingleton<IngredientListControl>();
             services.AddSingleton<DrugInteractionControl>();
             services.AddSingleton<IngredientInteractionControl>();
-
             services.AddSingleton<ProductControl>();
         }
     }
