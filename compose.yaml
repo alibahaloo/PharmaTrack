@@ -9,12 +9,11 @@ services:
       - AuthApi__BaseUrl=http://auth-api
       - InventoryApi__BaseUrl=http://inventory-api
       - ScheduleApi__BaseUrl=http://schedule-api
-      - DrugApi__BaseUrl=http://drug-api 
+      - DrugApi__BaseUrl=http://drug-api
       - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=your_password
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecretP@ss
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
     volumes:
-      # Mount the freshly exported PFX from your solution folder
       - ./aspnetapp.pfx:/https/aspnetapp.pfx:ro
     ports:
       - "8081:80"
@@ -29,11 +28,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=inventory-db;Database=Inventory;User Id=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True
       - ASPNETCORE_URLS=http://+:80
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=your_password
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
     ports:
       - "8083:80"
-      - "8084:443"
     depends_on:
       - inventory-db
 
@@ -46,14 +42,11 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=auth-db;Database=Auth;User Id=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True
       - ASPNETCORE_URLS=http://+:80
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=your_password
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
     ports:
       - "8085:80"
-      - "8086:443"
     depends_on:
       - auth-db
- 
+
   schedule-api:
     container_name: Schedule.API
     build:
@@ -63,11 +56,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=schedule-db;Database=Schedule;User Id=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True
       - ASPNETCORE_URLS=http://+:80
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=your_password
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
     ports:
       - "8087:80"
-      - "8088:443"
     depends_on:
       - schedule-db
 
@@ -80,61 +70,58 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=drug-db;Database=Drug;User Id=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True
       - ASPNETCORE_URLS=http://+:80
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=your_password
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
     ports:
       - "8089:80"
-      - "8090:443"
     depends_on:
       - drug-db
 
   inventory-db:
-    container_name: Inventory.db  
+    container_name: Inventory.db
     image: "mcr.microsoft.com/mssql/server:2019-latest"
     environment:
-      SA_PASSWORD: "YourStrong!Passw0rd"  # Replace with a strong password
+      SA_PASSWORD: "YourStrong!Passw0rd"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"
     ports:
-      - "1433:1433"  # Expose SQL Server port
+      - "1433:1433"
     volumes:
-      - inventory-db-data:/var/opt/mssql  # Persist SQL data between restarts
- 
+      - inventory-db-data:/var/opt/mssql
+
   auth-db:
-    container_name: Auth.db  
+    container_name: Auth.db
     image: "mcr.microsoft.com/mssql/server:2019-latest"
     environment:
-      SA_PASSWORD: "YourStrong!Passw0rd"  # Replace with a strong password
+      SA_PASSWORD: "YourStrong!Passw0rd"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"
     ports:
-      - "1434:1433"  # Expose SQL Server port
+      - "1434:1433"
     volumes:
-      - auth-db-data:/var/opt/mssql  # Persist SQL data between restarts
- 
+      - auth-db-data:/var/opt/mssql
+
   schedule-db:
-    container_name: Schedule.db  
+    container_name: Schedule.db
     image: "mcr.microsoft.com/mssql/server:2019-latest"
     environment:
-      SA_PASSWORD: "YourStrong!Passw0rd"  # Replace with a strong password
+      SA_PASSWORD: "YourStrong!Passw0rd"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"
     ports:
-      - "1435:1433"  # Expose SQL Server port
+      - "1435:1433"
     volumes:
-      - schedule-db-data:/var/opt/mssql  # Persist SQL data between restarts
- 
+      - schedule-db-data:/var/opt/mssql
+
   drug-db:
-    container_name: Drug.db  
+    container_name: Drug.db
     image: "mcr.microsoft.com/mssql/server:2019-latest"
     environment:
-      SA_PASSWORD: "YourStrong!Passw0rd"  # Replace with a strong password
+      SA_PASSWORD: "YourStrong!Passw0rd"
       ACCEPT_EULA: "Y"
       MSSQL_PID: "Express"
     ports:
-      - "1436:1433"  # Expose SQL Server port
+      - "1436:1433"
     volumes:
-      - drug-db-data:/var/opt/mssql  # Persist SQL data between restarts
+      - drug-db-data:/var/opt/mssql
 
 volumes:
   inventory-db-data:
