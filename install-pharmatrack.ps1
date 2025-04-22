@@ -14,22 +14,24 @@ if (-not (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIden
 }
 
 # Ensure Docker Engine is running
-function Assert-DockerEngine {
-    # Run docker info, discard all output
-    & docker info > $null 2>&1
+& docker info > $null 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "ERROR: Docker engine is not running or reachable."
+    Exit 1
+} 
 
-    # Check exit code from the external process
-    if ($LASTEXITCODE -ne 0) {
-        Write-Error "ERROR: Docker engine is not running or reachable."
-        Exit 1
-    }
-
-    Write-Host "INFO: Docker engine is up and responsive." -ForegroundColor Green
+# Check for Docker Compose plugin
+if (-not (Get-Command docker-compose -ErrorAction SilentlyContinue) -and
+    -not (Get-Command docker -ErrorAction SilentlyContinue | Where Name -eq 'compose')) {
+    Write-Error "ERROR: Docker Compose not found."
+    Exit 1
 }
 
-# Pre‑flight:
-Assert-DockerEngine
-
+# .NET CLI
+if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
+    Write-Error "ERROR: .NET SDK (dotnet CLI) not found."
+    Exit 1
+}
 
 # Step 1: Publish the WPF app (self-contained, single file)
 Write-Host "`nStep 1: Publishing WPF app..." -ForegroundColor Cyan
@@ -116,6 +118,6 @@ $Shortcut.WindowStyle      = 1
 $Shortcut.Description      = "PharmaTrack WPF App"
 $Shortcut.Save()
 
-Write-Host "`n================================================" -ForegroundColor Cyan
+Write-Host "`n======================================================================" -ForegroundColor Green
 Write-Host "Installation complete! You can now open the application." -ForegroundColor Green
-Write-Host "================================================" -ForegroundColor Cyan
+Write-Host "======================================================================" -ForegroundColor Green
