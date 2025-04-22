@@ -1,4 +1,4 @@
-# install-pharmatrack.ps1
+﻿# install-pharmatrack.ps1
 # Orchestrates installation of PharmaTrack: publishes WPF app, generates certificates,
 # deploys Docker containers, import needed data, and creates a desktop shortcut.
 
@@ -13,11 +13,23 @@ if (-not (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIden
     Exit 1
 }
 
-# Ensure Docker CLI is available
-if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    Write-Error "ERROR: Docker CLI not found. Please install Docker Desktop or Docker CLI before running this script."
-    Exit 1
+# Ensure Docker Engine is running
+function Assert-DockerEngine {
+    # Run docker info, discard all output
+    & docker info > $null 2>&1
+
+    # Check exit code from the external process
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "ERROR: Docker engine is not running or reachable."
+        Exit 1
+    }
+
+    Write-Host "INFO: Docker engine is up and responsive." -ForegroundColor Green
 }
+
+# Pre‑flight:
+Assert-DockerEngine
+
 
 # Step 1: Publish the WPF app (self-contained, single file)
 Write-Host "`nStep 1: Publishing WPF app..." -ForegroundColor Cyan
@@ -39,7 +51,7 @@ Write-Host "`nStep 3: Deploying Docker containers..." -ForegroundColor Cyan
 # Step 4: Import initial data via API endpoints
 Write-Host "`nStep 4: Importing initial data into the system..."
 
-# � wait for API port to be open before returning �
+# — wait for API port to be open before returning —
 Write-Host "`nStep 4a: Waiting for API readiness via /health..." -ForegroundColor Cyan
 
 $healthUrl   = 'http://localhost:8089/health'
@@ -52,7 +64,7 @@ do {
     try {
         $resp = Invoke-WebRequest -Uri $healthUrl -Method GET -TimeoutSec 5 -ErrorAction Stop
         if ($resp.StatusCode -eq 200) {
-            Write-Host "`nAPI is healthy (after $attempt attempt(s))." -ForegroundColor Green
+            Write-Host "`nINFO: API is healthy (after $attempt attempt(s))." -ForegroundColor Green
             break
         }
     } catch {
@@ -60,7 +72,7 @@ do {
         Start-Sleep -Seconds $delaySecs
     }
     if ($attempt -ge $maxRetries) {
-        throw "API health check failed: $healthUrl did not return 200 after $maxRetries attempts."
+        throw "ERROR: API health check failed: $healthUrl did not return 200 after $maxRetries attempts."
     }
 } while ($true)
 
@@ -71,25 +83,25 @@ Write-Host "`nStep 4b: Importing initial data via API endpoints..." -ForegroundC
 try {
     $response = Invoke-WebRequest -Uri "http://localhost:8089/api/Jobs/import-drug-data" -Method POST
 } catch {
-    throw "Failed to send request to import drug data: $($_.Exception.Message)"
+    throw "ERROR: Failed to send request to import drug data: $($_.Exception.Message)"
 }
 if ($response.StatusCode -ne 200) {
     Write-Host "ERROR: Import drug data failed with HTTP status code $($response.StatusCode)."
-    throw "Import drug data returned HTTP $($response.StatusCode). Stopping installation."
+    throw "ERROR: Import drug data returned HTTP $($response.StatusCode). Stopping installation."
 }
-Write-Host "Import drug data completed successfully (Status $($response.StatusCode))."
+Write-Host "INFO: Import drug data completed successfully (Status $($response.StatusCode))." -ForegroundColor Green
 
 # POST to import interaction data
 try {
     $response = Invoke-WebRequest -Uri "http://localhost:8089/api/Jobs/import-interaction-data" -Method POST
 } catch {
-    throw "Failed to send request to import interaction data: $($_.Exception.Message)"
+    throw "ERROR: Failed to send request to import interaction data: $($_.Exception.Message)"
 }
 if ($response.StatusCode -ne 200) {
     Write-Host "ERROR: Import interaction data failed with HTTP status code $($response.StatusCode)."
-    throw "Import interaction data returned HTTP $($response.StatusCode). Stopping installation."
+    throw "ERROR: Import interaction data returned HTTP $($response.StatusCode). Stopping installation."
 }
-Write-Host "Import interaction data completed successfully (Status $($response.StatusCode))."
+Write-Host "INFO: Import interaction data completed successfully (Status $($response.StatusCode))." -ForegroundColor Green
 
 # Step 5: Create a Desktop shortcut for WPF app
 Write-Host "`nStep 5: Creating Desktop shortcut..." -ForegroundColor Cyan
@@ -104,4 +116,6 @@ $Shortcut.WindowStyle      = 1
 $Shortcut.Description      = "PharmaTrack WPF App"
 $Shortcut.Save()
 
-Write-Host "`nInstallation complete!" -ForegroundColor Green
+Write-Host "`n================================================" -ForegroundColor Cyan
+Write-Host "Installation complete! You can now open the application." -ForegroundColor Green
+Write-Host "================================================" -ForegroundColor Cyan

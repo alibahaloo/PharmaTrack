@@ -13,4 +13,4 @@ Write-Host "Deploying Docker containers…" -ForegroundColor Cyan
 docker-compose down
 docker-compose up -d
 
-Write-Host "Docker services are up and running." -ForegroundColor Green
+Write-Host "INFO: Docker services are deployed and running." -ForegroundColor Green

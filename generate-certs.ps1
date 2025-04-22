@@ -70,4 +70,4 @@ openssl pkcs12 -export `
   -certfile rootCA.crt `
   -passout pass:SuperSecretP@ss
 
-Write-Host "Certificates generated." -ForegroundColor Green
+Write-Host "INFO: Certificates generated." -ForegroundColor Green
