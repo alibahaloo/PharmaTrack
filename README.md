@@ -1,125 +1,134 @@
 ﻿# PharmaTrack Local Deployment
 
-This guide describes how to generate and trust SSL certificates for local HTTPS development, deploy backend APIs using Docker, and run the PharmaTrack WPF application.
+This guide walks you through installing and running PharmaTrack locally on Windows. It uses three PowerShell scripts to generate certificates, deploy services in Docker, publish the WPF client, and create a Desktop shortcut for easy launch.
 
 ---
 
 ## Prerequisites
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- PowerShell (Windows 10/11)
-- OpenSSL installed (included in Git Bash or install via Chocolatey: `choco install openssl.light`)
+- **Administrator Privileges**  
+  Run all scripts in an elevated PowerShell session (Run as Administrator).
+
+- **PowerShell 7+**  
+  Ensure script execution is allowed:
+  ```powershell
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+  ```
+
+- **Docker CLI / Docker Desktop**  
+  Install and running. Verify with:
+  ```powershell
+  docker version
+  ```
+
+- **.NET SDK 6+**  
+  Used to publish the WPF application. Verify with:
+  ```powershell
+  dotnet --list-sdks
+  ```
+
+- **OpenSSL**  
+  Required by `generate-certs.ps1`. Install via Chocolatey:
+  ```powershell
+  choco install openssl.light
+  ```
 
 ---
 
 ## Folder Structure
 
-Your solution root should contain the following:
-
 ```
 PharmaTrack/
-├── install-pharmatrack.bat      # Launches the full installer (recommended)
-├── install-pharmatrack.ps1      # Main installer script
-├── generate-certs.ps1           # Certificate generator script
-├── deploy.ps1                   # Trusts root cert + runs Docker Compose
-├── docker-compose.yml           # Docker services configuration
-├── PharmaTrack.WPF/             # WPF client
-├── Gateway.API/                 # API projects...
-└── etc.
+├── install-pharmatrack.ps1      # Main installer script (orchestrates all steps)
+├── generate-certs.ps1           # Generates Root CA and server certificates
+├── deploy.ps1                   # Imports Root CA and starts Docker services
+├── docker-compose.yml           # Docker Compose configuration
+├── PharmaTrack.WPF/             # WPF client source & project
+├── Gateway.API/                 # API gateway and backend services
+└── ...                          # Other solution files
 ```
 
 ---
 
-## 🧪 Option A: One-click install (Recommended)
+## Installation
 
-Double-click `install-pharmatrack.bat` to:
+1. **Open PowerShell as Administrator**  
+   ```powershell
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+   cd path\to\PharmaTrack
+   ```
 
-- ✅ Elevate privileges (admin required)
-- ✅ Generate trusted SSL certificates
-- ✅ Publish the WPF app (self-contained executable)
-- ✅ Deploy Docker containers
-- ✅ Create a Desktop shortcut for launching the app
+2. **Run the installer script**  
+   ```powershell
+   .\install-pharmatrack.ps1
+   ```
 
-Once complete, you'll find a shortcut on your Desktop to run PharmaTrack.
+This single script will:
 
----
-
-## 🛠 Option B: Manual Setup
-
-### 1. Generate Local Certificates
-
-Open PowerShell as Administrator and run:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-./generate-certs.ps1
-```
-
-This will generate:
-- A root certificate authority (CA)
-- A signed server certificate for `localhost`
-- A `.pfx` certificate used by Kestrel in Docker
-
-
-### 2. Trust the Root Certificate + Launch Docker
-
-In the same admin PowerShell window:
-
-```powershell
-./deploy.ps1
-```
-
-This will:
-- Import the root certificate into Windows trusted root store
-- Start the Docker containers
-
-
-### 3. Access the API Gateway
-
-After successful launch, access your API Gateway at:
-
-```
-https://localhost:8082
-```
-
-The WPF client should be configured to point to this URL.
+- Check for Administrator rights  
+- Verify Docker CLI is installed  
+- Publish the WPF app (self-contained executable)  
+- Generate and trust SSL certificates (`generate-certs.ps1`)  
+- Deploy Docker containers (`deploy.ps1`)  
+- Create a Desktop shortcut for PharmaTrack  
 
 ---
 
-## What to Add to .gitignore
+## Alternative Manual Steps
 
-The following files are **auto-generated** and should **not be committed** to Git:
+If you need more control, run the scripts individually:
 
-```gitignore
-# SSL certificate files
-aspnetapp.pfx
-rootCA.crt
-rootCA.key
-rootCA.srl
-server.key
-server.crt
-server.csr
-openssl-san.cnf
-```
+1. **Generate certificates**  
+   ```powershell
+   .\generate-certs.ps1
+   ```
+
+2. **Import certificates & deploy Docker**  
+   ```powershell
+   .\deploy.ps1
+   ```
+
+3. **Publish WPF app & create shortcut**  
+   (already part of `install-pharmatrack.ps1`; run separately only if needed)
 
 ---
 
 ## Troubleshooting
 
-### Problem: Access Denied on `Import-Certificate`
-**Solution**: Make sure you run `deploy.ps1` or the `.bat` installer as **Administrator**.
+### Not running as Administrator
 
-### Problem: `The SSL connection could not be established`
-**Solution**: Ensure certificates are properly generated, trusted, and mounted into Docker containers.
+```
+This script must be run as Administrator.
+```
+**Fix:** Right-click PowerShell → Run as Administrator.
 
-### Problem: `@echo` line shows weird characters (`∩╗┐@echo`)
-**Solution**: Re-save the `.bat` file using encoding: UTF-8 (without BOM) or ANSI.
+### Docker CLI not found
+
+```
+Docker CLI not found. Please install Docker Desktop or Docker CLI before running this script.
+```
+**Fix:** Install Docker Desktop and restart PowerShell.
+
+### SSL connection errors
+
+**Fix:**  
+- Ensure the root CA (`rootCA.crt`) is in Trusted Root Certification Authorities.  
+- Delete existing certs in `%USERPROFILE%\.aspnet\https` and rerun `generate-certs.ps1`.
+
+### Docker services fail to start
+
+**Fix:**  
+- Run `docker-compose down` then `docker-compose up` manually to inspect logs.  
+- Ensure required ports (e.g., 8082, 5432) are free.
+
+### Desktop shortcut issues
+
+**Fix:**  
+- Verify `publish\PharmaTrack.WPF.exe` exists.  
+- Recreate the shortcut manually if needed.
 
 ---
 
 ## License
 
-This project is open source and freely available under the [MIT License](https://opensource.org/licenses/MIT).
-
-You are free to use, modify, distribute, and integrate this solution in commercial or non-commercial projects. Attribution is appreciated but not required.
-
+MIT License.
