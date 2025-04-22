@@ -34,7 +34,7 @@ COPY ./PharmaTrack/aspnetapp.pfx /https/aspnetapp.pfx
 
 # Set environment variables for Kestrel to use HTTPS
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-ENV ASPNETCORE_Kestrel__Certificates__Default__Password=your_password
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecretP@ss
 
 EXPOSE 443
 EXPOSE 80

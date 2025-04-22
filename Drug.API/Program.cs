@@ -35,6 +35,7 @@ builder.Services.AddHangfire(configuration => configuration
 
 // Add Hangfire server
 builder.Services.AddHangfireServer();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddScoped<DrugJobService>();
 
@@ -55,6 +56,8 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.MapHealthChecks("/health");
 
 app.MapControllers();
 
