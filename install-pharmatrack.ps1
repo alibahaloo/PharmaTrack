@@ -191,7 +191,7 @@ if ($response.StatusCode -ne 200) {
     Write-Host "ERROR: Import drug data failed with HTTP status code $($response.StatusCode)."
     throw "ERROR: Import drug data returned HTTP $($response.StatusCode). Stopping installation."
 }
-Write-Host "INFO: Import drug data completed successfully (Status $($response.StatusCode))." -ForegroundColor Green
+Write-Host "INFO: Drug data import scheduled successfully (Status $($response.StatusCode))." -ForegroundColor Green
 
 # POST to import interaction data
 try {
@@ -203,7 +203,9 @@ if ($response.StatusCode -ne 200) {
     Write-Host "ERROR: Import interaction data failed with HTTP status code $($response.StatusCode)."
     throw "ERROR: Import interaction data returned HTTP $($response.StatusCode). Stopping installation."
 }
-Write-Host "INFO: Import interaction data completed successfully (Status $($response.StatusCode))." -ForegroundColor Green
+Write-Host "INFO: Interaction data import scheduled successfully (Status $($response.StatusCode))." -ForegroundColor Green
+
+Write-Host "INFO: You can view the jobs status here: http://localhost:8089/hangfire" -ForegroundColor Green
 
 # Step 5: Create a Desktop shortcut for WPF app
 Write-Host "`nStep 5: Creating Desktop shortcut..." -ForegroundColor Cyan
