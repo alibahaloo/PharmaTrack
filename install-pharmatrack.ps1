@@ -1,92 +1,136 @@
-﻿# install-pharmatrack.ps1
-# Orchestrates installation of PharmaTrack: publishes WPF app, generates certificates,
-# deploys Docker containers, import needed data, and creates a desktop shortcut.
+﻿# Stop on any error
+$ErrorActionPreference = 'Stop'
 
-Write-Host "`n================================================" -ForegroundColor Cyan
-Write-Host "Installing PharmaTrack..." -ForegroundColor Cyan
-Write-Host "================================================" -ForegroundColor Cyan
-
-# --- Pre-flight Checks ---
-# Ensure script is run as Administrator
-if (-not (([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))) {
-    Write-Error "ERROR: This script must be run as Administrator."
-    Exit 1
-}
-
-# PowerShell version
-if ($PSVersionTable.PSVersion.Major -lt 5) {
-    Write-Error "ERROR: PowerShell 5.1+ required. Current: $($PSVersionTable.PSVersion)"
-    Exit 1
-}
-
-# OpenSSL + Chocolatey installer
-Write-Host "`nChecking for OpenSSL..." -ForegroundColor Cyan
-if (Get-Command openssl -ErrorAction SilentlyContinue) {
-    Write-Host "INFO: OpenSSL is already installed." -ForegroundColor Green
-} else {
-    Write-Host "WARNING: OpenSSL not found. Attempting to install via Chocolatey..." -ForegroundColor Yellow
-
-    # 1) Ensure Chocolatey
+function Install-Chocolatey {
     if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
-        Write-Host "  • Chocolatey not found. Installing Chocolatey..." -ForegroundColor Yellow
-
-        # allow script execution & enforce TLS1.2
+        Write-Host "INFO: Chocolatey not found. Installing..." -ForegroundColor Cyan
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-
-        # install script from official source
-        iex ((New-Object Net.WebClient).DownloadString(
-          'https://community.chocolatey.org/install.ps1'
-        ))
-
-        # add choco to PATH for this session
-        $chocoPath = (Get-ItemProperty 'HKLM:\Software\Chocolatey\InstallLocation').InstallLocation + '\bin'
-        $env:Path += ";$chocoPath"
-        Write-Host "  ✓ Chocolatey installed." -ForegroundColor Green
+        iex ((New-Object Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+        $chocoBin = (Get-ItemProperty 'HKLM:\Software\Chocolatey\InstallLocation').InstallLocation + '\bin'
+        $env:Path += ";$chocoBin"
+        Write-Host "INFO: Chocolatey installed." -ForegroundColor Green
     } else {
-        Write-Host "  ✓ Chocolatey is already installed." -ForegroundColor Green
+        Write-Host "INFO: Chocolatey is already installed." -ForegroundColor Green
+    }
+}
+
+function Assert-Admin {
+    if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+        Write-Host "ERROR: This script must be run as Administrator." -ForegroundColor Red
+        Exit 1
+    }
+    Write-Host "INFO: Running as Administrator." -ForegroundColor Green
+}
+
+function Ensure-DockerEngine {
+    # —–– remove stale docker-feedback plugin so no spurious errors
+    $plugin = Join-Path $env:USERPROFILE '.docker\cli-plugins\docker-feedback.exe'
+    if (Test-Path $plugin) {
+        Write-Host "INFO: Removing stale Docker CLI plugin 'docker-feedback.exe'…" -ForegroundColor Yellow
+        Remove-Item $plugin -Force
     }
 
-    # 2) Install OpenSSL
-    Write-Host "  • Installing OpenSSL via choco..." -ForegroundColor Yellow
-    choco install openssl.light -y
+    # —–– start the Docker Windows service if it's not already running
+    $svc = Get-Service -Name 'com.docker.service','Docker' -ErrorAction SilentlyContinue |
+           Where-Object Status -ne 'Running' |
+           Select-Object -First 1
+    if ($svc) {
+        Write-Host "INFO: Starting Docker service '$($svc.Name)'…" -ForegroundColor Cyan
+        Start-Service -Name $svc.Name
+        try {
+            # wait up to 30 seconds for the service to become Running
+            $svc.WaitForStatus('Running','00:00:30')
+        } catch {
+            throw "ERROR: Docker service '$($svc.Name)' failed to start within 30 seconds."
+        }
+        Write-Host "INFO: Docker service is now running." -ForegroundColor Green
+    }
+
+    # —–– temporarily allow non-terminating errors so we can swallow warnings
+    $oldEAP = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+
+    # —–– invoke docker info, suppress both stdout and stderr
+    & docker info > $null 2>&1
+
+    # —–– restore original error action preference
+    $ErrorActionPreference = $oldEAP
+
+    # —–– if docker still isn't reachable, exit with error
     if ($LASTEXITCODE -ne 0) {
-        Write-Error "ERROR: Failed to install OpenSSL via Chocolatey."
+        throw "ERROR: Docker engine is still unreachable (exit code $LASTEXITCODE)."
+    }
+
+    Write-Host "INFO: Docker engine is up and responsive." -ForegroundColor Green
+}
+
+function Assert-DockerCompose {
+    $hasComposeLegacy = Get-Command docker-compose -ErrorAction SilentlyContinue
+    $composePluginOk = $false
+    try { docker compose version > $null 2>&1; $composePluginOk = $true } catch {}
+    if (-not $hasComposeLegacy -and -not $composePluginOk) {
+        Write-Host "ERROR: Docker Compose not found." -ForegroundColor Red
         Exit 1
     }
+    Write-Host "INFO: Docker Compose is available." -ForegroundColor Green
+}
 
-    # refresh environment if RefreshEnv is available
-    if (Get-Command RefreshEnv -ErrorAction SilentlyContinue) {
-        RefreshEnv | Out-Null
-    }
-
-    # final check
-    if (Get-Command openssl -ErrorAction SilentlyContinue) {
-        Write-Host "  ✓ OpenSSL installed successfully." -ForegroundColor Green
+function Ensure-DotNetSdk {
+    if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
+        Write-Host "WARNING: .NET CLI not found. Installing .NET 7.0 SDK via Chocolatey..." -ForegroundColor Yellow
+        Install-Chocolatey
+        choco install dotnet-7.0-sdk -y --no-progress
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "ERROR: Failed to install .NET SDK." -ForegroundColor Red
+            Exit 1
+        }
+        if (Get-Command RefreshEnv -ErrorAction SilentlyContinue) { RefreshEnv | Out-Null }
+        Write-Host "INFO: .NET SDK installed successfully." -ForegroundColor Green
     } else {
-        Write-Error "ERROR: OpenSSL still not found after installation."
-        Exit 1
+        Write-Host "INFO: .NET CLI detected (v$(dotnet --version))." -ForegroundColor Green
     }
 }
 
-# Ensure Docker Engine is running
-& docker info > $null 2>&1
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "ERROR: Docker engine is not running or reachable."
-    Exit 1
-} 
-
-# Check for Docker Compose plugin
-if (-not (Get-Command docker-compose -ErrorAction SilentlyContinue) -and
-    -not (Get-Command docker -ErrorAction SilentlyContinue | Where Name -eq 'compose')) {
-    Write-Error "ERROR: Docker Compose not found."
-    Exit 1
+function Ensure-OpenSSL {
+    if (-not (Get-Command openssl -ErrorAction SilentlyContinue)) {
+        Write-Host "WARNING: OpenSSL not found. Installing via Chocolatey..." -ForegroundColor Yellow
+        Install-Chocolatey
+        choco install openssl.light -y --no-progress
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "ERROR: Failed to install OpenSSL." -ForegroundColor Red
+            Exit 1
+        }
+        if (Get-Command RefreshEnv -ErrorAction SilentlyContinue) { RefreshEnv | Out-Null }
+        Write-Host "INFO: OpenSSL installed successfully." -ForegroundColor Green
+    } else {
+        Write-Host "INFO: OpenSSL is already installed." -ForegroundColor Green
+    }
 }
 
-# .NET CLI
-if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
-    Write-Error "ERROR: .NET SDK (dotnet CLI) not found."
-    Exit 1
+# --- Pre-Flight ---
+Write-Host "`n================================================" -ForegroundColor Cyan
+Write-Host "Installing PharmaTrack - Pre-Flight Checks" -ForegroundColor Cyan
+Write-Host "================================================" -ForegroundColor Cyan
+
+Assert-Admin
+Ensure-DockerEngine
+Assert-DockerCompose
+Ensure-DotNetSdk
+Ensure-OpenSSL
+
+# Validate required files
+$required = @(
+    "$PSScriptRoot\PharmaTrack.WPF\PharmaTrack.WPF.csproj",
+    "$PSScriptRoot\generate-certs.ps1",
+    "$PSScriptRoot\deploy.ps1",
+    "$PSScriptRoot\compose.yaml"
+)
+foreach ($f in $required) {
+    if (-not (Test-Path $f)) {
+        Write-Host "ERROR: Required file not found: $f" -ForegroundColor Red
+        Exit 1
+    }
 }
 
 # Step 1: Publish the WPF app (self-contained, single file)
