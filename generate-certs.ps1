@@ -1,9 +1,3 @@
-# === Save & Run Instructions ===
-# 1. Open PowerShell as Administrator and cd into this folder.
-# 2. Run:
-#      Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-#      .\generate-certs.ps1
-
 # === Certificate Generation Script ===
 
 # Step 0: Write OpenSSL SAN configuration (needed by *all* openssl req calls)
