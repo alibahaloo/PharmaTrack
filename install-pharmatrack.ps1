@@ -7,7 +7,9 @@ function Install-Chocolatey {
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         iex ((New-Object Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-        $chocoBin = (Get-ItemProperty 'HKLM:\Software\Chocolatey\InstallLocation').InstallLocation + '\bin'
+        # Load the freshly created machine environment variable into this session
+        $env:ChocolateyInstall = [Environment]::GetEnvironmentVariable('ChocolateyInstall','Machine')
+        $chocoBin = Join-Path $env:ChocolateyInstall 'bin'
         $env:Path += ";$chocoBin"
         Write-Host "INFO: Chocolatey installed." -ForegroundColor Green
     } else {
@@ -24,56 +26,56 @@ function Assert-Admin {
 }
 
 function Ensure-DockerEngine {
-    # —–– remove stale docker-feedback plugin so no spurious errors
-    $plugin = Join-Path $env:USERPROFILE '.docker\cli-plugins\docker-feedback.exe'
-    if (Test-Path $plugin) {
-        Write-Host "INFO: Removing stale Docker CLI plugin 'docker-feedback.exe'…" -ForegroundColor Yellow
-        Remove-Item $plugin -Force
-    }
-
-    # —–– start the Docker Windows service if it's not already running
-    $svc = Get-Service -Name 'com.docker.service','Docker' -ErrorAction SilentlyContinue |
-           Where-Object Status -ne 'Running' |
-           Select-Object -First 1
-    if ($svc) {
-        Write-Host "INFO: Starting Docker service '$($svc.Name)'…" -ForegroundColor Cyan
-        Start-Service -Name $svc.Name
-        try {
-            # wait up to 30 seconds for the service to become Running
-            $svc.WaitForStatus('Running','00:00:30')
-        } catch {
-            throw "ERROR: Docker service '$($svc.Name)' failed to start within 30 seconds."
-        }
-        Write-Host "INFO: Docker service is now running." -ForegroundColor Green
-    }
-
-    # —–– temporarily allow non-terminating errors so we can swallow warnings
-    $oldEAP = $ErrorActionPreference
-    $ErrorActionPreference = 'Continue'
-
-    # —–– invoke docker info, suppress both stdout and stderr
-    & docker info > $null 2>&1
-
-    # —–– restore original error action preference
-    $ErrorActionPreference = $oldEAP
-
-    # —–– if docker still isn't reachable, exit with error
+    Write-Host "INFO: Installing Docker Engine (Moby) via Chocolatey..." -ForegroundColor Cyan
+    # Use Chocolatey as a reliable fallback on this platform
+    Install-Chocolatey
+    choco install docker-engine -y --no-progress
+    choco install docker-cli -y --no-progress
     if ($LASTEXITCODE -ne 0) {
-        throw "ERROR: Docker engine is still unreachable (exit code $LASTEXITCODE)."
-    }
-
-    Write-Host "INFO: Docker engine is up and responsive." -ForegroundColor Green
-}
-
-function Assert-DockerCompose {
-    $hasComposeLegacy = Get-Command docker-compose -ErrorAction SilentlyContinue
-    $composePluginOk = $false
-    try { docker compose version > $null 2>&1; $composePluginOk = $true } catch {}
-    if (-not $hasComposeLegacy -and -not $composePluginOk) {
-        Write-Host "ERROR: Docker Compose not found." -ForegroundColor Red
+        Write-Host "ERROR: Failed to install Docker Engine or CLI." -ForegroundColor Red
         Exit 1
     }
-    Write-Host "INFO: Docker Compose is available." -ForegroundColor Green
+    # Refresh environment if available to pick up newly installed executables
+    if (Get-Command RefreshEnv -ErrorAction SilentlyContinue) { RefreshEnv | Out-Null }
+    # Start & configure the Docker service (if the package provided it)
+    try {
+        Start-Service docker
+        Set-Service docker -StartupType Automatic
+    } catch {
+        Write-Warning "Docker service not found or already running."
+    }
+    # Verify the Docker CLI is available
+    & docker version > $null 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "ERROR: Docker CLI still not responding (exit code $LASTEXITCODE)."
+    }
+    Write-Host "INFO: Docker engine is installed and running." -ForegroundColor Green
+}
+
+
+function Ensure-DockerCompose {
+    Write-Host "INFO: Ensuring Docker Compose plugin is available..." -ForegroundColor Cyan
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    $pluginDir = "$Env:ProgramFiles\Docker\cli-plugins"
+    $pluginPath = Join-Path $pluginDir 'docker-compose.exe'
+    # If plugin exists and is functional, skip download
+    if (Test-Path $pluginPath) {
+        try { docker compose version > $null 2>&1; Write-Host "INFO: Docker Compose plugin already installed." -ForegroundColor Green; return } catch {}
+    }
+    Write-Host "INFO: Installing Docker Compose plugin..." -ForegroundColor Cyan
+    try {
+        $release = Invoke-RestMethod -UseBasicParsing "https://api.github.com/repos/docker/compose/releases/latest"
+        $tag    = $release.tag_name
+        if (-not (Test-Path $pluginDir)) { New-Item -ItemType Directory -Path $pluginDir -Force | Out-Null }
+        $url = "https://github.com/docker/compose/releases/download/$tag/docker-compose-windows-x86_64.exe"
+        Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $pluginPath
+    } catch {
+        Write-Error "Failed to download Docker Compose plugin: $_"
+        Exit 1
+    }
+    # Verify plugin works
+    try { docker compose version > $null 2>&1 } catch { Write-Error "ERROR: Docker Compose plugin not responding (exit code $LASTEXITCODE)."; Exit 1 }
+    Write-Host "INFO: Docker Compose plugin installed and operational." -ForegroundColor Green
 }
 
 function Ensure-DotNetSdk {
@@ -93,29 +95,43 @@ function Ensure-DotNetSdk {
 }
 
 function Ensure-OpenSSL {
-    if (-not (Get-Command openssl -ErrorAction SilentlyContinue)) {
+    $opensslPath = "C:\\Program Files\\OpenSSL\\bin\\openssl.exe"
+    if (-not (Test-Path $opensslPath)) {
         Write-Host "WARNING: OpenSSL not found. Installing via Chocolatey..." -ForegroundColor Yellow
         Install-Chocolatey
         choco install openssl.light -y --no-progress
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "ERROR: Failed to install OpenSSL." -ForegroundColor Red
+        $exitCode = $LASTEXITCODE
+        if ($exitCode -eq 3010) {
+            Write-Host "WARNING: OpenSSL installed; reboot recommended (exit code 3010)." -ForegroundColor Yellow
+        } elseif ($exitCode -ne 0) {
+            Write-Host "ERROR: Failed to install OpenSSL (exit code $exitCode)." -ForegroundColor Red
             Exit 1
         }
-        if (Get-Command RefreshEnv -ErrorAction SilentlyContinue) { RefreshEnv | Out-Null }
-        Write-Host "INFO: OpenSSL installed successfully." -ForegroundColor Green
     } else {
-        Write-Host "INFO: OpenSSL is already installed." -ForegroundColor Green
+        Write-Host "INFO: OpenSSL binary already present." -ForegroundColor Green
     }
+    # Ensure the bin path is on PATH
+    $opensslDir = Split-Path $opensslPath
+    if ($env:Path -notmatch [regex]::Escape($opensslDir)) {
+        $env:Path += ";$opensslDir"
+    }
+    # Verify openssl works now
+    & "$opensslPath" version > $null 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "ERROR: OpenSSL executable not responding (exit code $LASTEXITCODE)." -ForegroundColor Red
+        Exit 1
+    }
+    Write-Host "INFO: OpenSSL is installed and operational." -ForegroundColor Green
 }
 
 # --- Pre-Flight ---
 Write-Host "`n================================================" -ForegroundColor Cyan
 Write-Host "Installing PharmaTrack - Pre-Flight Checks" -ForegroundColor Cyan
-Write-Host "================================================" -ForegroundColor Cyan
+Write-Host "================================================`n" -ForegroundColor Cyan
 
 Assert-Admin
 Ensure-DockerEngine
-Assert-DockerCompose
+Ensure-DockerCompose
 Ensure-DotNetSdk
 Ensure-OpenSSL
 
