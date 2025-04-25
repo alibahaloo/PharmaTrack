@@ -190,7 +190,19 @@ Write-Host "`nStep 2: Generating certificates..." -ForegroundColor Cyan
 
 # Step 3: Trust cert + start Docker containers
 Write-Host "`nStep 3: Deploying Docker containers..." -ForegroundColor Cyan
-& "$PSScriptRoot\deploy.ps1"
+# Step 3.1: Trust the Root CA in Windows
+Write-Host "Trusting Root CA…" -ForegroundColor Cyan
+Import-Certificate `
+  -FilePath "$PSScriptRoot\rootCA.crt" `
+  -CertStoreLocation Cert:\LocalMachine\Root
+
+# Step 3.2: Deploy Docker containers
+Write-Host "Deploying Docker containers…" -ForegroundColor Cyan
+docker-compose down
+docker-compose build
+docker-compose up -d
+
+Write-Host "INFO: Docker services are deployed and running." -ForegroundColor Green
 
 # Step 4: Import initial data via API endpoints
 Write-Host "`nStep 4: Importing initial data into the system..."
