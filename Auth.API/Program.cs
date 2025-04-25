@@ -5,6 +5,14 @@ using PharmaTrack.Shared.DBModels;
 using PharmaTrack.Shared.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+// let it know it’s running as a Windows Service
+builder.Host.UseWindowsService(options => {
+    // optional: give the service a friendly name in the SCM
+    options.ServiceName = "PharmaTrack Auth API";
+});
+
+// NEW: point the content-root at the folder where your exe lives
+builder.Host.UseContentRoot(AppContext.BaseDirectory);
 
 builder.WebHost.UseUrls(
     "http://localhost:8083",
