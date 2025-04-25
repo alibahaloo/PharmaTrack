@@ -1,10 +1,9 @@
-using Microsoft.EntityFrameworkCore;
-using Hangfire;
-using Hangfire.SqlServer;
 using Drug.API.Data;
-using Hangfire.Dashboard;
-using PharmaTrack.Shared.Services;
 using Drug.API.Services;
+using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.SqlServer;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +39,13 @@ builder.Services.AddHealthChecks();
 builder.Services.AddScoped<DrugJobService>();
 
 var app = builder.Build();
+
+// Apply migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DrugDBContext>();
+    db.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
