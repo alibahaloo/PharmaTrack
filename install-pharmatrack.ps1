@@ -56,42 +56,68 @@ function Ensure-DockerEngine {
 function Ensure-DockerCompose {
     Write-Host "INFO: Ensuring Docker Compose plugin is available..." -ForegroundColor Cyan
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
     $pluginDir = "$Env:ProgramFiles\Docker\cli-plugins"
     $pluginPath = Join-Path $pluginDir 'docker-compose.exe'
+
     # If plugin exists and is functional, skip download
     if (Test-Path $pluginPath) {
-        try { docker compose version > $null 2>&1; Write-Host "INFO: Docker Compose plugin already installed." -ForegroundColor Green; return } catch {}
+        try {
+            docker compose version > $null 2>&1
+            Write-Host "INFO: Docker Compose plugin already installed." -ForegroundColor Green
+        } catch {
+            Write-Host "WARNING: Docker Compose plugin found but failed to run; reinstalling." -ForegroundColor Yellow
+            Remove-Item $pluginPath -Force
+        }
     }
-    Write-Host "INFO: Installing Docker Compose plugin..." -ForegroundColor Cyan
+
+    # Download plugin if missing
+    if (-not (Test-Path $pluginPath)) {
+        Write-Host "INFO: Installing Docker Compose plugin..." -ForegroundColor Cyan
+        try {
+            $release = Invoke-RestMethod -UseBasicParsing "https://api.github.com/repos/docker/compose/releases/latest"
+            $tag    = $release.tag_name
+            if (-not (Test-Path $pluginDir)) { New-Item -ItemType Directory -Path $pluginDir -Force | Out-Null }
+            $url = "https://github.com/docker/compose/releases/download/$tag/docker-compose-windows-x86_64.exe"
+            Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $pluginPath
+        } catch {
+            Write-Error "Failed to download Docker Compose plugin: $_"
+            Exit 1
+        }
+    }
+
+    # Verify plugin works
     try {
-        $release = Invoke-RestMethod -UseBasicParsing "https://api.github.com/repos/docker/compose/releases/latest"
-        $tag    = $release.tag_name
-        if (-not (Test-Path $pluginDir)) { New-Item -ItemType Directory -Path $pluginDir -Force | Out-Null }
-        $url = "https://github.com/docker/compose/releases/download/$tag/docker-compose-windows-x86_64.exe"
-        Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $pluginPath
+        docker compose version > $null 2>&1
     } catch {
-        Write-Error "Failed to download Docker Compose plugin: $_"
+        Write-Error "ERROR: Docker Compose plugin not responding (exit code $LASTEXITCODE)."
         Exit 1
     }
-    # Verify plugin works
-    try { docker compose version > $null 2>&1 } catch { Write-Error "ERROR: Docker Compose plugin not responding (exit code $LASTEXITCODE)."; Exit 1 }
     Write-Host "INFO: Docker Compose plugin installed and operational." -ForegroundColor Green
+
+    # Create docker-compose standalone shim in PATH if not present
+    $chocoBin = Join-Path $Env:ChocolateyInstall 'bin'
+    $standalone = Join-Path $chocoBin 'docker-compose.exe'
+    if (-not (Test-Path $standalone)) {
+        Copy-Item -Path $pluginPath -Destination $standalone -Force
+        Write-Host "INFO: Created docker-compose shim at $standalone" -ForegroundColor Green
+    }
 }
 
 function Ensure-DotNetSdk {
-    if (-not (Get-Command dotnet -ErrorAction SilentlyContinue)) {
-        Write-Host "WARNING: .NET CLI not found. Installing .NET 7.0 SDK via Chocolatey..." -ForegroundColor Yellow
-        Install-Chocolatey
-        choco install dotnet-7.0-sdk -y --no-progress
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "ERROR: Failed to install .NET SDK." -ForegroundColor Red
-            Exit 1
-        }
-        if (Get-Command RefreshEnv -ErrorAction SilentlyContinue) { RefreshEnv | Out-Null }
-        Write-Host "INFO: .NET SDK installed successfully." -ForegroundColor Green
-    } else {
-        Write-Host "INFO: .NET CLI detected (v$(dotnet --version))." -ForegroundColor Green
+    Write-Host "INFO: Installing .NET 9.0 SDK via Chocolatey..." -ForegroundColor Cyan
+    Install-Chocolatey
+    choco install dotnet-9.0-sdk -y --no-progress
+    $exitCode = $LASTEXITCODE
+    if ($exitCode -eq 3010) {
+        Write-Host "WARNING: .NET 9.0 SDK installed; reboot recommended (exit code 3010)." -ForegroundColor Yellow
+    } elseif ($exitCode -ne 0) {
+        Write-Host "ERROR: Failed to install .NET 9.0 SDK (exit code $exitCode)." -ForegroundColor Red
+        Exit 1
     }
+    # Refresh environment so 'dotnet' is available immediately
+    if (Get-Command RefreshEnv -ErrorAction SilentlyContinue) { RefreshEnv | Out-Null }
+    Write-Host "INFO: .NET 9.0 SDK installed successfully (v$(dotnet --version))." -ForegroundColor Green
 }
 
 function Ensure-OpenSSL {
