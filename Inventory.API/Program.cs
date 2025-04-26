@@ -1,12 +1,40 @@
-using Inventory.API.Data;
+﻿using Inventory.API.Data;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+var options = new WebApplicationOptions
+{
+    Args = args,
+    // point the content‐root at the folder where your exe lives
+    ContentRootPath = AppContext.BaseDirectory
+};
 
-builder.WebHost.UseUrls(
-    "http://localhost:8087",
-    "https://localhost:8088"
-);
+var builder = WebApplication.CreateBuilder(options);
+// let it know it’s running as a Windows Service
+builder.Host.UseWindowsService(options => {
+    // optional: give the service a friendly name in the SCM
+    options.ServiceName = "PharmaTrack Inventory API";
+});
+
+// if we're running this in production (as a service), then we will read the cert
+if (builder.Environment.IsProduction())
+{
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        // HTTP endpoint
+        options.ListenAnyIP(8087, listenOpts =>
+            listenOpts.Protocols = HttpProtocols.Http1AndHttp2);
+
+        // HTTPS endpoint (load your PFX)
+        options.ListenAnyIP(8088, listenOpts =>
+        {
+            listenOpts.UseHttps(
+                "certs/PharmaTrackCert.pfx",
+                "YourP@ssw0rd!"
+            );
+        });
+    });
+}
 
 // Add services to the container.
 builder.Services.AddControllers();
