@@ -1,18 +1,22 @@
-using Auth.API.Data;
+﻿using Auth.API.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.DBModels;
 using PharmaTrack.Shared.Services;
 
-var builder = WebApplication.CreateBuilder(args);
-// let it know it�s running as a Windows Service
+var options = new WebApplicationOptions
+{
+    Args = args,
+    // point the content‐root at the folder where your exe lives
+    ContentRootPath = AppContext.BaseDirectory
+};
+
+var builder = WebApplication.CreateBuilder(options);
+// let it know it’s running as a Windows Service
 builder.Host.UseWindowsService(options => {
     // optional: give the service a friendly name in the SCM
     options.ServiceName = "PharmaTrack Auth API";
 });
-
-// NEW: point the content-root at the folder where your exe lives
-builder.Host.UseContentRoot(AppContext.BaseDirectory);
 
 builder.WebHost.UseUrls(
     "http://localhost:8083",

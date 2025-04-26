@@ -1,60 +1,39 @@
 ﻿<#
 .SYNOPSIS
-    Publishes multiple .NET API projects and installs each as a Windows Service.
+    Publishes multiple .NET API projects, generates one shared self-signed cert,
+    copies it into each publish folder, and installs each as a Windows Service.
+
 .DESCRIPTION
-    • Configurable list of projects, their publish folders, and service metadata.
-    • Builds each project as a self-contained executable and outputs to its publish directory.
-    • Registers each published exe as a Windows Service that auto-starts on boot.
-    • Must be run as Administrator. Terminates on any failure.
+    • Generates a single self-signed cert and exports it to .\certs\AuthApiService.pfx
+    • Publishes each project and copies the shared PFX into <PublishDir>\certs\
+    • Registers each published exe as an auto-start Windows Service
+    • Must be run as Administrator
 #>
 
-# Treat all errors as terminating
+# Stop on any error
 $ErrorActionPreference = 'Stop'
 
 #region Configuration
-# Define your projects here:
+
+# List of projects to publish & install
 $projects = @(
-    @{ 
-        ProjectPath = ".\Auth.API\Auth.API.csproj";
-        PublishDir  = ".\publish\AuthAPI";
-        ServiceName = "AuthAPI";
-        DisplayName = "Auth API Service";
-        Description = "Self-contained ASP.NET Core Auth.API as Windows Service"
-    },
-    @{ 
-        ProjectPath = ".\Schedule.API\Schedule.API.csproj";
-        PublishDir  = ".\publish\ScheduleAPI";
-        ServiceName = "ScheduleAPI";
-        DisplayName = "Schedule API Service";
-        Description = "Self-contained ASP.NET Core Schedule.API as Windows Service"
-    },
-    @{ 
-        ProjectPath = ".\Gateway.API\Gateway.API.csproj";
-        PublishDir  = ".\publish\GatewayAPI";
-        ServiceName = "GatewayAPI";
-        DisplayName = "Gateway API Service";
-        Description = "Self-contained ASP.NET Core Gateway.API as Windows Service"
-    },
-    @{ 
-        ProjectPath = ".\Drug.API\Drug.API.csproj";
-        PublishDir  = ".\publish\DrugAPI";
-        ServiceName = "DrugAPI";
-        DisplayName = "Drug API Service";
-        Description = "Self-contained ASP.NET Core Drug.API as Windows Service"
-    },
-    @{ 
-        ProjectPath = ".\Inventory.API\Inventory.API.csproj";
-        PublishDir  = ".\publish\InventoryAPI";
-        ServiceName = "InventoryAPI";
-        DisplayName = "Inventory API Service";
-        Description = "Self-contained ASP.NET Core Inventory.API as Windows Service"
-    }
+    @{ ProjectPath = ".\Auth.API\Auth.API.csproj";       PublishDir = ".\publish\AuthAPI";      ServiceName = "PharmaTrackAuthAPI";      DisplayName = "PharmaTrack Auth API Service";      Description = "PharmaTrack Auth.API as Windows Service" },
+    @{ ProjectPath = ".\Schedule.API\Schedule.API.csproj"; PublishDir = ".\publish\ScheduleAPI"; ServiceName = "PharmaTrackScheduleAPI"; DisplayName = "PharmaTrack Schedule API Service"; Description = "PharmaTrack Schedule.API as Windows Service" },
+    @{ ProjectPath = ".\Gateway.API\Gateway.API.csproj";   PublishDir = ".\publish\GatewayAPI";  ServiceName = "PharmaTrackGatewayAPI";  DisplayName = "PharmaTrack Gateway API Service";   Description = "PharmaTrack Gateway.API as Windows Service" },
+    @{ ProjectPath = ".\Drug.API\Drug.API.csproj";         PublishDir = ".\publish\DrugAPI";     ServiceName = "PharmaTrackDrugAPI";     DisplayName = "PharmaTrack Drug API Service";      Description = "PharmaTrack Drug.API as Windows Service" },
+    @{ ProjectPath = ".\Inventory.API\Inventory.API.csproj"; PublishDir = ".\publish\InventoryAPI"; ServiceName = "PharmaTrackInventoryAPI"; DisplayName = "PharmaTrack Inventory API Service"; Description = "PharmaTrack Inventory.API as Windows Service" }
 )
+
+# Certificate settings (shared by all APIs)
+$certSubject    = 'CN=PharmaTrack'
+$certValidYears = 1
+$pfxPassword    = 'YourP@ssw0rd!'
+
 #endregion
 
 function Assert-Admin {
-    $current   = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($current)
+    $identity  = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($identity)
     if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
         Write-Error "This script must be run as Administrator."
         exit 1
@@ -64,8 +43,8 @@ function Assert-Admin {
 function Remove-ServiceIfExists {
     param([string]$name)
     if (Get-Service -Name $name -ErrorAction SilentlyContinue) {
-        Write-Host "Stopping and deleting existing service '$name'..."
-        Stop-Service  -Name $name -Force -ErrorAction SilentlyContinue
+        Write-Host "🛑 Stopping & deleting existing service '$name'..."
+        Stop-Service -Name $name -Force -ErrorAction SilentlyContinue
         sc.exe delete $name | Out-Null
         Start-Sleep -Seconds 2
     }
@@ -78,51 +57,73 @@ function Install-Service {
         [string]$binPath,
         [string]$desc
     )
-    try {
-        Write-Host "Creating service '$name'..."
-        New-Service -Name $name -BinaryPathName "`"$binPath`"" -DisplayName $display -StartupType Automatic -ErrorAction Stop
-        Write-Host "Setting description for '$name'..."
-        Set-Service -Name $name -Description $desc -ErrorAction Stop
-        Write-Host "Starting service '$name'..."
-        Start-Service -Name $name -ErrorAction Stop
-        Write-Host "✅ Service '$name' installed and started successfully."
-    }
-    catch {
-        Write-Error "Failed to install or start service '$name': $_"
-        throw
-    }
+    Write-Host "🔧 Installing service '$name'..."
+    New-Service -Name $name -BinaryPathName "`"$binPath`"" -DisplayName $display -StartupType Automatic
+    Set-Service   -Name $name -Description $desc
+    Start-Service -Name $name
+    Write-Host "✅ Service '$name' is running."
 }
 
 # ---------- Script Execution ----------
-try {
-    Assert-Admin
-    foreach ($proj in $projects) {
-        $path      = $proj.ProjectPath
-        $out       = $proj.PublishDir
-        $svc       = $proj.ServiceName
-        $disp      = $proj.DisplayName
-        $desc      = $proj.Description
+Assert-Admin
 
-        Write-Host "`n=== Processing project: $path ==="
+# Determine script & cert paths
+$scriptDir        = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$centralCertDir   = Join-Path $scriptDir 'certs'
+$centralPfxPath   = Join-Path $centralCertDir 'PharmaTrackCert.pfx'
 
-        # Publish step
-        Write-Host "Publishing '$path' to '$out'..."
-        dotnet publish $path -c Release -r win-x64 --self-contained true -o $out
+Write-Host "`n📂 Creating central cert folder: $centralCertDir"
+New-Item -ItemType Directory -Path $centralCertDir -Force | Out-Null
 
-        # Verify publish
-        $exeName = [System.IO.Path]::GetFileNameWithoutExtension($path) + ".exe"
-        $exePath = Join-Path $out $exeName
-        if (-not (Test-Path $exePath)) {
-            throw "Published executable not found: $exePath"
-        }
+if (-not (Test-Path $centralPfxPath)) {
+    Write-Host "🔐 Generating self-signed cert and exporting to PFX..."
+    $cert = New-SelfSignedCertificate `
+        -Subject         $certSubject `
+        -CertStoreLocation 'Cert:\LocalMachine\My' `
+        -NotAfter        (Get-Date).AddYears($certValidYears)
 
-        # Install as Windows Service
-        Remove-ServiceIfExists -name $svc
-        Install-Service        -name $svc -display $disp -binPath $exePath -desc $desc
+    $securePwd = ConvertTo-SecureString -String $pfxPassword -AsPlainText -Force
+    Export-PfxCertificate `
+        -Cert     $cert `
+        -FilePath $centralPfxPath `
+        -Password $securePwd
+
+    Write-Host "✅ Certificate created at $centralPfxPath"
+} else {
+    Write-Host "ℹ️  PFX already exists at $centralPfxPath – skipping creation."
+}
+
+foreach ($proj in $projects) {
+    $csproj    = $proj.ProjectPath
+    $outDir    = Join-Path $scriptDir $proj.PublishDir
+    $svcName   = $proj.ServiceName
+    $dispName  = $proj.DisplayName
+    $desc      = $proj.Description
+
+    Write-Host "`n=== Processing $csproj ==="
+
+    # 1) Publish
+    Write-Host "📦 Publishing to $outDir..."
+    dotnet publish $csproj -c Release -r win-x64 --self-contained true -o $outDir
+
+    # 2) Copy the shared cert PFX into <publish>\certs\
+    $projCertDir = Join-Path $outDir 'certs'
+    Write-Host "📁 Ensuring cert folder in publish output: $projCertDir"
+    New-Item -ItemType Directory -Path $projCertDir -Force | Out-Null
+
+    Write-Host "📋 Copying shared PFX → $projCertDir"
+    Copy-Item -Path $centralPfxPath -Destination $projCertDir -Force
+
+    # 3) Install as service
+    $exeName = [System.IO.Path]::GetFileNameWithoutExtension($csproj) + '.exe'
+    $exePath = Join-Path $outDir $exeName
+
+    if (-not (Test-Path $exePath)) {
+        throw "❌ Could not find published exe: $exePath"
     }
-    Write-Host "`nAll projects processed successfully."
+
+    Remove-ServiceIfExists -name $svcName
+    Install-Service        -name $svcName -display $dispName -binPath $exePath -desc $desc
 }
-catch {
-    Write-Error "Script aborted due to error: $_"
-    exit 1
-}
+
+Write-Host "`n🎉 All APIs published, cert deployed, and services installed." 
