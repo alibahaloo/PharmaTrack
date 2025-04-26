@@ -17,11 +17,11 @@ $ErrorActionPreference = 'Stop'
 
 # List of projects to publish & install
 $projects = @(
-    @{ ProjectPath = ".\Auth.API\Auth.API.csproj";       PublishDir = ".\publish\AuthAPI";      ServiceName = "PharmaTrackAuthAPI";      DisplayName = "PharmaTrack Auth API Service";      Description = "PharmaTrack Auth.API as Windows Service" },
-    @{ ProjectPath = ".\Schedule.API\Schedule.API.csproj"; PublishDir = ".\publish\ScheduleAPI"; ServiceName = "PharmaTrackScheduleAPI"; DisplayName = "PharmaTrack Schedule API Service"; Description = "PharmaTrack Schedule.API as Windows Service" },
-    @{ ProjectPath = ".\Gateway.API\Gateway.API.csproj";   PublishDir = ".\publish\GatewayAPI";  ServiceName = "PharmaTrackGatewayAPI";  DisplayName = "PharmaTrack Gateway API Service";   Description = "PharmaTrack Gateway.API as Windows Service" },
-    @{ ProjectPath = ".\Drug.API\Drug.API.csproj";         PublishDir = ".\publish\DrugAPI";     ServiceName = "PharmaTrackDrugAPI";     DisplayName = "PharmaTrack Drug API Service";      Description = "PharmaTrack Drug.API as Windows Service" },
-    @{ ProjectPath = ".\Inventory.API\Inventory.API.csproj"; PublishDir = ".\publish\InventoryAPI"; ServiceName = "PharmaTrackInventoryAPI"; DisplayName = "PharmaTrack Inventory API Service"; Description = "PharmaTrack Inventory.API as Windows Service" }
+    @{ ProjectPath = ".\Auth.API\Auth.API.csproj";       PublishDir = ".\publish\AuthAPI";      ServiceName = "PharmaTrackAuthAPI";      DisplayName = "PharmaTrack Auth API Service";      Description = "PharmaTrack Auth.API as Windows Service" }
+    #@{ ProjectPath = ".\Schedule.API\Schedule.API.csproj"; PublishDir = ".\publish\ScheduleAPI"; ServiceName = "PharmaTrackScheduleAPI"; DisplayName = "PharmaTrack Schedule API Service"; Description = "PharmaTrack Schedule.API as Windows Service" },
+    #@{ ProjectPath = ".\Gateway.API\Gateway.API.csproj";   PublishDir = ".\publish\GatewayAPI";  ServiceName = "PharmaTrackGatewayAPI";  DisplayName = "PharmaTrack Gateway API Service";   Description = "PharmaTrack Gateway.API as Windows Service" },
+    #@{ ProjectPath = ".\Drug.API\Drug.API.csproj";         PublishDir = ".\publish\DrugAPI";     ServiceName = "PharmaTrackDrugAPI";     DisplayName = "PharmaTrack Drug API Service";      Description = "PharmaTrack Drug.API as Windows Service" },
+    #@{ ProjectPath = ".\Inventory.API\Inventory.API.csproj"; PublishDir = ".\publish\InventoryAPI"; ServiceName = "PharmaTrackInventoryAPI"; DisplayName = "PharmaTrack Inventory API Service"; Description = "PharmaTrack Inventory.API as Windows Service" }
 )
 
 # Certificate settings (shared by all APIs)

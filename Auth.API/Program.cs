@@ -1,5 +1,6 @@
 ﻿using Auth.API.Data;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.DBModels;
 using PharmaTrack.Shared.Services;
@@ -18,10 +19,30 @@ builder.Host.UseWindowsService(options => {
     options.ServiceName = "PharmaTrack Auth API";
 });
 
+// if we're running this in production (as a service), then we will read the cert
+if (builder.Environment.IsProduction())
+{
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        // HTTP endpoint
+        options.ListenAnyIP(8083, listenOpts =>
+            listenOpts.Protocols = HttpProtocols.Http1AndHttp2);
+
+        // HTTPS endpoint (load your PFX)
+        options.ListenAnyIP(8084, listenOpts =>
+        {
+            listenOpts.UseHttps(
+                "certs/PharmaTrackCert.pfx",
+                "YourP@ssw0rd!"
+            );
+        });
+    });
+}
+/*
 builder.WebHost.UseUrls(
     "http://localhost:8083",
     "https://localhost:8084"
-);
+);*/
 
 // Load the shared configuration
 var sharedConfiguration = SharedConfiguration.GetSharedConfiguration();
