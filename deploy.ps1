@@ -4,9 +4,10 @@
     copies it into each publish folder, and installs each as a Windows Service.
 
 .DESCRIPTION
-    • Generates a single self-signed cert and exports it to .\certs\AuthApiService.pfx
+    • Generates a single self-signed cert and exports it to .\certs\PharmaTrackCert.pfx
     • Publishes each project and copies the shared PFX into <PublishDir>\certs\
     • Registers each published exe as an auto-start Windows Service
+    • Ensures .NET 9 SDK and LocalDB are installed and running
     • Must be run as Administrator
 #>
 
@@ -17,41 +18,11 @@ $ErrorActionPreference = 'Stop'
 
 # List of projects to publish & install
 $projects = @(
-    @{ 
-        ProjectPath = ".\Auth.API\Auth.API.csproj";
-        PublishDir  = ".\publish\AuthAPI";
-        ServiceName = "PharmaTrackAuthAPI";
-        DisplayName = "PharmaTrack Auth API Service";
-        Description = "PharmaTrack Auth.API as Windows Service" 
-    },
-    @{ 
-        ProjectPath = ".\Schedule.API\Schedule.API.csproj";
-        PublishDir  = ".\publish\ScheduleAPI";
-        ServiceName = "PharmaTrackScheduleAPI";
-        DisplayName = "PharmaTrack Schedule API Service";
-        Description = "PharmaTrack Schedule.API as Windows Service"
-    },
-    @{ 
-        ProjectPath = ".\Gateway.API\Gateway.API.csproj";
-        PublishDir  = ".\publish\GatewayAPI";
-        ServiceName = "PharmaTrackGatewayAPI";
-        DisplayName = "PharmaTrack Gateway API Service";
-        Description = "PharmaTrack Gateway.API as Windows Service"
-    },
-    @{ 
-        ProjectPath = ".\Drug.API\Drug.API.csproj";
-        PublishDir  = ".\publish\DrugAPI";
-        ServiceName = "PharmaTrackDrugAPI";
-        DisplayName = "PharmaTrack Drug API Service";
-        Description = "PharmaTrack Drug.API as Windows Service"
-    },
-    @{ 
-        ProjectPath = ".\Inventory.API\Inventory.API.csproj";
-        PublishDir  = ".\publish\InventoryAPI";
-        ServiceName = "PharmaTrackInventoryAPI";
-        DisplayName = "PharmaTrack Inventory API Service";
-        Description = "PharmaTrack Inventory.API as Windows Service"
-    }
+    @{ ProjectPath = ".\Auth.API\Auth.API.csproj";    PublishDir = ".\publish\AuthAPI";     ServiceName = "PharmaTrackAuthAPI";    DisplayName = "PharmaTrack Auth API Service";        Description = "PharmaTrack Auth.API as Windows Service" }
+    @{ ProjectPath = ".\Schedule.API\Schedule.API.csproj"; PublishDir = ".\publish\ScheduleAPI";ServiceName = "PharmaTrackScheduleAPI";DisplayName = "PharmaTrack Schedule API Service";    Description = "PharmaTrack Schedule.API as Windows Service" }
+    @{ ProjectPath = ".\Gateway.API\Gateway.API.csproj";  PublishDir = ".\publish\GatewayAPI"; ServiceName = "PharmaTrackGatewayAPI";DisplayName = "PharmaTrack Gateway API Service";      Description = "PharmaTrack Gateway.API as Windows Service" }
+    @{ ProjectPath = ".\Drug.API\Drug.API.csproj";     PublishDir = ".\publish\DrugAPI";     ServiceName = "PharmaTrackDrugAPI";    DisplayName = "PharmaTrack Drug API Service";         Description = "PharmaTrack Drug.API as Windows Service" }
+    @{ ProjectPath = ".\Inventory.API\Inventory.API.csproj";PublishDir = ".\publish\InventoryAPI";ServiceName = "PharmaTrackInventoryAPI";DisplayName = "PharmaTrack Inventory API Service";Description = "PharmaTrack Inventory.API as Windows Service" }
 )
 
 # Certificate settings (shared by all APIs)
@@ -68,6 +39,46 @@ function Assert-Admin {
         Write-Error "This script must be run as Administrator."
         exit 1
     }
+}
+
+function Ensure-DotNet9 {
+    Write-Host "🔍 Checking for .NET 9 SDK..."
+    if (-not (dotnet --list-sdks | Select-String '^9\.')) {
+        Write-Host "⬇️ .NET 9 SDK not found. Installing silently..."
+        # Install via winget (requires Windows 10/11 and winget installed)
+        winget install --id Microsoft.DotNet.SDK.9 -e --silent
+        Write-Host "✅ .NET 9 SDK installed."
+    } else {
+        Write-Host "✅ .NET 9 SDK is already installed."
+    }
+}
+
+function Ensure-LocalDB {
+    Write-Host "🔍 Checking for LocalDB tooling..."
+    if (-not (Get-Command sqllocaldb -ErrorAction SilentlyContinue)) {
+        Write-Host "⬇️ LocalDB tooling not found. Installing silently..."
+        $installerUrl = 'https://download.microsoft.com/download/7/c/1/7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SqlLocalDB.msi'
+        $tmpPath      = Join-Path $env:TEMP 'SqlLocalDB.msi'
+        Invoke-WebRequest -Uri $installerUrl -OutFile $tmpPath -UseBasicParsing
+        Start-Process msiexec.exe -ArgumentList "/i `"$tmpPath`" /quiet /norestart IACCEPTSQLLOCALDBLICENSETERMS=YES" -Wait
+        Write-Host "✅ LocalDB tooling installed."
+    } else {
+        Write-Host "✅ LocalDB tooling present."
+    }
+
+    Write-Host "🔍 Checking for default LocalDB instance 'MSSQLLocalDB'..."
+    try {
+        sqllocaldb info MSSQLLocalDB | Out-Null
+        Write-Host "✅ Default LocalDB instance exists."
+    } catch {
+        Write-Host "⬇️ Creating default LocalDB instance 'MSSQLLocalDB'..."
+        sqllocaldb create MSSQLLocalDB
+        Write-Host "✅ Instance created."
+    }
+
+    Write-Host "🚀 Starting LocalDB instance 'MSSQLLocalDB'..."
+    sqllocaldb start MSSQLLocalDB
+    Write-Host "✅ LocalDB instance 'MSSQLLocalDB' is running."
 }
 
 function Remove-ServiceIfExists {
@@ -96,8 +107,10 @@ function Install-Service {
 
 # ---------- Script Execution ----------
 Assert-Admin
+Ensure-DotNet9
+Ensure-LocalDB
 
-Write-Host "`n🔍 Checking for existing services..."
+Write-Host "`n🔍 Cleaning up any existing services before publish..."
 foreach ($proj in $projects) {
     Remove-ServiceIfExists -name $proj.ServiceName
 }
@@ -162,4 +175,4 @@ foreach ($proj in $projects) {
     Install-Service        -name $svcName -display $dispName -binPath $exePath -desc $desc
 }
 
-Write-Host "`n🎉 All APIs published, cert deployed, and services installed."
+Write-Host "`n🎉 All APIs published, cert deployed, services installed, and dependencies verified."
