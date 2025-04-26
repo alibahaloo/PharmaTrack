@@ -19,35 +19,35 @@ $ErrorActionPreference = 'Stop'
 $projects = @(
     @{ 
         ProjectPath = ".\Auth.API\Auth.API.csproj";
-        PublishDir = ".\publish\AuthAPI";
+        PublishDir  = ".\publish\AuthAPI";
         ServiceName = "PharmaTrackAuthAPI";
         DisplayName = "PharmaTrack Auth API Service";
         Description = "PharmaTrack Auth.API as Windows Service" 
     },
-    @{
-        ProjectPath = ".\Schedule.API\Schedule.API.csproj"; 
-        PublishDir = ".\publish\ScheduleAPI";
+    @{ 
+        ProjectPath = ".\Schedule.API\Schedule.API.csproj";
+        PublishDir  = ".\publish\ScheduleAPI";
         ServiceName = "PharmaTrackScheduleAPI";
         DisplayName = "PharmaTrack Schedule API Service";
         Description = "PharmaTrack Schedule.API as Windows Service"
     },
-    @{
+    @{ 
         ProjectPath = ".\Gateway.API\Gateway.API.csproj";
-        PublishDir = ".\publish\GatewayAPI";
+        PublishDir  = ".\publish\GatewayAPI";
         ServiceName = "PharmaTrackGatewayAPI";
         DisplayName = "PharmaTrack Gateway API Service";
         Description = "PharmaTrack Gateway.API as Windows Service"
     },
-    @{
+    @{ 
         ProjectPath = ".\Drug.API\Drug.API.csproj";
-        PublishDir = ".\publish\DrugAPI";
+        PublishDir  = ".\publish\DrugAPI";
         ServiceName = "PharmaTrackDrugAPI";
         DisplayName = "PharmaTrack Drug API Service";
         Description = "PharmaTrack Drug.API as Windows Service"
     },
-    @{
+    @{ 
         ProjectPath = ".\Inventory.API\Inventory.API.csproj";
-        PublishDir = ".\publish\InventoryAPI";
+        PublishDir  = ".\publish\InventoryAPI";
         ServiceName = "PharmaTrackInventoryAPI";
         DisplayName = "PharmaTrack Inventory API Service";
         Description = "PharmaTrack Inventory.API as Windows Service"
@@ -97,25 +97,30 @@ function Install-Service {
 # ---------- Script Execution ----------
 Assert-Admin
 
+Write-Host "`n🔍 Checking for existing services..."
+foreach ($proj in $projects) {
+    Remove-ServiceIfExists -name $proj.ServiceName
+}
+
 # Determine script & cert paths
-$scriptDir        = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$centralCertDir   = Join-Path $scriptDir 'certs'
-$centralPfxPath   = Join-Path $centralCertDir 'PharmaTrackCert.pfx'
+$scriptDir      = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$centralCertDir = Join-Path $scriptDir 'certs'
+$centralPfxPath = Join-Path $centralCertDir 'PharmaTrackCert.pfx'
 
 Write-Host "`n📂 Creating central cert folder: $centralCertDir"
 New-Item -ItemType Directory -Path $centralCertDir -Force | Out-Null
 
 if (-not (Test-Path $centralPfxPath)) {
     Write-Host "🔐 Generating self-signed cert and exporting to PFX..."
-    $cert = New-SelfSignedCertificate `
-        -Subject         $certSubject `
-        -CertStoreLocation 'Cert:\LocalMachine\My' `
+    $cert = New-SelfSignedCertificate \
+        -Subject         $certSubject \
+        -CertStoreLocation 'Cert:\LocalMachine\My' \
         -NotAfter        (Get-Date).AddYears($certValidYears)
 
     $securePwd = ConvertTo-SecureString -String $pfxPassword -AsPlainText -Force
-    Export-PfxCertificate `
-        -Cert     $cert `
-        -FilePath $centralPfxPath `
+    Export-PfxCertificate \
+        -Cert     $cert \
+        -FilePath $centralPfxPath \
         -Password $securePwd
 
     Write-Host "✅ Certificate created at $centralPfxPath"
@@ -124,11 +129,11 @@ if (-not (Test-Path $centralPfxPath)) {
 }
 
 foreach ($proj in $projects) {
-    $csproj    = $proj.ProjectPath
-    $outDir    = Join-Path $scriptDir $proj.PublishDir
-    $svcName   = $proj.ServiceName
-    $dispName  = $proj.DisplayName
-    $desc      = $proj.Description
+    $csproj   = $proj.ProjectPath
+    $outDir   = Join-Path $scriptDir $proj.PublishDir
+    $svcName  = $proj.ServiceName
+    $dispName = $proj.DisplayName
+    $desc     = $proj.Description
 
     Write-Host "`n=== Processing $csproj ==="
 
@@ -152,8 +157,9 @@ foreach ($proj in $projects) {
         throw "❌ Could not find published exe: $exePath"
     }
 
+    # Ensure fresh install
     Remove-ServiceIfExists -name $svcName
     Install-Service        -name $svcName -display $dispName -binPath $exePath -desc $desc
 }
 
-Write-Host "`n🎉 All APIs published, cert deployed, and services installed." 
+Write-Host "`n🎉 All APIs published, cert deployed, and services installed."
