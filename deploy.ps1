@@ -1,13 +1,16 @@
 ﻿<#
 .SYNOPSIS
     Publishes multiple .NET API projects and a WPF app, generates a shared self-signed cert,
-    copies it into each publish folder, installs APIs as Windows Services, and creates a desktop shortcut for the WPF app.
+    installs it into the machine store (and trust root), deploys each API as a Windows Service,
+    and creates a desktop shortcut for the WPF app.
 
 .DESCRIPTION
-    • Generates a single self-signed cert and exports it to .\certs\PharmaTrackCert.pfx
-    • Publishes each API project to <scriptDir>\publish\<APIName> and installs as auto-start Windows Service
-    • Publishes the WPF project to <scriptDir>\publish and creates a desktop shortcut
-    • Ensures .NET 9 SDK and LocalDB instance are installed and running
+    • Generates a single self-signed cert (with SAN for localhost) and exports it to .\certs\PharmaTrackCert.pfx  
+    • Imports that PFX into LocalMachine\My and into LocalMachine\Root (trusted CA)  
+    • Grants the LocalSystem account read-access to the cert’s private key  
+    • Publishes each API project, copies the PFX into its publish folder, installs/starts as a Windows Service  
+    • Publishes the WPF project and creates a desktop shortcut  
+    • Ensures .NET 9 SDK and LocalDB instance are installed and running  
     • Must be run as Administrator
 #>
 
@@ -18,11 +21,11 @@ $ErrorActionPreference = 'Stop'
 
 # List of API projects to publish & install
 $projects = @(
-    @{ ProjectPath = ".\Auth.API\Auth.API.csproj";     PublishDir = ".\publish\AuthAPI";     ServiceName = "PharmaTrackAuthAPI";    DisplayName = "PharmaTrack Auth API Service";    Description = "PharmaTrack Auth.API as Windows Service" },
-    @{ ProjectPath = ".\Schedule.API\Schedule.API.csproj";PublishDir = ".\publish\ScheduleAPI";ServiceName = "PharmaTrackScheduleAPI";DisplayName = "PharmaTrack Schedule API Service";Description = "PharmaTrack Schedule.API as Windows Service" },
-    @{ ProjectPath = ".\Gateway.API\Gateway.API.csproj";  PublishDir = ".\publish\GatewayAPI"; ServiceName = "PharmaTrackGatewayAPI";DisplayName = "PharmaTrack Gateway API Service";Description = "PharmaTrack Gateway.API as Windows Service" },
-    @{ ProjectPath = ".\Drug.API\Drug.API.csproj";      PublishDir = ".\publish\DrugAPI";     ServiceName = "PharmaTrackDrugAPI";    DisplayName = "PharmaTrack Drug API Service";      Description = "PharmaTrack Drug.API as Windows Service" },
-    @{ ProjectPath = ".\Inventory.API\Inventory.API.csproj";PublishDir = ".\publish\InventoryAPI";ServiceName = "PharmaTrackInventoryAPI";DisplayName = "PharmaTrack Inventory API Service";Description = "PharmaTrack Inventory.API as Windows Service" }
+    @{ ProjectPath = ".\Auth.API\Auth.API.csproj";        PublishDir = ".\publish\AuthAPI";      ServiceName = "PharmaTrackAuthAPI";      DisplayName = "PharmaTrack Auth API Service";        Description = "PharmaTrack Auth.API as Windows Service" },
+    @{ ProjectPath = ".\Schedule.API\Schedule.API.csproj"; PublishDir = ".\publish\ScheduleAPI"; ServiceName = "PharmaTrackScheduleAPI"; DisplayName = "PharmaTrack Schedule API Service";  Description = "PharmaTrack Schedule.API as Windows Service" },
+    @{ ProjectPath = ".\Gateway.API\Gateway.API.csproj";   PublishDir = ".\publish\GatewayAPI";  ServiceName = "PharmaTrackGatewayAPI";  DisplayName = "PharmaTrack Gateway API Service";   Description = "PharmaTrack Gateway.API as Windows Service" },
+    @{ ProjectPath = ".\Drug.API\Drug.API.csproj";         PublishDir = ".\publish\DrugAPI";     ServiceName = "PharmaTrackDrugAPI";      DisplayName = "PharmaTrack Drug API Service";      Description = "PharmaTrack Drug.API as Windows Service" },
+    @{ ProjectPath = ".\Inventory.API\Inventory.API.csproj";PublishDir = ".\publish\InventoryAPI"; ServiceName = "PharmaTrackInventoryAPI"; DisplayName = "PharmaTrack Inventory API Service"; Description = "PharmaTrack Inventory.API as Windows Service" }
 )
 
 # Certificate settings (shared by all APIs)
@@ -67,11 +70,15 @@ function Ensure-LocalDB {
     } else {
         Write-Host "✅ LocalDB tooling present."
     }
-
     Write-Host "🔍 Checking for default LocalDB instance 'MSSQLLocalDB'..."
-    try { sqllocaldb info MSSQLLocalDB | Out-Null; Write-Host "✅ Default LocalDB instance exists." }
-    catch { Write-Host "⬇️ Creating default LocalDB instance 'MSSQLLocalDB'..."; sqllocaldb create MSSQLLocalDB; Write-Host "✅ Instance created." }
-
+    try {
+        sqllocaldb info MSSQLLocalDB | Out-Null
+        Write-Host "✅ Default LocalDB instance exists."
+    } catch {
+        Write-Host "⬇️ Creating default LocalDB instance 'MSSQLLocalDB'..."
+        sqllocaldb create MSSQLLocalDB
+        Write-Host "✅ Instance created."
+    }
     Write-Host "🚀 Starting LocalDB instance 'MSSQLLocalDB'..."
     sqllocaldb start MSSQLLocalDB
     Write-Host "✅ LocalDB instance 'MSSQLLocalDB' is running."
@@ -118,12 +125,29 @@ Write-Host "`n📂 Creating central cert folder: $centralCertDir"
 New-Item -ItemType Directory -Path $centralCertDir -Force | Out-Null
 
 if (-not (Test-Path $centralPfxPath)) {
-    Write-Host "🔐 Generating self-signed cert and exporting to PFX..."
-    $cert = New-SelfSignedCertificate -Subject $certSubject -CertStoreLocation 'Cert:\LocalMachine\My' -NotAfter (Get-Date).AddYears($certValidYears)
+    Write-Host "🔐 Generating self-signed cert (w/ SAN) and exporting to PFX..."
+    $cert      = New-SelfSignedCertificate -Subject $certSubject -DnsName "localhost" -CertStoreLocation 'Cert:\LocalMachine\My' -NotAfter (Get-Date).AddYears($certValidYears)
     $securePwd = ConvertTo-SecureString -String $pfxPassword -AsPlainText -Force
     Export-PfxCertificate -Cert $cert -FilePath $centralPfxPath -Password $securePwd
     Write-Host "✅ Certificate created at $centralPfxPath"
-} else { Write-Host "ℹ️  PFX exists at $centralPfxPath – skipping creation." }
+
+    Write-Host "🔐 Importing certificate into LocalMachine\My..."
+    Import-PfxCertificate -FilePath $centralPfxPath -CertStoreLocation Cert:\LocalMachine\My -Password $securePwd
+
+    Write-Host "🔐 Importing certificate into LocalMachine\Root (Trusted Root CA)..."
+    Import-PfxCertificate -FilePath $centralPfxPath -CertStoreLocation Cert:\LocalMachine\Root -Password $securePwd
+
+    $thumb       = $cert.Thumbprint.Replace(' ', '').ToUpper()
+    $machineCert = Get-ChildItem Cert:\LocalMachine\My | Where-Object Thumbprint -eq $thumb
+    $keyName     = $machineCert.PrivateKey.CspKeyContainerInfo.UniqueKeyContainerName
+    $keyPath     = Join-Path $env:ProgramData "Microsoft\Crypto\RSA\MachineKeys\$keyName"
+
+    Write-Host "🔐 Granting LocalSystem read-access to the private key..."
+    icacls $keyPath /grant "NT AUTHORITY\SYSTEM:(R)" | Out-Null
+    Write-Host "✅ Certificate imported, trusted, and permissions set."
+} else {
+    Write-Host "ℹ️  PFX exists at $centralPfxPath – skipping creation."
+}
 
 # Publish and install each API
 foreach ($proj in $projects) {
@@ -163,10 +187,10 @@ $shortcut    = Join-Path $desktop 'PharmaTrack.lnk'
 $targetExe   = Join-Path $wpfOut 'PharmaTrack.WPF.exe'
 $wshell      = New-Object -ComObject WScript.Shell
 $link        = $wshell.CreateShortcut($shortcut)
-$link.TargetPath      = $targetExe
-$link.WorkingDirectory= Split-Path $targetExe
-$link.WindowStyle     = 1
-$link.Description     = 'PharmaTrack WPF App'
+$link.TargetPath       = $targetExe
+$link.WorkingDirectory = Split-Path $targetExe
+$link.WindowStyle      = 1
+$link.Description      = 'PharmaTrack WPF App'
 $link.Save()
 
 Write-Host "`n🎉 All APIs published, services installed, WPF app deployed, and shortcut created!"
