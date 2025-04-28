@@ -237,6 +237,44 @@ function Import-Initial-Data {
     Write-Host "INFO: You can view the jobs status here: https://localhost:8086/hangfire" -ForegroundColor Cyan
 }
 
+function Run-Database-Migrations {
+    # Define the list of project files
+    $projects = @(
+        ".\Auth.API\Auth.API.csproj",
+        ".\Schedule.API\Schedule.API.csproj",
+        ".\Drug.API\Drug.API.csproj",
+        ".\Inventory.API\Inventory.API.csproj"
+    )
+
+    # Loop through each project
+    foreach ($project in $projects) {
+        Write-Host "INFO: Running migrations for $project..." -ForegroundColor Cyan
+
+        # Get the directory of the project
+        $projectDir = Split-Path -Path $project -Parent
+
+        # Move to the project directory
+        Push-Location $projectDir
+
+        try {
+            # Run the migration
+            dotnet ef database update
+        }
+        catch {
+            Write-Host "ERROR: Failed to apply migrations for $project" -ForegroundColor Red
+            Write-Host $_.Exception.Message
+            exit 1
+        }
+        finally {
+            # Always return to the previous directory
+            Pop-Location
+        }
+    }
+
+    Write-Host "SUCCESS: Database migrations completed." -ForegroundColor Green
+
+}
+
 #endregion
 
 # ---------- Script Execution ----------
@@ -246,5 +284,6 @@ Ensure-SqlExpress
 
 Deploy-Certificates
 Deploy-APIs
+Run-Database-Migrations
 Deploy-WPF
 Import-Initial-Data
