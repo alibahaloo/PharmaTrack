@@ -65,26 +65,6 @@ function Ensure-DotNet9 {
     }
 }
 
-function Ensure-SqlExpress {
-    Write-Host "INFO: Checking for SQL Server Express service..." -ForegroundColor Cyan
-    $svcName = 'MSSQL$SQLEXPRESS'
-    $svc     = Get-Service -Name $svcName -ErrorAction SilentlyContinue
-    if (-not $svc) {
-        Write-Host "WARNING: SQL Server Express not found. Installing silently..." -ForegroundColor Yellow
-        winget install --id=Microsoft.SQLServer.2022.Express -e
-        Write-Host "SUCCESS: SQL Server Express installed." -ForegroundColor Green
-        # Refresh service object
-        $svc = Get-Service -Name $svcName -ErrorAction SilentlyContinue
-    } else {
-        Write-Host "SUCCESS: SQL Server Express service found." -ForegroundColor Green
-    }
-    if ($svc.Status -ne 'Running') {
-        Write-Host "INFO: Starting SQL Server Express service..." -ForegroundColor Cyan
-        Start-Service -Name $svcName
-    }
-    Write-Host "SUCCESS: SQL Server Express service is running." -ForegroundColor Green
-}
-
 function Remove-ServiceIfExists {
     param([string]$name)
     if (Get-Service -Name $name -ErrorAction SilentlyContinue) {
@@ -275,15 +255,192 @@ function Run-Database-Migrations {
 
 }
 
+function Ensure-SqlExpressInstallation {
+    [CmdletBinding()]
+    param(
+        [string]$InstanceName = 'SQLEXPRESS'
+    )
+
+    $svcName = "MSSQL`$$InstanceName"
+
+    Write-Host "INFO: Checking for SQL Server Express service '$svcName'..." -ForegroundColor Cyan
+    $svc = Get-Service -Name $svcName -ErrorAction SilentlyContinue
+    if (-not $svc) {
+        Write-Host "WARNING: SQL Server Express not found. Installing silently..." -ForegroundColor Yellow
+        winget install --id=Microsoft.SQLServer.2022.Express -e | Out-Null
+        Write-Host "SUCCESS: SQL Server Express installed." -ForegroundColor Green
+        $svc = Get-Service -Name $svcName -ErrorAction Stop
+    }
+
+    if ($svc.Status -ne 'Running') {
+        Write-Host "INFO: Starting SQL Server Express service..." -ForegroundColor Cyan
+        Start-Service -Name $svcName
+        $svc.WaitForStatus('Running', (New-TimeSpan -Seconds 30))
+    }
+    Write-Host "SUCCESS: SQL Server Express service is running." -ForegroundColor Green
+
+    # Ensure NuGet provider
+    if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
+        Write-Host "INFO: Installing NuGet provider..." -ForegroundColor Cyan
+        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
+    }
+    Import-Module PowerShellGet -Force
+
+    # Ensure SqlServer module
+    if (-not (Get-Module -ListAvailable -Name SqlServer)) {
+        Write-Host "INFO: Installing SqlServer PowerShell module..." -ForegroundColor Cyan
+        Install-Module -Name SqlServer -Scope CurrentUser -Force -AllowClobber | Out-Null
+    }
+    Import-Module SqlServer -ErrorAction Stop
+
+    # Load SMO for server management
+    $mod = Get-Module SqlServer -ListAvailable | Where-Object Name -EQ 'SqlServer' | Select-Object -First 1
+    $smoPath = Join-Path $mod.ModuleBase 'bin\Microsoft.SqlServer.Smo.dll'
+    if (Test-Path $smoPath) {
+        Add-Type -Path $smoPath -ErrorAction Stop
+    } else {
+        Write-Warning "SMO not found at $smoPath, using fallback load..."
+        [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.SqlServer.Smo') | Out-Null
+    }
+
+    # Enable Mixed-Mode authentication
+    Write-Host "INFO: Checking/Enabling Mixed-Mode authentication..." -ForegroundColor Cyan
+    $server = New-Object Microsoft.SqlServer.Management.Smo.Server "localhost\$InstanceName"
+    if ($server.Settings.LoginMode -ne [Microsoft.SqlServer.Management.Smo.ServerLoginMode]::Mixed) {
+        $server.Settings.LoginMode = [Microsoft.SqlServer.Management.Smo.ServerLoginMode]::Mixed
+        $server.Alter()
+        Write-Host "SUCCESS: Mixed-Mode enabled; restarting service..." -ForegroundColor Green
+        Restart-Service -Name $svcName -Force
+        $server.ConnectionContext.Connect()
+    } else {
+        Write-Host "SUCCESS: Mixed-Mode already enabled." -ForegroundColor Green
+    }
+}
+
+# Function 2: Recreate SQL login, force logout, grant full server admin rights, and ensure access on all databases
+function Ensure-SqlExpressServerUser {
+    [CmdletBinding()]
+    param(
+        [string]$InstanceName = 'SQLEXPRESS'
+    )
+
+    # Hardcoded credentials
+    $SqlUser     = 'appuser'
+    $SqlPassword = 'P@ssw0rd!'
+    # Determine current Windows user
+    $WinUser = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
+
+    # Connection string to master DB for server-wide tasks
+    $connStr = "Server=localhost\$InstanceName;Database=master;Integrated Security=True;TrustServerCertificate=True;"
+
+    # 1) Transfer database ownership for any DBs owned by $SqlUser
+    Write-Host "INFO: Transferring ownership of databases from '$SqlUser' to '$WinUser'..." -ForegroundColor Cyan
+    $transferTsql = @"
+DECLARE @db sysname;
+DECLARE db_cursor CURSOR FOR
+    SELECT name FROM sys.databases
+    WHERE owner_sid = SUSER_SID(N'$SqlUser') AND database_id > 4;
+OPEN db_cursor;
+FETCH NEXT FROM db_cursor INTO @db;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    EXEC('ALTER AUTHORIZATION ON DATABASE::[' + @db + '] TO [$WinUser]');
+    FETCH NEXT FROM db_cursor INTO @db;
+END;
+CLOSE db_cursor;
+DEALLOCATE db_cursor;
+"@
+    Invoke-Sqlcmd -ConnectionString $connStr -Query $transferTsql
+    Write-Host "SUCCESS: Ownership transferred." -ForegroundColor Green
+
+    # 2) Force logout and drop/recreate server login with sysadmin rights
+    Write-Host "INFO: Forcing logout and recreating login '$SqlUser' with sysadmin rights..." -ForegroundColor Cyan
+    $dropLoginTsql = @"
+-- Kill all sessions for the login
+DECLARE @spid INT;
+DECLARE kill_cursor CURSOR FOR
+    SELECT session_id FROM sys.dm_exec_sessions WHERE login_name = N'$SqlUser';
+OPEN kill_cursor;
+FETCH NEXT FROM kill_cursor INTO @spid;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    EXEC('KILL ' + @spid);
+    FETCH NEXT FROM kill_cursor INTO @spid;
+END;
+CLOSE kill_cursor;
+DEALLOCATE kill_cursor;
+
+-- Drop and recreate login
+IF EXISTS (SELECT 1 FROM sys.server_principals WHERE name = N'$SqlUser')
+BEGIN
+    ALTER SERVER ROLE [sysadmin] DROP MEMBER [$SqlUser];
+    DROP LOGIN [$SqlUser];
+END
+CREATE LOGIN [$SqlUser] WITH PASSWORD = N'$SqlPassword', CHECK_POLICY = OFF;
+ALTER SERVER ROLE [sysadmin] ADD MEMBER [$SqlUser];
+"@
+    Invoke-Sqlcmd -ConnectionString $connStr -Query $dropLoginTsql
+    Write-Host "SUCCESS: Login '$SqlUser' recreated with sysadmin rights." -ForegroundColor Green
+
+    # 3) Drop and recreate user in each database
+    Write-Host "INFO: Dropping and recreating user '$SqlUser' in all databases..." -ForegroundColor Cyan
+    $dbUserTsql = @"
+DECLARE @name sysname;
+DECLARE db_cursor CURSOR FOR
+    SELECT name FROM sys.databases
+    WHERE database_id > 4 AND state = 0;
+OPEN db_cursor;
+FETCH NEXT FROM db_cursor INTO @name;
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Force logout from each database
+    DECLARE @killspid INT;
+    DECLARE user_cursor CURSOR FOR
+        SELECT session_id FROM sys.dm_exec_sessions WHERE login_name = N'$SqlUser' AND database_id = DB_ID(@name);
+    OPEN user_cursor;
+    FETCH NEXT FROM user_cursor INTO @killspid;
+    WHILE @@FETCH_STATUS = 0
+    BEGIN
+        EXEC('KILL ' + @killspid);
+        FETCH NEXT FROM user_cursor INTO @killspid;
+    END;
+    CLOSE user_cursor;
+    DEALLOCATE user_cursor;
+
+    -- Recreate user mapping
+    DECLARE @sql nvarchar(max) = N'
+        USE [' + @name + N'];
+        IF EXISTS (SELECT 1 FROM sys.database_principals WHERE name = N''$SqlUser'')
+        BEGIN
+            DROP USER [$SqlUser];
+        END
+        CREATE USER [$SqlUser] FOR LOGIN [$SqlUser];
+        ALTER ROLE db_owner ADD MEMBER [$SqlUser];
+    ';
+    EXEC sp_executesql @sql;
+    FETCH NEXT FROM db_cursor INTO @name;
+END;
+CLOSE db_cursor;
+DEALLOCATE db_cursor;
+"@
+    Invoke-Sqlcmd -ConnectionString $connStr -Query $dbUserTsql
+    Write-Host "SUCCESS: User '$SqlUser' recreated with db_owner on all databases." -ForegroundColor Green
+
+    Write-Host "`nAll done! '$SqlUser' has full admin rights and ownership transferred to '$WinUser' where needed." -ForegroundColor Magenta
+}
+
 #endregion
 
 # ---------- Script Execution ----------
 Assert-Admin
 Ensure-DotNet9
-Ensure-SqlExpress
+Ensure-SqlExpressInstallation
+Ensure-SqlExpressServerUser
+
+Run-Database-Migrations
 
 Deploy-Certificates
 Deploy-APIs
-Run-Database-Migrations
+
 Deploy-WPF
 Import-Initial-Data

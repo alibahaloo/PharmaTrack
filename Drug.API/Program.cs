@@ -57,6 +57,7 @@ builder.Services.AddHangfire(configuration => configuration
     .UseDefaultTypeSerializer()
     .UseSqlServerStorage(connectionString, new SqlServerStorageOptions
     {
+        PrepareSchemaIfNecessary = true,
         CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
         SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
         QueuePollInterval = TimeSpan.FromSeconds(15),
@@ -71,13 +72,6 @@ builder.Services.AddHealthChecks();
 builder.Services.AddScoped<DrugJobService>();
 
 var app = builder.Build();
-
-// Apply migrations on startup
-/*using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<DrugDBContext>();
-    db.Database.Migrate();
-}*/
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
