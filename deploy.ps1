@@ -49,44 +49,44 @@ function Assert-Admin {
     $identity  = [Security.Principal.WindowsIdentity]::GetCurrent()
     $principal = New-Object Security.Principal.WindowsPrincipal($identity)
     if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-        Write-Error "This script must be run as Administrator."
+        Write-Host "ERROR: This script must be run as Administrator. Exiting now." -ForegroundColor Red
         exit 1
     }
 }
 
 function Ensure-DotNet9 {
-    Write-Host "🔍 Checking for .NET 9 SDK..."
+    Write-Host "INFO: Checking for .NET 9 SDK..." -ForegroundColor Cyan
     if (-not (dotnet --list-sdks | Select-String '^9\.')) {
-        Write-Host "⬇️ .NET 9 SDK not found. Installing silently..."
+        Write-Host "WARNING: .NET 9 SDK not found. Installing silently..." -ForegroundColor Yellow
         winget install --id Microsoft.DotNet.SDK.9 -e --silent
-        Write-Host "✅ .NET 9 SDK installed."
+        Write-Host "SUCCESS: .NET 9 SDK installed." -ForegroundColor Green
     } else {
-        Write-Host "✅ .NET 9 SDK is already installed."
+        Write-Host "SUCCESS: .NET 9 SDK is already installed." -ForegroundColor Green
     }
 }
 
 function Ensure-LocalDB {
-    Write-Host "🔍 Checking for LocalDB tooling..."
+    Write-Host "INFO: Checking for LocalDB tooling..." -ForegroundColor Cyan
     if (-not (Get-Command sqllocaldb -ErrorAction SilentlyContinue)) {
-        Write-Host "⬇️ LocalDB tooling not found. Installing silently..."
+        Write-Host "WARNING: LocalDB tooling not found. Installing silently..." -ForegroundColor Yellow
         $installerUrl = 'https://download.microsoft.com/download/7/c/1/7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SqlLocalDB.msi'
         $tmpPath      = Join-Path $env:TEMP 'SqlLocalDB.msi'
         Invoke-WebRequest -Uri $installerUrl -OutFile $tmpPath -UseBasicParsing
         Start-Process msiexec.exe -ArgumentList "/i `"$tmpPath`" /quiet /norestart IACCEPTSQLLOCALDBLICENSETERMS=YES" -Wait
-        Write-Host "✅ LocalDB tooling installed."
+        Write-Host "SUCCESS: LocalDB tooling installed." -ForegroundColor Green
     } else {
-        Write-Host "✅ LocalDB tooling present."
+        Write-Host "SUCCESS: LocalDB tooling present." -ForegroundColor Green
     }
-    Write-Host "🔍 Ensuring default LocalDB instance 'MSSQLLocalDB' exists and is running..."
+    Write-Host "INFO: Ensuring default LocalDB instance 'MSSQLLocalDB' exists and is running..." -ForegroundColor Cyan
     try { sqllocaldb info MSSQLLocalDB | Out-Null } catch { sqllocaldb create MSSQLLocalDB }
     sqllocaldb start MSSQLLocalDB | Out-Null
-    Write-Host "✅ LocalDB instance 'MSSQLLocalDB' is running."
+    Write-Host "SUCCESS: LocalDB instance 'MSSQLLocalDB' is running." -ForegroundColor Green
 }
 
 function Remove-ServiceIfExists {
     param([string]$name)
     if (Get-Service -Name $name -ErrorAction SilentlyContinue) {
-        Write-Host "🛑 Stopping & deleting existing service '$name'..."
+        Write-Host "WARNING: Stopping & deleting existing service '$name'..." -ForegroundColor Yellow
         Stop-Service -Name $name -Force -ErrorAction SilentlyContinue
         sc.exe delete $name | Out-Null
         Start-Sleep -Seconds 2
@@ -100,11 +100,11 @@ function Install-Service {
         [string]$binPath,
         [string]$desc
     )
-    Write-Host "🔧 Installing service '$name'..."
+    Write-Host "INFO: Installing service '$name'..." -ForegroundColor Cyan
     New-Service -Name $name -BinaryPathName "`"$binPath`"" -DisplayName $display -StartupType Automatic
     Set-Service   -Name $name -Description $desc
     Start-Service -Name $name
-    Write-Host "✅ Service '$name' is running."
+    Write-Host "SUCCESS: Service '$name' is running." -ForegroundColor Green
 }
 
 #endregion
@@ -112,7 +112,7 @@ function Install-Service {
 #region Deploy Functions
 
 function Deploy-Certificates {
-    Write-Host "`n🔐 Deploying certificates..."
+    Write-Host "`nINFO: Deploying certificates..." -ForegroundColor Cyan
     New-Item -ItemType Directory -Path $centralCertDir -Force | Out-Null
     if (-not (Test-Path $centralPfxPath)) {
         $cert      = New-SelfSignedCertificate -Subject $certSubject -DnsName "localhost" -CertStoreLocation 'Cert:\LocalMachine\My' -NotAfter (Get-Date).AddYears($certValidYears)
@@ -127,24 +127,25 @@ function Deploy-Certificates {
         $keyName     = $machineCert.PrivateKey.CspKeyContainerInfo.UniqueKeyContainerName
         $keyPath     = Join-Path $env:ProgramData "Microsoft\Crypto\RSA\MachineKeys\$keyName"
 
-        Write-Host "🔐 Granting LocalSystem read-access to the private key..."
+        Write-Host "INFO: Granting LocalSystem read-access to the private key..." -ForegroundColor Cyan
         icacls $keyPath /grant "NT AUTHORITY\SYSTEM:(R)" | Out-Null
-        Write-Host "✅ Certificate created, trusted, and permissions set."
+        Write-Host "SUCCESS: Certificate created, trusted, and permissions set." -ForegroundColor Green
     } else {
-        Write-Host "ℹ️ PFX exists at $centralPfxPath – skipping."    }
+        Write-Host "INFO: PFX exists at $centralPfxPath – skipping." -ForegroundColor Cyan
+    }
 }
 
 function Deploy-APIs {
-    Write-Host "`n🔍 Deploying APIs..."
+    Write-Host "`nINFO: Deploying APIs..." -ForegroundColor Cyan
 
     foreach ($proj in $projects) { Remove-ServiceIfExists -name $proj.ServiceName }
 
     foreach ($proj in $projects) {
         $outDir = Join-Path $scriptDir $proj.PublishDir
-        Write-Host "📦 Publishing $($proj.ProjectPath) to $outDir..."
+        Write-Host "INFO: Publishing $($proj.ProjectPath) to $outDir..." -ForegroundColor Cyan
         dotnet publish $proj.ProjectPath -c Release -r win-x64 --self-contained true -o $outDir
 
-        Write-Host "📋 Copying cert to $outDir\certs"
+        Write-Host "INFO: Copying cert to $outDir\certs" -ForegroundColor Cyan
         New-Item -ItemType Directory -Path (Join-Path $outDir 'certs') -Force | Out-Null
         Copy-Item -Path $centralPfxPath -Destination (Join-Path $outDir 'certs') -Force
 
@@ -155,7 +156,7 @@ function Deploy-APIs {
 }
 
 function Deploy-WPF {
-    Write-Host "`n📦 Deploying WPF app and creating shortcut..."
+    Write-Host "`nINFO: Deploying WPF app and creating shortcut..." -ForegroundColor Cyan
     $wpfOut    = Join-Path $scriptDir 'publish\PharmaTrack.WPF'
     dotnet publish $wpfProjectPath -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o $wpfOut
 
@@ -171,7 +172,67 @@ function Deploy-WPF {
     $shortcut.Description      = 'PharmaTrack WPF App'
     $shortcut.Save()
 
-    Write-Host "✅ WPF app deployed and shortcut created at $linkPath"
+    Write-Host "SUCCESS: WPF app deployed and shortcut created at $linkPath" -ForegroundColor Green
+}
+
+#endregion
+
+#region Import Data Functions
+
+function Import-Initial-Data {
+    Write-Host "`nINFO: Importing initial data into the system..." -ForegroundColor Cyan
+    Write-Host "`INFO: Waiting for API readiness via /health..." -ForegroundColor Cyan
+    $healthUrl   = 'https://localhost:8086/health'
+    $maxRetries  = 12          # e.g. 12 attempts
+    $delaySecs   = 5           # 5 seconds between tries
+    $attempt     = 0
+
+    do {
+        $attempt++
+        try {
+            $resp = Invoke-WebRequest -Uri $healthUrl -Method GET -TimeoutSec 5 -ErrorAction Stop
+            if ($resp.StatusCode -eq 200) {
+                Write-Host "`nSUCCESS: API is healthy (after $attempt attempt(s))." -ForegroundColor Green
+                break
+            }
+        } catch {
+            Write-Host -NoNewline "."
+            Start-Sleep -Seconds $delaySecs
+        }
+        if ($attempt -ge $maxRetries) {
+            Write-Host "ERROR: API health check failed: $healthUrl did not return 200 after $maxRetries attempts."; -ForegroundColor Red
+            exit 1
+        }
+    } while ($true)
+
+    # Now that /health is green, do your imports once
+    Write-Host "`nINFO: Importing initial data via API endpoints..." -ForegroundColor Cyan
+
+    # POST to import drug data
+    try {
+        $response = Invoke-WebRequest -Uri "https://localhost:8086/api/Jobs/import-drug-data" -Method POST
+    } catch {
+        throw "ERROR: Failed to send request to import drug data: $($_.Exception.Message)";
+    }
+    if ($response.StatusCode -ne 200) {
+        Write-Host "ERROR: Import drug data failed with HTTP status code $($response.StatusCode). Stopping Installation." -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "SUCCESS: Drug data import scheduled successfully (Status $($response.StatusCode))." -ForegroundColor Green
+
+    # POST to import interaction data
+    try {
+        $response = Invoke-WebRequest -Uri "https://localhost:8086/api/Jobs/import-interaction-data" -Method POST
+    } catch {
+        throw "ERROR: Failed to send request to import interaction data: $($_.Exception.Message)";
+    }
+    if ($response.StatusCode -ne 200) {
+        Write-Host "ERROR: Import interaction data failed with HTTP status code $($response.StatusCode). Stopping Installation." -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "SUCCESS: Interaction data import scheduled successfully (Status $($response.StatusCode))." -ForegroundColor Green
+
+    Write-Host "INFO: You can view the jobs status here: https://localhost:8086/hangfire" -ForegroundColor Cyan
 }
 
 #endregion
@@ -184,3 +245,4 @@ Ensure-LocalDB
 Deploy-Certificates
 Deploy-APIs
 Deploy-WPF
+Import-Initial-Data
