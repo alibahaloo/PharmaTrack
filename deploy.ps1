@@ -65,22 +65,24 @@ function Ensure-DotNet9 {
     }
 }
 
-function Ensure-LocalDB {
-    Write-Host "INFO: Checking for LocalDB tooling..." -ForegroundColor Cyan
-    if (-not (Get-Command sqllocaldb -ErrorAction SilentlyContinue)) {
-        Write-Host "WARNING: LocalDB tooling not found. Installing silently..." -ForegroundColor Yellow
-        $installerUrl = 'https://download.microsoft.com/download/7/c/1/7c14e92e-bdcb-4f89-b7cf-93543e7112d1/SqlLocalDB.msi'
-        $tmpPath      = Join-Path $env:TEMP 'SqlLocalDB.msi'
-        Invoke-WebRequest -Uri $installerUrl -OutFile $tmpPath -UseBasicParsing
-        Start-Process msiexec.exe -ArgumentList "/i `"$tmpPath`" /quiet /norestart IACCEPTSQLLOCALDBLICENSETERMS=YES" -Wait
-        Write-Host "SUCCESS: LocalDB tooling installed." -ForegroundColor Green
+function Ensure-SqlExpress {
+    Write-Host "INFO: Checking for SQL Server Express service..." -ForegroundColor Cyan
+    $svcName = 'MSSQL$SQLEXPRESS'
+    $svc     = Get-Service -Name $svcName -ErrorAction SilentlyContinue
+    if (-not $svc) {
+        Write-Host "WARNING: SQL Server Express not found. Installing silently..." -ForegroundColor Yellow
+        winget install --id=Microsoft.SQLServer.2022.Express -e
+        Write-Host "SUCCESS: SQL Server Express installed." -ForegroundColor Green
+        # Refresh service object
+        $svc = Get-Service -Name $svcName -ErrorAction SilentlyContinue
     } else {
-        Write-Host "SUCCESS: LocalDB tooling present." -ForegroundColor Green
+        Write-Host "SUCCESS: SQL Server Express service found." -ForegroundColor Green
     }
-    Write-Host "INFO: Ensuring default LocalDB instance 'MSSQLLocalDB' exists and is running..." -ForegroundColor Cyan
-    try { sqllocaldb info MSSQLLocalDB | Out-Null } catch { sqllocaldb create MSSQLLocalDB }
-    sqllocaldb start MSSQLLocalDB | Out-Null
-    Write-Host "SUCCESS: LocalDB instance 'MSSQLLocalDB' is running." -ForegroundColor Green
+    if ($svc.Status -ne 'Running') {
+        Write-Host "INFO: Starting SQL Server Express service..." -ForegroundColor Cyan
+        Start-Service -Name $svcName
+    }
+    Write-Host "SUCCESS: SQL Server Express service is running." -ForegroundColor Green
 }
 
 function Remove-ServiceIfExists {
@@ -240,7 +242,7 @@ function Import-Initial-Data {
 # ---------- Script Execution ----------
 Assert-Admin
 Ensure-DotNet9
-Ensure-LocalDB
+Ensure-SqlExpress
 
 Deploy-Certificates
 Deploy-APIs
