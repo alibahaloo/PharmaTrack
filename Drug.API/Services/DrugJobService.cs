@@ -32,17 +32,11 @@ namespace Drug.API.Services
             try
             {
                 // List all file paths to be processed.
-                var filePaths = new[]
-                {
-                    "/app/DataFiles/ddinter_downloads_code_A.csv",
-                    "/app/DataFiles/ddinter_downloads_code_B.csv",
-                    "/app/DataFiles/ddinter_downloads_code_D.csv",
-                    "/app/DataFiles/ddinter_downloads_code_H.csv",
-                    "/app/DataFiles/ddinter_downloads_code_L.csv",
-                    "/app/DataFiles/ddinter_downloads_code_P.csv",
-                    "/app/DataFiles/ddinter_downloads_code_R.csv",
-                    "/app/DataFiles/ddinter_downloads_code_V.csv",
-                };
+                var codes = new[] { "A", "B", "D", "H", "L", "P", "R", "V" };
+                var basePath = AppContext.BaseDirectory;
+                var filePaths = codes
+                    .Select(c => Path.Combine(basePath, "DataFiles", $"ddinter_downloads_code_{c}.csv"))
+                    .ToArray();
 
                 // Preload existing hashes from the database.
                 var existingHashes = await _context.DrugInteractions
@@ -127,7 +121,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugVeterinarySpecies()
         {
-            string filePath = "/app/DataFiles/vet.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "vet.txt");
 
             if (!File.Exists(filePath))
             {
@@ -184,7 +179,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugTherapeuticClasses()
         {
-            string filePath = "/app/DataFiles/ther.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "ther.txt");
 
             if (!File.Exists(filePath))
             {
@@ -241,7 +237,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugSchedules()
         {
-            string filePath = "/app/DataFiles/schedule.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "schedule.txt");
 
             if (!File.Exists(filePath))
             {
@@ -298,7 +295,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugRoutes()
         {
-            string filePath = "/app/DataFiles/route.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "route.txt");
 
             if (!File.Exists(filePath))
             {
@@ -355,7 +353,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugPharmaceuticalStds()
         {
-            string filePath = "/app/DataFiles/pharm.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "pharm.txt");
 
             if (!File.Exists(filePath))
             {
@@ -412,7 +411,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugPackaging()
         {
-            string filePath = "/app/DataFiles/package.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "package.txt");
 
             if (!File.Exists(filePath))
             {
@@ -469,7 +469,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugForms()
         {
-            string filePath = "/app/DataFiles/form.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "form.txt");
 
             if (!File.Exists(filePath))
             {
@@ -526,7 +527,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugStatus()
         {
-            string filePath = "/app/DataFiles/status.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "status.txt");
 
             if (!File.Exists(filePath))
             {
@@ -584,7 +586,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugCompanies()
         {
-            string filePath = "/app/DataFiles/comp.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "comp.txt");
 
             if (!File.Exists(filePath))
             {
@@ -642,7 +645,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugIngredients()
         {
-            string filePath = "/app/DataFiles/ingred.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "ingred.txt");
 
             if (!File.Exists(filePath))
             {
@@ -701,7 +705,8 @@ namespace Drug.API.Services
         }
         private async Task ImportDrugs()
         {
-            string filePath = "/app/DataFiles/drug.txt";
+            var basePath = AppContext.BaseDirectory;
+            var filePath = Path.Combine(basePath, "DataFiles", "drug.txt");
 
             if (!File.Exists(filePath))
             {
