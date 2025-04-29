@@ -471,7 +471,14 @@ Ensure-DotNetEF
 Ensure-SqlExpressInstallation
 Ensure-SqlExpressServerUser
 
-Run-Database-Migrations
+Write-Host "`nQ: Do you wish to run database migrations? [Y]es / [N]o" -ForegroundColor Magenta
+$MigrationAnswer = Read-Host
+if ($MigrationAnswer -match '^[Yy]$') {
+    Run-Database-Migrations
+}
+else {
+    Write-Host "WARNING: Skipping database migrations!" -ForegroundColor Yellow
+}
 
 Deploy-Certificates
 Deploy-APIs
@@ -485,4 +492,11 @@ else {
     Write-Host "WARNING: Skipping Windows Application Installation!" -ForegroundColor Yellow
 }
 
-Import-Initial-Data
+Write-Host "`nQ: Do you wish to import initial data? [Y]es / [N]o" -ForegroundColor Magenta
+$ImportData = Read-Host
+if ($ImportData -match '^[Yy]$') {
+    Import-Initial-Data
+}
+else {
+    Write-Host "WARNING: Skipping initial import data!" -ForegroundColor Yellow
+}
