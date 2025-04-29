@@ -70,7 +70,6 @@ builder.Services.AddHangfire(configuration => configuration
 builder.Services.AddHangfireServer();
 builder.Services.AddHealthChecks();
 
-builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<DrugJobService>();
 
 // Load the shared configuration
