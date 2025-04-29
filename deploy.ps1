@@ -459,7 +459,7 @@ DEALLOCATE db_cursor;
     Invoke-Sqlcmd -ConnectionString $connStr -Query $dbUserTsql
     Write-Host "SUCCESS: User '$SqlUser' recreated with db_owner on all databases." -ForegroundColor Green
 
-    Write-Host "`nAll done! '$SqlUser' has full admin rights and ownership transferred to '$WinUser' where needed." -ForegroundColor Magenta
+    Write-Host "`nAll done! '$SqlUser' has full admin rights and ownership transferred to '$WinUser' where needed." -ForegroundColor Green
 }
 
 #endregion
@@ -476,5 +476,13 @@ Run-Database-Migrations
 Deploy-Certificates
 Deploy-APIs
 
-Deploy-WPF
+Write-Host "`nQ: Do you wish to install the Windows Application (WPF)? [Y]es / [N]o" -ForegroundColor Magenta
+$WpfAnswer = Read-Host
+if ($WpfAnswer -match '^[Yy]$') {
+    Deploy-WPF
+}
+else {
+    Write-Host "WARNING: Skipping Windows Application Installation!" -ForegroundColor Yellow
+}
+
 Import-Initial-Data
