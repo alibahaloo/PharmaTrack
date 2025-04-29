@@ -65,6 +65,39 @@ function Ensure-DotNet9 {
     }
 }
 
+function Ensure-DotNetEF {
+    Write-Host "INFO: Checking for dotnet EF..." -ForegroundColor Cyan
+
+    try {
+        dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org | Out-Null
+        dotnet tool install --global dotnet-ef --ignore-failed-sources --no-cache
+        Write-Host "SUCCESS: dotnet-ef installed successfully." -ForegroundColor Green
+    }
+    catch {
+        Write-Host "INFO: dotnet-ef might already be installed. Trying to update it..." -ForegroundColor Cyan
+        try {
+            dotnet tool update --global dotnet-ef
+            Write-Host "SUCCESS: dotnet-ef updated successfully." -ForegroundColor Green
+        }
+        catch {
+            Write-Error "ERROR: Failed to install or update dotnet-ef: $($_.Exception.Message)" -ForegroundColor Red
+            exit 1
+        }
+    }
+
+    Write-Host "INFO: Refreshing PATH for current session..." -ForegroundColor Cyan
+
+    # Add .dotnet\tools to PATH if not already present
+    $toolsPath = "$env:USERPROFILE\.dotnet\tools"
+    if ($env:Path -notlike "*$toolsPath*") {
+        $env:Path += ";$toolsPath"
+        Write-Host "SUCCESS: PATH refreshed. You can now use 'dotnet ef' immediately." -ForegroundColor Green
+    }
+    else {
+        Write-Host "INFO: PATH already includes .dotnet\tools. No update needed." -ForegroundColor Cyan
+    }
+}
+
 function Remove-ServiceIfExists {
     param([string]$name)
     if (Get-Service -Name $name -ErrorAction SilentlyContinue) {
@@ -434,6 +467,7 @@ DEALLOCATE db_cursor;
 # ---------- Script Execution ----------
 Assert-Admin
 Ensure-DotNet9
+Ensure-DotNetEF
 Ensure-SqlExpressInstallation
 Ensure-SqlExpressServerUser
 
