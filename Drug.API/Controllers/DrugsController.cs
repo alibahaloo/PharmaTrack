@@ -13,15 +13,24 @@ namespace Drug.API.Controllers
     public class DrugsController : ControllerBase
     {
         private readonly DrugDBContext _context;
+        private readonly JwtService _jwtService;
 
-        public DrugsController(DrugDBContext context)
+        public DrugsController(DrugDBContext context, JwtService jwtService)
         {
             _context = context;
+            _jwtService = jwtService;
         }
 
         [HttpGet("list")]
         public async Task<IActionResult> GetDrugsList(string startWith = "")
         {
+            // Step 1: Validate Authorization Header
+            var (validationResult, username, isAdmin) = _jwtService.ValidateAuthorizationHeader(Request);
+            if (validationResult != null)
+            {
+                return validationResult; // Return if validation fails
+            }
+
             List<DrugListDto>? list;
 
             if (string.IsNullOrEmpty(startWith))

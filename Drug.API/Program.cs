@@ -5,6 +5,7 @@ using Hangfire.Dashboard;
 using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using PharmaTrack.Shared.Services;
 
 var options = new WebApplicationOptions
 {
@@ -69,7 +70,15 @@ builder.Services.AddHangfire(configuration => configuration
 builder.Services.AddHangfireServer();
 builder.Services.AddHealthChecks();
 
+builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<DrugJobService>();
+
+// Load the shared configuration
+var sharedConfiguration = SharedConfiguration.GetSharedConfiguration();
+builder.Configuration.AddConfiguration(sharedConfiguration);
+
+// Add JWT configuration using the shared extension
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 var app = builder.Build();
 
