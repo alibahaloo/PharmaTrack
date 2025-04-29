@@ -41,6 +41,9 @@ $scriptDir      = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $centralCertDir = Join-Path $scriptDir 'certs'
 $centralPfxPath = Join-Path $centralCertDir 'PharmaTrackCert.pfx'
 
+$adminUsername = "user@email.com"
+$adminPassword = "B4guy#kSDvKJJP+"
+
 #endregion
 
 #region Helpers
@@ -462,10 +465,54 @@ DEALLOCATE db_cursor;
     Write-Host "`nAll done! '$SqlUser' has full admin rights and ownership transferred to '$WinUser' where needed." -ForegroundColor Green
 }
 
+function Register-User {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Username,
+
+        [Parameter(Mandatory)]
+        [string]$Password
+    )
+
+    $url = "https://localhost:8084/Auth/Register"
+
+    $body = @{
+        username = $Username
+        password = $Password
+    } | ConvertTo-Json -Depth 2
+
+    try {
+        $response = Invoke-RestMethod -Uri $url -Method POST -Body $body -ContentType 'application/json'
+         Write-Host "SUCCESS: User '$Username' registered successfully." -ForegroundColor Green
+    }
+    catch {
+        if ($_.Exception.Response -ne $null) {
+            $stream = $_.Exception.Response.GetResponseStream()
+            $reader = New-Object System.IO.StreamReader($stream)
+            $rawResponse = $reader.ReadToEnd()
+            try {
+                $errorResponse = $rawResponse | ConvertFrom-Json
+                foreach ($errorItem in $errorResponse.content) {
+                    Write-Host "ERROR: $($errorItem.description)" -ForegroundColor Red
+                }
+            }
+            catch {
+                Write-Host "ERROR: Failed to parse error response: $rawResponse" -ForegroundColor Red
+            }
+        }
+        else {
+            Write-Host "ERROR: HTTP request failed: $($_.Exception.Message)" -ForegroundColor Red
+        }
+        exit 1
+    }
+}
+
+
 #endregion
 
 # ---------- Script Execution ----------
 Assert-Admin
+
 Write-Host "`nQ: Check for prerequisites? If this is the first time running this script, you MUST do this step. [Y]es / [N]o" -ForegroundColor Magenta
 $PreflightAnswer = Read-Host
 if ($PreflightAnswer -match '^[Yy]$') {
@@ -505,4 +552,12 @@ if ($ImportData -match '^[Yy]$') {
 }
 else {
     Write-Host "WARNING: Skipping initial import data!" -ForegroundColor Yellow
+}
+
+Write-Host "`nQ: Setup admin user? [Y]es / [N]o" -ForegroundColor Magenta
+$AdminUserAnswer = Read-Host
+if ($AdminUserAnswer -match '^[Yy]$') { 
+    Register-User -Username $adminUsername -Password $adminPassword
+} else {
+    Write-Host "WARNING: Setting up admin user!" -ForegroundColor Yellow
 }
