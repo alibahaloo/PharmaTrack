@@ -8,7 +8,7 @@ using PharmaTrack.Shared.Services;
 
 namespace Auth.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
     {

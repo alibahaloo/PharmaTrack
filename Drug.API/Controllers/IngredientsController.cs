@@ -8,7 +8,7 @@ using PharmaTrack.Shared.Services;
 namespace Drug.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class IngredientsController : ControllerBase
     {
         private readonly DrugDBContext _context;

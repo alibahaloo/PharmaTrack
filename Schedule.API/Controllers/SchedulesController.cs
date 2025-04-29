@@ -6,7 +6,7 @@ using Schedule.API.Data;
 
 namespace Schedule.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class SchedulesController : ControllerBase
     {

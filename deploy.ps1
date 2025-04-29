@@ -23,7 +23,7 @@ $ErrorActionPreference = 'Stop'
 $projects = @(
     @{ ProjectPath = ".\Auth.API\Auth.API.csproj";        PublishDir = ".\publish\AuthAPI";      ServiceName = "PharmaTrackAuthAPI";      DisplayName = "PharmaTrack Auth API Service";        Description = "PharmaTrack Auth.API as Windows Service" },
     @{ ProjectPath = ".\Schedule.API\Schedule.API.csproj"; PublishDir = ".\publish\ScheduleAPI"; ServiceName = "PharmaTrackScheduleAPI"; DisplayName = "PharmaTrack Schedule API Service";  Description = "PharmaTrack Schedule.API as Windows Service" },
-    @{ ProjectPath = ".\Gateway.API\Gateway.API.csproj";   PublishDir = ".\publish\GatewayAPI";  ServiceName = "PharmaTrackGatewayAPI";  DisplayName = "PharmaTrack Gateway API Service";   Description = "PharmaTrack Gateway.API as Windows Service" },
+    #@{ ProjectPath = ".\Gateway.API\Gateway.API.csproj";   PublishDir = ".\publish\GatewayAPI";  ServiceName = "PharmaTrackGatewayAPI";  DisplayName = "PharmaTrack Gateway API Service";   Description = "PharmaTrack Gateway.API as Windows Service" },
     @{ ProjectPath = ".\Drug.API\Drug.API.csproj";         PublishDir = ".\publish\DrugAPI";     ServiceName = "PharmaTrackDrugAPI";      DisplayName = "PharmaTrack Drug API Service";      Description = "PharmaTrack Drug.API as Windows Service" },
     @{ ProjectPath = ".\Inventory.API\Inventory.API.csproj";PublishDir = ".\publish\InventoryAPI"; ServiceName = "PharmaTrackInventoryAPI"; DisplayName = "PharmaTrack Inventory API Service"; Description = "PharmaTrack Inventory.API as Windows Service" }
 )
@@ -466,10 +466,16 @@ DEALLOCATE db_cursor;
 
 # ---------- Script Execution ----------
 Assert-Admin
-Ensure-DotNet9
-Ensure-DotNetEF
-Ensure-SqlExpressInstallation
-Ensure-SqlExpressServerUser
+Write-Host "`nQ: Check for prerequisites? If this is the first time running this script, you MUST do this step. [Y]es / [N]o" -ForegroundColor Magenta
+$PreflightAnswer = Read-Host
+if ($PreflightAnswer -match '^[Yy]$') {
+    Ensure-DotNet9
+    Ensure-DotNetEF
+    Ensure-SqlExpressInstallation
+    Ensure-SqlExpressServerUser
+} else {
+    Write-Host "WARNING: Skipping prerequisites checks! Installation will fail if this is the first time running this script." -ForegroundColor Yellow
+}
 
 Write-Host "`nQ: Do you wish to run database migrations? [Y]es / [N]o" -ForegroundColor Magenta
 $MigrationAnswer = Read-Host

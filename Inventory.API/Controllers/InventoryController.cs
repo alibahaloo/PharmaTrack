@@ -6,7 +6,7 @@ using PharmaTrack.Shared.APIModels;
 
 namespace Inventory.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class InventoryController : ControllerBase
     {

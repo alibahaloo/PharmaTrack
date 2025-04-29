@@ -5,7 +5,7 @@ using Drug.API.Services;
 namespace Drug.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class JobsController : ControllerBase
     {
         private readonly DrugJobService _jobService;

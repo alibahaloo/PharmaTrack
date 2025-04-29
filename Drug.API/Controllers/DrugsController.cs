@@ -11,7 +11,7 @@ using System.Security.Claims;
 namespace Drug.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [Authorize]
     public class DrugsController : ControllerBase
     {

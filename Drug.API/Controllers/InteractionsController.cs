@@ -7,7 +7,7 @@ using PharmaTrack.Shared.DTOs;
 namespace Drug.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class InteractionsController : ControllerBase
     {
         private readonly DrugDBContext _context;
