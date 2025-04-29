@@ -1,15 +1,18 @@
 ﻿using Drug.API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
 using PharmaTrack.Shared.DTOs;
 using PharmaTrack.Shared.Services;
+using System.Security.Claims;
 
 namespace Drug.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class DrugsController : ControllerBase
     {
         private readonly DrugDBContext _context;
@@ -24,12 +27,17 @@ namespace Drug.API.Controllers
         [HttpGet("list")]
         public async Task<IActionResult> GetDrugsList(string startWith = "")
         {
+            /*
             // Step 1: Validate Authorization Header
             var (validationResult, username, isAdmin) = _jwtService.ValidateAuthorizationHeader(Request);
             if (validationResult != null)
             {
                 return validationResult; // Return if validation fails
             }
+            */
+            var username = User.FindFirstValue(ClaimTypes.Name);
+            var isAdmin = User.IsInRole("Admin");
+
 
             List<DrugListDto>? list;
 

@@ -79,6 +79,7 @@ builder.Configuration.AddConfiguration(sharedConfiguration);
 
 // Add JWT configuration using the shared extension
 builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -96,6 +97,7 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapHealthChecks("/health");
