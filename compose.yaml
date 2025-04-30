@@ -1,24 +1,4 @@
 services:
-  gateway-api:
-    container_name: Gateway.API
-    build:
-      context: ..
-      dockerfile: PharmaTrack/Gateway.API/Dockerfile
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - AuthApi__BaseUrl=http://auth-api
-      - InventoryApi__BaseUrl=http://inventory-api
-      - ScheduleApi__BaseUrl=http://schedule-api
-      - DrugApi__BaseUrl=http://drug-api
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecretP@ss
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-    volumes:
-      - ./aspnetapp.pfx:/https/aspnetapp.pfx:ro
-    ports:
-      - "8081:80"
-      - "8082:443"
-
   inventory-api:
     container_name: Inventory.API
     build:
@@ -27,9 +7,14 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=inventory-db;Database=Inventory;User Id=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecretP@ss
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ./aspnetapp.pfx:/https/aspnetapp.pfx:ro
     ports:
-      - "8083:80"
+      - "9083:80"
+      - "9084:443"
     depends_on:
       - inventory-db
 
@@ -41,9 +26,14 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=auth-db;Database=Auth;User Id=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecretP@ss
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ./aspnetapp.pfx:/https/aspnetapp.pfx:ro
     ports:
-      - "8085:80"
+      - "9085:80"
+      - "9086:443"
     depends_on:
       - auth-db
 
@@ -55,9 +45,14 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=schedule-db;Database=Schedule;User Id=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecretP@ss
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ./aspnetapp.pfx:/https/aspnetapp.pfx:ro
     ports:
-      - "8087:80"
+      - "9087:80"
+      - "9088:443"
     depends_on:
       - schedule-db
 
@@ -69,15 +64,20 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=drug-db;Database=Drug;User Id=sa;Password=YourStrong!Passw0rd;MultipleActiveResultSets=true;TrustServerCertificate=True
-      - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecretP@ss
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - ./aspnetapp.pfx:/https/aspnetapp.pfx:ro
     ports:
-      - "8089:80"
+      - "9089:80"
+      - "9090:443"
     depends_on:
       - drug-db
 
   inventory-db:
     container_name: Inventory.db
-    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
     environment:
       SA_PASSWORD: "YourStrong!Passw0rd"
       ACCEPT_EULA: "Y"
@@ -89,7 +89,7 @@ services:
 
   auth-db:
     container_name: Auth.db
-    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
     environment:
       SA_PASSWORD: "YourStrong!Passw0rd"
       ACCEPT_EULA: "Y"
@@ -101,7 +101,7 @@ services:
 
   schedule-db:
     container_name: Schedule.db
-    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
     environment:
       SA_PASSWORD: "YourStrong!Passw0rd"
       ACCEPT_EULA: "Y"
@@ -113,7 +113,7 @@ services:
 
   drug-db:
     container_name: Drug.db
-    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
     environment:
       SA_PASSWORD: "YourStrong!Passw0rd"
       ACCEPT_EULA: "Y"
