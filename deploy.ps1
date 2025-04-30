@@ -511,6 +511,10 @@ function Register-User {
 #endregion
 
 # ---------- Script Execution ----------
+Write-Host "`===========================================" -ForegroundColor DarkBlue -BackgroundColor Gray
+Write-Host "`Installing PharmaTrack ..." -ForegroundColor DarkBlue -BackgroundColor Gray
+Write-Host "`===========================================" -ForegroundColor DarkBlue -BackgroundColor Gray
+
 Assert-Admin
 
 Write-Host "`nQ: Check for prerequisites? If this is the first time running this script, you MUST do this step. [Y]es / [N]o" -ForegroundColor Magenta
@@ -561,3 +565,7 @@ if ($AdminUserAnswer -match '^[Yy]$') {
 } else {
     Write-Host "WARNING: Setting up admin user!" -ForegroundColor Yellow
 }
+
+Write-Host "`===========================================" -ForegroundColor DarkBlue -BackgroundColor Gray
+Write-Host "`All done!" -ForegroundColor DarkBlue -BackgroundColor Gray
+Write-Host "`===========================================" -ForegroundColor DarkBlue -BackgroundColor Gray
