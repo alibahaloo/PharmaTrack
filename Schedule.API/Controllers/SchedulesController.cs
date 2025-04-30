@@ -153,10 +153,8 @@ namespace Schedule.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateScheduleTask([FromBody] ScheduleTaskRequest request)
         {
-            var userRole = User.FindFirstValue(ClaimTypes.Role);
-            //if (username == null) { return BadRequest("Username cannot be null"); }
             //Check if the user is actually an admin
-
+            //var isAdmin = User.IsInRole("Admin");
             // Check if the Start and End dates are in the past
             if (request.Start.Date < DateTime.Today || request.End.Date < DateTime.Today)
             {
