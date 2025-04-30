@@ -26,7 +26,7 @@ namespace Drug.API.Controllers
         public async Task<IActionResult> GetDrugsList(string startWith = "")
         {
             var username = User.FindFirstValue(ClaimTypes.Name);
-            var isAdmin = User.IsInRole("Admin");
+            var isAdmin = User.IsInRole("admin");
 
             List<DrugListDto>? list;
 

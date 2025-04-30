@@ -154,7 +154,7 @@ namespace Schedule.API.Controllers
         public async Task<IActionResult> CreateScheduleTask([FromBody] ScheduleTaskRequest request)
         {
             //Check if the user is actually an admin
-            //var isAdmin = User.IsInRole("Admin");
+            //var isAdmin = User.IsInRole("admin");
             // Check if the Start and End dates are in the past
             if (request.Start.Date < DateTime.Today || request.End.Date < DateTime.Today)
             {
