@@ -1,6 +1,7 @@
 ﻿using Inventory.API.Data;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using PharmaTrack.Shared.Services;
 
 var options = new WebApplicationOptions
 {
@@ -45,6 +46,14 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<InventoryDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Load the shared configuration
+var sharedConfiguration = SharedConfiguration.GetSharedConfiguration();
+builder.Configuration.AddConfiguration(sharedConfiguration);
+
+// Add JWT configuration using the shared extension
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
+
 
 var app = builder.Build();
 
@@ -56,6 +65,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

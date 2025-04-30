@@ -4,8 +4,6 @@ namespace PharmaTrack.Shared.APIModels
 {
     public class StockTransferRequest
     {
-        public string? Username { get; set; }
-
         [Required]
         public TransactionType Type { get; set; }
 

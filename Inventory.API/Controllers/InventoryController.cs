@@ -3,11 +3,14 @@ using PharmaTrack.Shared.DBModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.APIModels;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Inventory.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class InventoryController : ControllerBase
     {
         private readonly InventoryDbContext _context;
@@ -20,7 +23,9 @@ namespace Inventory.API.Controllers
         [HttpPost("stock-transfer")]
         public async Task<IActionResult> StockTransfer([FromBody] StockTransferRequest request)
         {
-            if (request.Name == null || string.IsNullOrWhiteSpace(request.UPC) || string.IsNullOrEmpty(request.Username))
+            var username = User.FindFirstValue(ClaimTypes.Name);
+
+            if (request.Name == null || string.IsNullOrWhiteSpace(request.UPC) || string.IsNullOrEmpty(username))
             {
                 return BadRequest("Request information is required.");
             }
@@ -78,7 +83,7 @@ namespace Inventory.API.Controllers
                 // Create a new transaction
                 var newTransaction = new Transaction
                 {
-                    CreatedBy = request.Username,
+                    CreatedBy = username,
                     ProductId = existingProduct.Id,
                     Type = request.Type,
                     Quantity = request.Quantity,

@@ -403,7 +403,7 @@ namespace Gateway.API.Controllers
                     return validationResult; // Return if validation fails
                 }
 
-                request.Username = username;
+                //request.Username = username;
 
                 var stockTransferUrl = $"{_inventoryApiBaseUrl}/api/inventory/stock-transfer";
                 var content = new StringContent(JsonSerializer.Serialize(request), Encoding.UTF8, "application/json");
