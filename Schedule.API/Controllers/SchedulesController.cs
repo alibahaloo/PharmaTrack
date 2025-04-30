@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.APIModels;
 using PharmaTrack.Shared.DBModels;
 using Schedule.API.Data;
+using System.Security.Claims;
 
 namespace Schedule.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class SchedulesController : ControllerBase
     {
         private readonly ScheduleDBContext _context;
@@ -150,6 +153,8 @@ namespace Schedule.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateScheduleTask([FromBody] ScheduleTaskRequest request)
         {
+            var userRole = User.FindFirstValue(ClaimTypes.Role);
+            //if (username == null) { return BadRequest("Username cannot be null"); }
             //Check if the user is actually an admin
 
             // Check if the Start and End dates are in the past

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
+using PharmaTrack.Shared.Services;
 using Schedule.API.Data;
 
 var options = new WebApplicationOptions
@@ -44,6 +45,13 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<ScheduleDBContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Load the shared configuration
+var sharedConfiguration = SharedConfiguration.GetSharedConfiguration();
+builder.Configuration.AddConfiguration(sharedConfiguration);
+
+// Add JWT configuration using the shared extension
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
