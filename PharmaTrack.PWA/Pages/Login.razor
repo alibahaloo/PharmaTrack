@@ -1,0 +1,74 @@
+﻿@page "/login"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components.Forms
+@using PharmaTrack.PWA.Helpers
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <InputText id="username"
+                   class="form-control"
+                   @bind-Value="loginModel.Username" />
+    </div>
+
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <InputText id="password"
+                   type="password"
+                   class="form-control"
+                   @bind-Value="loginModel.Password" />
+    </div>
+
+    <div class="form-check mb-3">
+        <InputCheckbox id="rememberMe"
+                       class="form-check-input"
+                       @bind-Value="loginModel.RememberMe" />
+        <label for="rememberMe" class="form-check-label">
+            Remember me
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Log in</button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger mt-3">@errorMessage</div>
+}
+
+@code {
+    private LoginModel loginModel = new();
+    private string errorMessage;
+
+    private async Task HandleLogin()
+    {
+        errorMessage = null;
+
+        var success = await AuthService.LoginAsync(
+            loginModel.Username,
+            loginModel.Password,
+            loginModel.RememberMe);
+
+        if (success)
+        {
+            // Redirect to home or wherever
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = "Invalid username or password.";
+        }
+    }
+
+    private class LoginModel
+    {
+        [Required] public string Username { get; set; }
+        [Required] public string Password { get; set; }
+        public bool RememberMe { get; set; }
+    }
+}

@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Schedule.API", "Schedule.AP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Drug.API", "Drug.API\Drug.API.csproj", "{9BD1BA41-D536-438F-B5D0-92357DD04065}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmaTrack.PWA", "PharmaTrack.PWA\PharmaTrack.PWA.csproj", "{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -109,6 +111,18 @@ Global
 		{9BD1BA41-D536-438F-B5D0-92357DD04065}.Release|x64.Build.0 = Release|Any CPU
 		{9BD1BA41-D536-438F-B5D0-92357DD04065}.Release|x86.ActiveCfg = Release|Any CPU
 		{9BD1BA41-D536-438F-B5D0-92357DD04065}.Release|x86.Build.0 = Release|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Debug|x64.Build.0 = Debug|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Debug|x86.Build.0 = Debug|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Release|ARM64.Build.0 = Release|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Release|x64.ActiveCfg = Release|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Release|x64.Build.0 = Release|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Release|x86.ActiveCfg = Release|Any CPU
+		{318C0084-9C2A-4FFE-88D9-8B33B4C5BD55}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

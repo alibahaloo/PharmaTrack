@@ -38,15 +38,23 @@ if (builder.Environment.IsProduction())
         });
     });
 }
-/*
-builder.WebHost.UseUrls(
-    "http://localhost:8083",
-    "https://localhost:8084"
-);*/
 
 // Load the shared configuration
 var sharedConfiguration = SharedConfiguration.GetSharedConfiguration();
 builder.Configuration.AddConfiguration(sharedConfiguration);
+
+// 1) Add CORS support
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient", policy =>
+    {
+        policy
+        .WithOrigins("https://localhost:7260")   // your Blazor WASM origin
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();                     // if you send auth headers
+    });
+});
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -69,6 +77,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<JwtService>();
 
 var app = builder.Build();
+
+app.UseCors("AllowBlazorClient");
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
