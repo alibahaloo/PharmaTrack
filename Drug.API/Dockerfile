@@ -1,49 +1,66 @@
 ﻿# syntax=docker/dockerfile:1
 
+############################
+# 1) Build your app
+############################
 FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 
-# Set the working directory inside the container
 WORKDIR /source
 
+# Copy csproj & restore
+COPY ./PharmaTrack/Drug.API/*.csproj ./Drug.API/
+COPY ./PharmaTrack/PharmaTrack.Shared/*.csproj ./PharmaTrack.Shared/
+RUN dotnet restore ./Drug.API
+
+# Copy code + DataFiles and publish
 COPY ./PharmaTrack/Drug.API ./Drug.API
 COPY ./PharmaTrack/PharmaTrack.Shared ./PharmaTrack.Shared
 
-# Copy DataFiles directory (Ensures the Excel file is available)
-COPY ./PharmaTrack/Drug.API/DataFiles ./Drug.API/DataFiles
-
 WORKDIR /source/Drug.API
-
-ARG TARGETARCH
-
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet publish -a ${TARGETARCH/amd64/x64} --use-current-runtime --self-contained false -o /app
+    dotnet publish -c Release \
+      --self-contained false \
+      -o /app
 
+############################
+# 2) Generate PFX + run
+############################
 FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS final
+
 WORKDIR /app
 
-# Install globalization support and ca-certificates for SSL/TLS
-RUN apk add --no-cache icu-libs ca-certificates
+# Install globalization support, CA certs, and openssl
+RUN apk add --no-cache icu-libs ca-certificates openssl \
+    && update-ca-certificates
 
-# Set the DOTNET_SYSTEM_GLOBALIZATION_INVARIANT environment variable to false
-ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+# Copy published output + DataFiles
+COPY --from=build /app .  
+COPY --from=build /source/Drug.API/DataFiles ./DataFiles
 
-# Update the CA certificates
-RUN update-ca-certificates
+# Build-time PFX password (override with --build-arg if desired)
+ARG PFX_PASSWORD=SuperSecretP@ss
 
-COPY --from=build /app .
+# Generate a self-signed cert and package into PFX
+RUN mkdir -p /https \
+ && openssl req -x509 -nodes -days 365 \
+      -subj "/CN=localhost" \
+      -newkey rsa:2048 \
+      -keyout /https/key.pem \
+      -out /https/cert.pem \
+ && openssl pkcs12 -export \
+      -in /https/cert.pem \
+      -inkey /https/key.pem \
+      -passout pass:${PFX_PASSWORD} \
+      -out /https/aspnetapp.pfx \
+ # allow non-root users to read the PFX
+ && chmod 644 /https/aspnetapp.pfx
 
-# ✅ Copy the DataFiles directory explicitly from the build stage
-COPY --from=build /source/Drug.API/DataFiles /app/DataFiles
+# Tell Kestrel where to find the generated PFX
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx \
+    ASPNETCORE_Kestrel__Certificates__Default__Password=${PFX_PASSWORD} \
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
-# Copy the SSL certificate from the host to the container
-COPY ./PharmaTrack/aspnetapp.pfx /https/aspnetapp.pfx
-
-# Set environment variables for Kestrel to use HTTPS
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-ENV ASPNETCORE_Kestrel__Certificates__Default__Password=SuperSecretP@ss
-
-EXPOSE 443
-EXPOSE 80
+EXPOSE 80 443
 
 USER $APP_UID
 
