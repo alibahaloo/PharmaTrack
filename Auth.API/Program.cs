@@ -43,16 +43,19 @@ if (builder.Environment.IsProduction())
 var sharedConfiguration = SharedConfiguration.GetSharedConfiguration();
 builder.Configuration.AddConfiguration(sharedConfiguration);
 
-// 1) Add CORS support
+// pull your single config value
+var blazorClientURL = builder.Configuration["Cors:AllowedOrigin"] ?? throw new InvalidOperationException("Cors:AllowedOrigin not found in appsettings.json");
+
+// Add CORS support
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowBlazorClient", policy =>
     {
         policy
-        .WithOrigins("https://localhost:7260")   // your Blazor WASM origin
+        .WithOrigins(blazorClientURL)
         .AllowAnyHeader()
         .AllowAnyMethod()
-        .AllowCredentials();                     // if you send auth headers
+        .AllowCredentials();
     });
 });
 

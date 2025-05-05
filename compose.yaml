@@ -4,8 +4,6 @@ services:
     build:
       context: ..
       dockerfile: PharmaTrack/Inventory.API/Dockerfile
-      args:
-        PFX_PASSWORD: SuperSecretP@ss
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: >-
@@ -13,6 +11,9 @@ services:
         Password=YourStrong!Passw0rd;
         MultipleActiveResultSets=true;TrustServerCertificate=True
       ASPNETCORE_URLS: "https://+:443;http://+:80"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "YourP@ssw0rd!"
+    volumes:
+      - ./devCerts/aspnetapp.pfx:/https/aspnetapp.pfx:ro
     ports:
       - "9083:80"
       - "9084:443"
@@ -24,8 +25,6 @@ services:
     build:
       context: ..
       dockerfile: PharmaTrack/Auth.API/Dockerfile
-      args:
-        PFX_PASSWORD: SuperSecretP@ss
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: >-
@@ -33,6 +32,9 @@ services:
         Password=YourStrong!Passw0rd;
         MultipleActiveResultSets=true;TrustServerCertificate=True
       ASPNETCORE_URLS: "https://+:443;http://+:80"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "YourP@ssw0rd!"
+    volumes:
+      - ./devCerts/aspnetapp.pfx:/https/aspnetapp.pfx:ro
     ports:
       - "9085:80"
       - "9086:443"
@@ -44,8 +46,6 @@ services:
     build:
       context: ..
       dockerfile: PharmaTrack/Schedule.API/Dockerfile
-      args:
-        PFX_PASSWORD: SuperSecretP@ss
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: >-
@@ -53,6 +53,9 @@ services:
         Password=YourStrong!Passw0rd;
         MultipleActiveResultSets=true;TrustServerCertificate=True
       ASPNETCORE_URLS: "https://+:443;http://+:80"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "YourP@ssw0rd!"
+    volumes:
+      - ./devCerts/aspnetapp.pfx:/https/aspnetapp.pfx:ro
     ports:
       - "9087:80"
       - "9088:443"
@@ -64,8 +67,6 @@ services:
     build:
       context: ..
       dockerfile: PharmaTrack/Drug.API/Dockerfile
-      args:
-        PFX_PASSWORD: SuperSecretP@ss
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: >-
@@ -73,6 +74,9 @@ services:
         Password=YourStrong!Passw0rd;
         MultipleActiveResultSets=true;TrustServerCertificate=True
       ASPNETCORE_URLS: "https://+:443;http://+:80"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "YourP@ssw0rd!"
+    volumes:
+      - ./devCerts/aspnetapp.pfx:/https/aspnetapp.pfx:ro
     ports:
       - "9089:80"
       - "9090:443"

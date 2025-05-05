@@ -29,32 +29,18 @@ FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS final
 
 WORKDIR /app
 
-# Install globalization support, CA certs, and openssl
-RUN apk add --no-cache icu-libs ca-certificates openssl \
-    && update-ca-certificates
+# Install globalization support, CA certs
+RUN apk add --no-cache icu-libs ca-certificates && update-ca-certificates
 
 # Copy published output
 COPY --from=build /app .
 
-# Build‐time PFX password (override with --build-arg if desired)
-ARG PFX_PASSWORD=SuperSecretP@ss
+# Prepare mount point for your host-exported PFX
+RUN mkdir -p /https && chmod 755 /https
 
-# Generate a self-signed cert and package into PFX, then make it readable
-RUN mkdir -p /https \
- && openssl req -x509 -nodes -days 365 \
-      -subj "/CN=localhost" \
-      -newkey rsa:2048 -keyout /https/key.pem \
-      -out /https/cert.pem \
- && openssl pkcs12 -export \
-      -in /https/cert.pem \
-      -inkey /https/key.pem \
-      -passout pass:${PFX_PASSWORD} \
-      -out /https/aspnetapp.pfx \
- && chmod 644 /https/aspnetapp.pfx
-
-# Tell Kestrel where to find the generated PFX
+ # Tell Kestrel where to find the PFX
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx \
-    ASPNETCORE_Kestrel__Certificates__Default__Password=${PFX_PASSWORD} \
+    ASPNETCORE_Kestrel__Certificates__Default__Password=YourP@ssw0rd! \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
 EXPOSE 80 443
