@@ -1,0 +1,11 @@
+﻿@* This component does nothing visual—it simply runs your refresh logic as soon as the app starts up. *@
+
+@inject PharmaTrack.PWA.Helpers.AuthService AuthService
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Attempt to refresh any stored tokens before the rest of the app renders
+        await AuthService.TryRefreshTokenAsync();
+    }
+}

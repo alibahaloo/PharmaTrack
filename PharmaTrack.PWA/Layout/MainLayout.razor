@@ -1,4 +1,9 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
+
+@inject PharmaTrack.PWA.Helpers.AuthService AuthService
+@inject NavigationManager Navigation
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -6,7 +11,25 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">
+                About
+            </a>
+
+            <AuthorizeView>
+                <Authorized>
+                    <a href="#"
+                       class="nav-link ms-3"
+                       @onclick="OnLogout">
+                        Logout
+                    </a>
+                </Authorized>
+                <NotAuthorized>
+                    <NavLink href="login"
+                             class="nav-link ms-3">
+                        Login
+                    </NavLink>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
 
         <article class="content px-4">
@@ -14,3 +37,11 @@
         </article>
     </main>
 </div>
+
+@code {
+    private async Task OnLogout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("login", forceLoad: true);
+    }
+}

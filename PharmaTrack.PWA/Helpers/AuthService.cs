@@ -52,6 +52,10 @@ namespace PharmaTrack.PWA.Helpers
 
         public async Task LogoutAsync()
         {
+            // fire-and-forget logout on server
+            var rt = await _storage.GetItemAsync<string>("refreshToken");
+            await _http.PostAsJsonAsync("auth/logout", new { refreshToken = rt });
+
             await _storage.RemoveItemAsync("accessToken");
             await _storage.RemoveItemAsync("refreshToken");
             await _storage.RemoveItemAsync("userName");
@@ -59,6 +63,39 @@ namespace PharmaTrack.PWA.Helpers
 
             _authState.NotifyUserLogout();
         }
+
+        public async Task<bool> TryRefreshTokenAsync()
+        {
+            // 1) do we even have a refresh token?
+            var refresh = await _storage.GetItemAsync<string>("refreshToken");
+            if (string.IsNullOrWhiteSpace(refresh))
+                return false;
+
+            // 2) hit the refresh endpoint
+            var resp = await _http.PostAsJsonAsync(
+                "auth/refresh",
+                new { refreshToken = refresh });
+
+            if (!resp.IsSuccessStatusCode)
+                return false;
+
+            // 3) deserialize the new tokens
+            var data = await resp.Content
+                           .ReadFromJsonAsync<LoginResponse>();
+            if (data == null || string.IsNullOrWhiteSpace(data.AccessToken))
+                return false;
+
+            // 4) store them
+            await _storage.SetItemAsync("accessToken", data.AccessToken);
+            await _storage.SetItemAsync("refreshToken", data.RefreshToken);
+            await _storage.SetItemAsync("userName", data.UserName);
+            await _storage.SetItemAsync("isAdmin", data.IsAdmin);
+
+            // 5) notify Blazor auth
+            _authState.NotifyUserAuthentication(data.AccessToken);
+            return true;
+        }
+
 
         private class LoginResponse
         {
