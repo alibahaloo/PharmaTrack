@@ -1,0 +1,181 @@
+﻿@page "/calendar"
+@using PharmaTrack.PWA.Helpers
+@inject ScheduleService ScheduleService
+@inject IJSRuntime JSRuntime
+
+<style>
+    .weekday-header,
+    .calendar-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    }
+
+    .weekday-header {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    }
+
+    .calendar-grid {
+    gap: 1px;
+    margin-bottom: 1rem;
+    }
+
+    .calendar-grid .cell {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem;
+    height: 100px;
+    overflow: hidden;
+    box-sizing: border-box;
+    }
+</style>
+
+<h3>Calendar</h3>
+
+<div class="btn-group mb-2">
+    <button class="btn btn-outline-primary" @onclick="ShowMonthly">Monthly</button>
+    <button class="btn btn-outline-primary" @onclick="ShowWeekly">Weekly</button>
+</div>
+
+<div class="btn-group mb-4">
+    <button class="btn btn-secondary" @onclick="GoToPrev">Prev</button>
+    <button class="btn btn-secondary" @onclick="GoToToday">Today</button>
+    <button class="btn btn-secondary" @onclick="GoToNext">Next</button>
+</div>
+
+@if (IsMonthlyView)
+{
+    <div class="row">
+        <div class="weekday-header">
+            @foreach (var dayName in new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" })
+            {
+                <div>@dayName</div>
+            }
+        </div>
+        @{
+            var firstOfMonth = new DateTime(CurrentDate.Year, CurrentDate.Month, 1);
+            var startDayIdx = ((int)firstOfMonth.DayOfWeek + 6) % 7; // Monday=0, Sunday=6
+            var daysInMonth = DateTime.DaysInMonth(CurrentDate.Year, CurrentDate.Month);
+            var cells = Enumerable.Range(0, 42)
+            .Select(i =>
+            {
+                var dayNumber = i - startDayIdx + 1;
+                return dayNumber >= 1 && dayNumber <= daysInMonth
+        ? firstOfMonth.AddDays(dayNumber - 1)
+        : (DateTime?)null;
+            })
+            .ToList();
+        }
+
+        <div class="row">
+            <div class="calendar-grid">
+                @foreach (var dt in cells)
+                {
+                    <div class="cell">
+                        @if (dt.HasValue)
+                        {
+                            var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date);
+
+                            <div class="row">
+                                <div class="col-6 fw-bold">@dt.Value.Day</div>
+                                @if (dateEvents.Count() > 0)
+                                {
+                                    <div class="col-6 text-end fw-bold">
+                                        <span class="badge rounded-pill bg-danger small">@dateEvents.Count()</span>
+                                    </div>
+                                    @foreach (var ev in dateEvents)
+                                    {
+                                        <div class="small text-truncate">
+                                            @ev.Description (@ev.Start:HH:mm–@ev.End:HH:mm)
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row border-bottom">
+        @for (int d = 0; d < 7; d++)
+        {
+            <div class="col text-center fw-bold">
+                @WeekStart.AddDays(d):MMM d (ddd)
+            </div>
+        }
+    </div>
+    <div class="row" style="height:200px;">
+        @for (int d = 0; d < 7; d++)
+        {
+            <div class="col border-end">
+                @foreach (var ev in Events.Where(e => e.Start.Date == WeekStart.AddDays(d).Date))
+                {
+                    <div>@ev.Start:HH:mm–@ev.End:HH:mm @ev.Description</div>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private DateTime CurrentDate = DateTime.Today;
+    private bool IsMonthlyView = true;
+    private List<ScheduleEvent> Events = new();
+
+    private DateTime WeekStart => StartOfWeek(CurrentDate, DayOfWeek.Monday);
+
+    protected override async Task OnInitializedAsync() => await LoadEvents();
+
+    private async Task LoadEvents()
+    {
+        Events = IsMonthlyView
+            ? await ScheduleService.GetMonthlySchedulesAsync(CurrentDate)
+            : await ScheduleService.GetWeeklySchedulesAsync(WeekStart);
+    }
+
+    private async Task ShowMonthly()
+    {
+        IsMonthlyView = true;
+        await LoadEvents();
+    }
+
+    private async Task ShowWeekly()
+    {
+        IsMonthlyView = false;
+        await LoadEvents();
+    }
+
+    private async Task GoToToday()
+    {
+        CurrentDate = DateTime.Today;
+        await LoadEvents();
+    }
+
+    private async Task GoToPrev()
+    {
+        CurrentDate = IsMonthlyView
+            ? CurrentDate.AddMonths(-1)
+            : CurrentDate.AddDays(-7);
+        await LoadEvents();
+    }
+
+    private async Task GoToNext()
+    {
+        CurrentDate = IsMonthlyView
+            ? CurrentDate.AddMonths(1)
+            : CurrentDate.AddDays(7);
+        await LoadEvents();
+    }
+
+    private static DateTime StartOfWeek(DateTime dt, DayOfWeek start)
+    {
+        int diff = (7 + (dt.DayOfWeek - start)) % 7;
+        return dt.AddDays(-diff).Date;
+    }
+}
