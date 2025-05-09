@@ -4,31 +4,31 @@
 @inject IJSRuntime JSRuntime
 
 <style>
-    .weekday-header,
-    .calendar-grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    .weekday-header, .calendar-grid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
     }
 
     .weekday-header {
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
     }
 
     .calendar-grid {
-    gap: 1px;
-    margin-bottom: 1rem;
+        gap: 1px;
+        margin-bottom: 1rem;
     }
 
     .calendar-grid .cell {
-    background-color: #fff;
-    border: 1px solid #dee2e6;
-    padding: 0.5rem;
-    height: 100px;
-    overflow: hidden;
-    box-sizing: border-box;
+        background-color: #fff;
+        border: 1px solid #dee2e6;
+        padding: 0.5rem;
+        height: 100px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        box-sizing: border-box;
     }
 </style>
 
@@ -87,8 +87,10 @@
                                     </div>
                                     @foreach (var ev in dateEvents)
                                     {
-                                        <div class="small text-truncate">
-                                            @ev.Description (@ev.Start:HH:mm–@ev.End:HH:mm)
+                                        <div class="small text-truncate" style="font-size: 12px">
+                                            <small>
+                                                <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
+                                            </small>
                                         </div>
                                     }
                                 }
