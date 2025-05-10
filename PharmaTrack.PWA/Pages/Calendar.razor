@@ -42,23 +42,27 @@
     }
 </style>
 
-<h1>Calendar</h1>
+@{
+    var monthlyClass = IsMonthlyView ? "btn-primary" : "btn-outline-primary";
+    var weeklyClass = IsMonthlyView ? "btn-outline-primary" : "btn-primary";
+}
 
 <div class="row">
     <div class="col-4">
-        <div class="btn-group mb-2">
-            <button class="btn btn-outline-primary" @onclick="ShowMonthly">Monthly</button>
-            <button class="btn btn-outline-primary" @onclick="ShowWeekly">Weekly</button>
-        </div>
+        <span class="navbar-brand mb-0 fs-1">Calendar</span>
     </div>
     <div class="col-4 text-center">
-        <div class="btn-group mb-4">
+        <div class="btn-group">
             <button class="btn btn-secondary" @onclick="GoToPrev">Prev</button>
             <button class="btn btn-secondary" @onclick="GoToToday">Today</button>
             <button class="btn btn-secondary" @onclick="GoToNext">Next</button>
         </div>
     </div>
     <div class="col-4 text-end">
+        <div class="btn-group mb-2">
+            <button class="btn @monthlyClass" @onclick="ShowMonthly">Monthly</button>
+            <button class="btn @weeklyClass" @onclick="ShowWeekly">Weekly</button>
+        </div>
         <div class="btn-group mb-2">
             <button class="btn btn-outline-primary">Team</button>
             <button class="btn btn-outline-primary">Individual</button>
