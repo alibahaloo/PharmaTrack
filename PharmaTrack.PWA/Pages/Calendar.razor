@@ -100,7 +100,7 @@
                                 {
                                     <div class="col-6 text-secondary">@dt.Value.Day</div>
                                 }
-                                
+
                                 @if (dateEvents.Count() > 0)
                                 {
                                     <div class="col-6 text-end fw-bold">
@@ -125,15 +125,35 @@
 }
 else
 {
+    var daysList = new List<string>
+        {
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+        };
     <div class="row border-bottom">
         @for (int d = 0; d < 7; d++)
         {
-            <div class="col text-center fw-bold">
-                @WeekStart.AddDays(d):MMM d (ddd)
-            </div>
+            bool isToday = @WeekStart.AddDays(d) == DateTime.Today;
+
+            if (isToday)
+            {
+                <div class="col text-center fw-bold text-black">
+                    @daysList[d] @WeekStart.AddDays(d).ToShortDateString()
+                </div>
+            } else
+            {
+                <div class="col text-center text-secondary">
+                    @daysList[d] @WeekStart.AddDays(d).ToShortDateString()
+                </div>
+            }
         }
     </div>
-    <div class="row" style="height:200px;">
+    <div class="row" style="height: 300px;">
         @for (int d = 0; d < 7; d++)
         {
             <div class="col border-end">
