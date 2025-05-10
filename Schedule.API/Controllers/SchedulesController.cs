@@ -50,11 +50,32 @@ namespace Schedule.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("weekly")]
+        public async Task<IActionResult> GetWeeklySchedules(DateTime date)
+        {
+            // 1) Find the Monday of the week that 'date' falls in
+            int diff = (7 + ((int)date.DayOfWeek - (int)DayOfWeek.Monday)) % 7;
+            var startOfWeek = date.Date.AddDays(-diff);
+
+            // 2) End of week is Sunday
+            var endOfWeek = startOfWeek.AddDays(6);
+
+            // 3) Fetch tasks overlapping that range
+            var result = await _context.ScheduleTasks
+                .Where(st =>
+                    st.Start.Date <= endOfWeek &&
+                    st.End.Date >= startOfWeek
+                )
+                .ToListAsync();
+
+            return Ok(result);
+        }
+
         [HttpGet("monthly")]
-        public async Task<IActionResult> GetMonthlySchedules(DateTime month)
+        public async Task<IActionResult> GetMonthlySchedules(DateTime date)
         {
             // Determine the start and end dates for the given month
-            var startOfMonth = new DateTime(month.Year, month.Month, 1);
+            var startOfMonth = new DateTime(date.Year, date.Month, 1);
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1); // Last day of the month
 
             // Fetch tasks that overlap with the month
@@ -66,10 +87,10 @@ namespace Schedule.API.Controllers
         }
 
         [HttpGet("monthly/user/{userName}")]
-        public async Task<IActionResult> GetMonthlySchedulesForUser(DateTime month, string userName)
+        public async Task<IActionResult> GetMonthlySchedulesForUser(DateTime date, string userName)
         {
             // Determine the start and end dates for the given month
-            var startOfMonth = new DateTime(month.Year, month.Month, 1);
+            var startOfMonth = new DateTime(date.Year, date.Month, 1);
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1); // Last day of the month
 
             // Fetch tasks that overlap with the month

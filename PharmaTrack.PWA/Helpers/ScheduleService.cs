@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace PharmaTrack.PWA.Helpers
@@ -26,7 +25,7 @@ namespace PharmaTrack.PWA.Helpers
 
         public async Task<List<ScheduleEvent>> GetMonthlySchedulesAsync(DateTime month)
         {
-            var url = $"schedules/monthly?month={month:yyyy-MM-dd}";
+            var url = $"schedules/monthly?date={month:yyyy-MM-dd}";
             try
             {
                 var result = await _http.GetFromJsonAsync<List<ScheduleEvent>>(url, _jsonOptions);
@@ -41,7 +40,7 @@ namespace PharmaTrack.PWA.Helpers
 
         public async Task<List<ScheduleEvent>> GetWeeklySchedulesAsync(DateTime weekStart)
         {
-            var url = $"schedules/weekly?start={weekStart:yyyy-MM-dd}";
+            var url = $"schedules/weekly?date={weekStart:yyyy-MM-dd}";
             try
             {
                 var result = await _http.GetFromJsonAsync<List<ScheduleEvent>>(url);
