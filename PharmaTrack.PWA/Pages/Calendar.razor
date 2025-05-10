@@ -5,47 +5,42 @@
 
 <style>
     .weekday-header, .calendar-grid {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
     }
 
     .weekday-header {
-        text-align: center;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
     }
 
     .calendar-grid {
-        gap: 1px;
-        margin-bottom: 1rem;
+    gap: 1px;
+    margin-bottom: 1rem;
     }
 
     .calendar-grid .cell {
-        background-color: #fff;
-        border: 1px solid #dee2e6;
-        padding: 0.5rem;
-        height: 110px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        box-sizing: border-box;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem;
+    height: 110px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
     }
 
     .week-grid {
-        display: flex;
+    display: flex;
     }
 
     .week-col {
-        flex: 1;
-        min-width: 0; /* Prevents overflow issues */
-        max-width: 14.2857%; /* 100 / 7 */
+    flex: 1;
+    min-width: 0; /* Prevents overflow issues */
+    max-width: 14.2857%; /* 100 / 7 */
     }
 </style>
-
-@{
-    var monthlyClass = IsMonthlyView ? "btn-primary" : "btn-outline-primary";
-    var weeklyClass = IsMonthlyView ? "btn-outline-primary" : "btn-primary";
-}
 
 <div class="row">
     <div class="col-4">
@@ -60,8 +55,8 @@
     </div>
     <div class="col-4 text-end">
         <div class="btn-group mb-2">
-            <button class="btn @monthlyClass" @onclick="ShowMonthly">Monthly</button>
-            <button class="btn @weeklyClass" @onclick="ShowWeekly">Weekly</button>
+            <button class="btn @GetMonthlyClass()" @onclick="ShowMonthly">Monthly</button>
+            <button class="btn @GetWeeklyClass()" @onclick="ShowWeekly">Weekly</button>
         </div>
         <div class="btn-group mb-2">
             <button class="btn btn-outline-primary">Team</button>
@@ -69,18 +64,6 @@
         </div>
     </div>
 </div>
-
-@{
-    var daysList = new List<string>{
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"
-    };
-}
 
 @if (IsMonthlyView)
 {
@@ -178,6 +161,16 @@ else
 }
 
 @code {
+    private List<string> daysList = new List<string>{
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+    };
+
     private DateTime CurrentDate = DateTime.Today;
     private bool IsMonthlyView = true;
     private List<ScheduleEvent> Events = new();
@@ -185,6 +178,9 @@ else
     private DateTime WeekStart => StartOfWeek(CurrentDate, DayOfWeek.Monday);
 
     protected override async Task OnInitializedAsync() => await LoadEvents();
+
+    private string GetMonthlyClass() => IsMonthlyView ? "btn-primary" : "btn-outline-primary";
+    private string GetWeeklyClass() => IsMonthlyView ? "btn-outline-primary" : "btn-primary";
 
     private async Task LoadEvents()
     {
