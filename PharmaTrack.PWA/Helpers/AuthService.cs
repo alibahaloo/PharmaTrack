@@ -1,7 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace PharmaTrack.PWA.Helpers
@@ -19,6 +19,17 @@ namespace PharmaTrack.PWA.Helpers
             _http = http;
             _storage = storage;
             _authState = (JwtAuthStateProvider)authState;
+        }
+        public async Task<string> GetAccessTokenAsync() =>
+            await _storage.GetItemAsync<string>("accessToken") ?? string.Empty;
+
+        public async Task<bool> AccessTokenExpiresSoonAsync()
+        {
+            var token = await GetAccessTokenAsync();
+            if (string.IsNullOrWhiteSpace(token)) return true;
+            var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            // if less than 1 minute until expiry, “soon” = true
+            return jwt.ValidTo - DateTime.UtcNow < TimeSpan.FromMinutes(1);
         }
 
         public async Task<bool> LoginAsync(
@@ -64,7 +75,7 @@ namespace PharmaTrack.PWA.Helpers
             _authState.NotifyUserLogout();
         }
 
-        public async Task<bool> TryRefreshTokenAsync()
+        public async Task<bool> TryRefreshTokenAsync(CancellationToken ct = default)
         {
             // 1) do we even have a refresh token?
             var refresh = await _storage.GetItemAsync<string>("refreshToken");

@@ -13,7 +13,7 @@ namespace PharmaTrack.PWA.Helpers
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = await _storage.GetItemAsync<string>("authToken");
+            var token = await _storage.GetItemAsync<string>("accessToken");
             if (string.IsNullOrWhiteSpace(token))
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 

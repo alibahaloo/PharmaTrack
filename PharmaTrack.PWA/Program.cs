@@ -1,7 +1,6 @@
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using PharmaTrack.PWA;
 using PharmaTrack.PWA.Helpers;
@@ -20,7 +19,7 @@ builder.Services
     .AddScoped<AuthenticationStateProvider, JwtAuthStateProvider>();
 
 // 2) your JWT handler
-builder.Services.AddTransient<JwtAuthorizationHandler>();
+builder.Services.AddTransient<JwtRefreshHandler>();
 
 // 3) typed HttpClient
 builder.Services
@@ -30,7 +29,7 @@ builder.Services
 builder.Services
   .AddHttpClient<ScheduleService>(client =>
     client.BaseAddress = new Uri(scheduleUrl))
-  .AddHttpMessageHandler<JwtAuthorizationHandler>();
+  .AddHttpMessageHandler<JwtRefreshHandler>();
 
 // 4) (repeat for each back-end)
 // builder.Services

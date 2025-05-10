@@ -5,45 +5,57 @@
 
 <style>
     .weekday-header, .calendar-grid {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
     }
 
     .weekday-header {
-        text-align: center;
-        font-weight: bold;
-        margin-bottom: 0.5rem;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
     }
 
     .calendar-grid {
-        gap: 1px;
-        margin-bottom: 1rem;
+    gap: 1px;
+    margin-bottom: 1rem;
     }
 
     .calendar-grid .cell {
-        background-color: #fff;
-        border: 1px solid #dee2e6;
-        padding: 0.5rem;
-        height: 100px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        box-sizing: border-box;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem;
+    height: 110px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-sizing: border-box;
     }
 </style>
 
-<h3>Calendar</h3>
-
-<div class="btn-group mb-2">
-    <button class="btn btn-outline-primary" @onclick="ShowMonthly">Monthly</button>
-    <button class="btn btn-outline-primary" @onclick="ShowWeekly">Weekly</button>
+<h1>Calendar</h1>
+<hr />
+<div class="row">
+    <div class="col-4">
+        <div class="btn-group mb-2">
+            <button class="btn btn-outline-primary" @onclick="ShowMonthly">Monthly</button>
+            <button class="btn btn-outline-primary" @onclick="ShowWeekly">Weekly</button>
+        </div>
+    </div>
+    <div class="col-4 text-center">
+        <div class="btn-group mb-4">
+            <button class="btn btn-secondary" @onclick="GoToPrev">Prev</button>
+            <button class="btn btn-secondary" @onclick="GoToToday">Today</button>
+            <button class="btn btn-secondary" @onclick="GoToNext">Next</button>
+        </div>
+    </div>
+    <div class="col-4 text-end">
+        <div class="btn-group mb-2">
+            <button class="btn btn-outline-primary">Team</button>
+            <button class="btn btn-outline-primary">Individual</button>
+        </div>
+    </div>
 </div>
 
-<div class="btn-group mb-4">
-    <button class="btn btn-secondary" @onclick="GoToPrev">Prev</button>
-    <button class="btn btn-secondary" @onclick="GoToToday">Today</button>
-    <button class="btn btn-secondary" @onclick="GoToNext">Next</button>
-</div>
 
 @if (IsMonthlyView)
 {
@@ -78,8 +90,17 @@
                         {
                             var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date);
 
+                            bool isToday = dt.Value.Date == DateTime.Today;
+
                             <div class="row">
-                                <div class="col-6 fw-bold">@dt.Value.Day</div>
+                                @if (isToday)
+                                {
+                                    <div class="col-6 fw-bold text-black">@dt.Value.Day</div>
+                                } else
+                                {
+                                    <div class="col-6 text-secondary">@dt.Value.Day</div>
+                                }
+                                
                                 @if (dateEvents.Count() > 0)
                                 {
                                     <div class="col-6 text-end fw-bold">
@@ -87,7 +108,7 @@
                                     </div>
                                     @foreach (var ev in dateEvents)
                                     {
-                                        <div class="small text-truncate" style="font-size: 12px">
+                                        <div class="small text-truncate" style="font-size: 12px" title="@ev.Description">
                                             <small>
                                                 <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
                                             </small>
