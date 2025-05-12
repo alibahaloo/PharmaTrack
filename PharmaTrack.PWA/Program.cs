@@ -12,6 +12,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 var authUrl = builder.Configuration["ApiUrls:Auth"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Auth' (under ApiUrls in appsettings.json).");
 var scheduleUrl = builder.Configuration["ApiUrls:Schedule"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Schedule' (under ApiUrls in appsettings.json).");
 
+builder.Services.AddBlazorBootstrap();
+
 // 1) localStorage + auth core
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore();

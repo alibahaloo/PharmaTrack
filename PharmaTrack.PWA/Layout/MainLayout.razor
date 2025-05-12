@@ -4,41 +4,64 @@
 @inject PharmaTrack.PWA.Helpers.AuthService AuthService
 @inject NavigationManager Navigation
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<BlazorBootstrapLayout StickyHeader="true">
+    <HeaderSection>
+        <AuthorizeView>
+            <Authorized>
+                <a href="#"
+                   class="nav-link ms-3"
+                   @onclick="OnLogout">
+                    Logout
+                </a>
+            </Authorized>
+            <NotAuthorized>
+                <NavLink href="login"
+                         class="nav-link ms-3">
+                    Login
+                </NavLink>
+            </NotAuthorized>
+        </AuthorizeView>
+        <ThemeSwitcher Class="ps-3 ps-lg-2" Position="DropdownMenuPosition.End" />
+    </HeaderSection>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">
-                About
-            </a>
+    <SidebarSection>
+        <Sidebar2 Href="/"
+                  ImageSrc="https://demos.blazorbootstrap.com/images/logo/logo-white.svg"
+                  Title="Blazor Bootstrap"
+                  BadgeText="3.2.0"
+                  DataProvider="Sidebar2DataProvider"
+                  WidthUnit="Unit.Px" />
+    </SidebarSection>
 
-            <AuthorizeView>
-                <Authorized>
-                    <a href="#"
-                       class="nav-link ms-3"
-                       @onclick="OnLogout">
-                        Logout
-                    </a>
-                </Authorized>
-                <NotAuthorized>
-                    <NavLink href="login"
-                             class="nav-link ms-3">
-                        Login
-                    </NavLink>
-                </NotAuthorized>
-            </AuthorizeView>
-        </div>
+    <ContentSection>
+        @Body
+    </ContentSection>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+</BlazorBootstrapLayout>
 
 @code {
+    private IEnumerable<NavItem> navItems = default!;
+
+    private async Task<Sidebar2DataProviderResult> Sidebar2DataProvider(Sidebar2DataProviderRequest request)
+    {
+        if (navItems is null)
+            navItems = GetNavItems();
+
+        return await Task.FromResult(request.ApplyTo(navItems));
+    }
+
+    private IEnumerable<NavItem> GetNavItems()
+    {
+        navItems = new List<NavItem>
+                   {
+                       new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Home", Match=NavLinkMatch.All},
+                       new NavItem { Id = "2", Href = "/counter", IconName = IconName.PlusSquareFill, Text = "Counter"},
+                       new NavItem { Id = "3", Href = "/calendar", IconName = IconName.Calendar2Week, Text = "Calendar"},
+                   };
+
+        return navItems;
+    }
+
     private async Task OnLogout()
     {
         await AuthService.LogoutAsync();

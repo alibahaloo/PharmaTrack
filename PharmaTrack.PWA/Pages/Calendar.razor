@@ -41,10 +41,34 @@
     max-width: 14.2857%; /* 100 / 7 */
     }
 </style>
+@code {
+    private Modal modal = default!;
+
+    private async Task OnShowModalClick()
+    {
+        await modal.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modal.HideAsync();
+    }
+}
+<Modal @ref="modal" Title="Modal title">
+    <BodyTemplate>
+        Modal body text goes here.
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
+        <Button Color="ButtonColor.Primary">Save changes</Button>
+    </FooterTemplate>
+</Modal>
+
 
 <div class="row">
     <div class="col-4">
         <span class="navbar-brand mb-0 fs-1">Calendar</span>
+        <Button Color="ButtonColor.Primary" @onclick="OnShowModalClick"><Icon Name="IconName.Calendar2Week" />Show Modal</Button>
     </div>
     <div class="col-4 text-center">
         <div class="btn-group">
