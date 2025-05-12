@@ -41,34 +41,35 @@
     max-width: 14.2857%; /* 100 / 7 */
     }
 </style>
-@code {
-    private Modal modal = default!;
-
-    private async Task OnShowModalClick()
-    {
-        await modal.ShowAsync();
-    }
-
-    private async Task OnHideModalClick()
-    {
-        await modal.HideAsync();
-    }
-}
-<Modal @ref="modal" Title="Modal title">
+<Modal @ref="modal" Title=@SelectedDate.ToLongDateString() Size="ModalSize.Large">
     <BodyTemplate>
-        Modal body text goes here.
+        @{
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Username</th>
+                        <th scope="col">Time</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in SelectedDateEvents)
+                    {
+                        <tr>
+                            <th scope="row">@item.UserName</th>
+                            <td>@item.Start.ToShortTimeString()-@item.End.ToShortTimeString()</td>
+                            <td>@item.Description</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     </BodyTemplate>
-    <FooterTemplate>
-        <Button Color="ButtonColor.Secondary" @onclick="OnHideModalClick">Close</Button>
-        <Button Color="ButtonColor.Primary">Save changes</Button>
-    </FooterTemplate>
 </Modal>
-
 
 <div class="row">
     <div class="col-4">
         <span class="navbar-brand mb-0 fs-1">Calendar</span>
-        <Button Color="ButtonColor.Primary" @onclick="OnShowModalClick"><Icon Name="IconName.Calendar2Week" />Show Modal</Button>
     </div>
     <div class="col-4 text-center">
         <div class="btn-group">
@@ -112,13 +113,16 @@
         <div class="calendar-grid">
             @foreach (var dt in cells)
             {
-                <div class="cell">
-                    @if (dt.HasValue)
-                    {
-                        var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date);
+                @if (dt.HasValue)
+                {
+                    var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date);
+                    bool isToday = dt.Value.Date == DateTime.Today;
 
-                        bool isToday = dt.Value.Date == DateTime.Today;
+                    var click = dt.HasValue && dateEvents.Count() > 0
+                    ? EventCallback.Factory.Create(this, () => OnShowModalClick(dt.Value))
+                    : EventCallback.Factory.Create(this, () => Task.CompletedTask);
 
+                    <div class="cell" @onclick="click">
                         <div class="row">
                             @if (isToday)
                             {
@@ -144,8 +148,12 @@
                                 }
                             }
                         </div>
-                    }
-                </div>
+                    </div>
+                } else
+                {
+                    <div class="cell">
+                    </div>
+                }
             }
         </div>
     </div>
@@ -159,7 +167,14 @@ else
             var todayClass = isToday ? "fw-bold text-black" : "text-secondary";
             var dateEvents = Events.Where(e => e.Start.Date == WeekStart.AddDays(d).Date);
 
-            <div class="week-col">
+            var index = d; // Freeze the current value
+            var currentDate = WeekStart.AddDays(index);
+
+            var weeklyClick = dateEvents.Count() > 0
+            ? EventCallback.Factory.Create(this, () => OnShowModalClick(currentDate))
+            : EventCallback.Factory.Create(this, () => Task.CompletedTask);
+
+            <div class="week-col" @onclick="weeklyClick">
                 <div class="text-center border-bottom @todayClass">
                     <span class="m-2">
                         @daysList[d] @WeekStart.AddDays(d).ToShortDateString()
@@ -194,10 +209,13 @@ else
         "Saturday",
         "Sunday"
     };
+    private Modal modal = default!;
 
+    private DateTime SelectedDate;
     private DateTime CurrentDate = DateTime.Today;
     private bool IsMonthlyView = true;
     private List<ScheduleEvent> Events = new();
+    private List<ScheduleEvent> SelectedDateEvents = new();
 
     private DateTime WeekStart => StartOfWeek(CurrentDate, DayOfWeek.Monday);
 
@@ -205,6 +223,13 @@ else
 
     private string GetMonthlyClass() => IsMonthlyView ? "btn-primary" : "btn-outline-primary";
     private string GetWeeklyClass() => IsMonthlyView ? "btn-outline-primary" : "btn-primary";
+
+    private async Task OnShowModalClick(DateTime dt)
+    {
+        SelectedDate = dt;
+        SelectedDateEvents = await ScheduleService.GetDailySchedulesAsync(dt);
+        await modal.ShowAsync();
+    }
 
     private async Task LoadEvents()
     {

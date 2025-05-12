@@ -23,9 +23,9 @@ namespace PharmaTrack.PWA.Helpers
             _http = http;
         }
 
-        public async Task<List<ScheduleEvent>> GetMonthlySchedulesAsync(DateTime month)
+        public async Task<List<ScheduleEvent>> GetMonthlySchedulesAsync(DateTime date)
         {
-            var url = $"schedules/monthly?date={month:yyyy-MM-dd}";
+            var url = $"schedules/monthly?date={date:yyyy-MM-dd}";
             try
             {
                 var result = await _http.GetFromJsonAsync<List<ScheduleEvent>>(url, _jsonOptions);
@@ -44,6 +44,21 @@ namespace PharmaTrack.PWA.Helpers
             try
             {
                 var result = await _http.GetFromJsonAsync<List<ScheduleEvent>>(url);
+                return result ?? new List<ScheduleEvent>();
+            }
+            catch (HttpRequestException)
+            {
+                // TODO: log error or handle accordingly
+                return new List<ScheduleEvent>();
+            }
+        }
+
+        public async Task<List<ScheduleEvent>> GetDailySchedulesAsync(DateTime date)
+        {
+            var url = $"schedules/daily?date={date:yyyy-MM-dd}";
+            try
+            {
+                var result = await _http.GetFromJsonAsync<List<ScheduleEvent>>(url, _jsonOptions);
                 return result ?? new List<ScheduleEvent>();
             }
             catch (HttpRequestException)
