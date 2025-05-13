@@ -14,10 +14,19 @@ namespace PharmaTrack.PWA.Helpers
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             var token = await _storage.GetItemAsync<string>("accessToken");
+
             if (string.IsNullOrWhiteSpace(token))
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 
             var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+
+            // Check if expired
+            if (jwt.ValidTo < DateTime.UtcNow)
+            {
+                // token expired, return anonymous user
+                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            }
+
             var identity = new ClaimsIdentity(jwt.Claims, "jwt");
             return new AuthenticationState(new ClaimsPrincipal(identity));
         }
