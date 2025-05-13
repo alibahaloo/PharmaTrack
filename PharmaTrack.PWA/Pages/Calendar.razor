@@ -13,7 +13,6 @@
     .weekday-header {
     text-align: center;
     font-weight: bold;
-    margin-bottom: 0.5rem;
     }
 
     .calendar-grid {
@@ -37,6 +36,7 @@
 
     .week-col {
     flex: 1;
+    min-height: 500px;
     min-width: 0; /* Prevents overflow issues */
     max-width: 14.2857%; /* 100 / 7 */
     }
@@ -140,10 +140,8 @@
                                 </div>
                                 @foreach (var ev in dateEvents)
                                 {
-                                    <div class="small text-truncate" style="font-size: 12px" title="@ev.Description">
-                                        <small>
-                                            <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
-                                        </small>
+                                    <div class="text-black text-truncate" style="font-size: 12px" title="@ev.Description">
+                                        <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
                                     </div>
                                 }
                             }
@@ -160,11 +158,11 @@
 }
 else
 {
-    <div class="week-grid" style="height: 300px;">
+    <div class="week-grid">
         @for (int d = 0; d < 7; d++)
         {
             bool isToday = WeekStart.AddDays(d) == DateTime.Today;
-            var todayClass = isToday ? "fw-bold text-black" : "text-secondary";
+            var todayClass = isToday ? "text-decoration-underline" : "";
             var dateEvents = Events.Where(e => e.Start.Date == WeekStart.AddDays(d).Date);
 
             var index = d; // Freeze the current value
@@ -175,7 +173,7 @@ else
             : EventCallback.Factory.Create(this, () => Task.CompletedTask);
 
             <div class="week-col" @onclick="weeklyClick">
-                <div class="text-center border-bottom @todayClass">
+                <div class="fw-semibold text-center border-bottom @todayClass">
                     <span class="m-2">
                         @daysList[d] @WeekStart.AddDays(d).ToShortDateString()
                     </span>
@@ -184,13 +182,11 @@ else
                         <span class="badge rounded-pill bg-danger small">@dateEvents.Count()</span>
                     }
                 </div>
-                <div class="border" style="height: 500px; overflow-y: auto;">
+                <div class="border bg-white text-black" style="height: 500px; overflow-y: auto;">
                     @foreach (var ev in dateEvents)
                     {
-                        <div class="small m-2" style="font-size: 12px" title="@ev.Description">
-                            <small>
-                                <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
-                            </small>
+                        <div class="small m-2" title="@ev.Description">
+                            <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
                         </div>
                     }
                 </div>
