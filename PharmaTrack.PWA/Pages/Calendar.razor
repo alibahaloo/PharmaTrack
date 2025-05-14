@@ -17,18 +17,17 @@
     }
 
     .calendar-grid {
-    gap: 1px;
+    /* gap: 1px; */
     margin-bottom: 1rem;
     }
 
     .calendar-grid .cell {
     background-color: #fff;
-    border: 1px solid #dee2e6;
     padding: 0.5rem;
     height: 110px;
     overflow-y: auto;
     overflow-x: hidden;
-    box-sizing: border-box;
+    /* box-sizing: border-box; */
     }
 
     .week-grid {
@@ -104,57 +103,56 @@
         : (DateTime?)null;
     }).ToList();
 
-    <div class="row">
-        <div class="weekday-header">
-            @foreach (var dayName in daysList)
+    <div class="weekday-header">
+        @foreach (var dayName in daysList)
+        {
+            <div class="text-black bg-white border border-1">@dayName</div>
+        }
+    </div>
+    <div class="calendar-grid">
+        @foreach (var dt in cells)
+        {
+            @if (dt.HasValue)
             {
-                <div>@dayName</div>
-            }
-        </div>
-        <div class="calendar-grid">
-            @foreach (var dt in cells)
-            {
-                @if (dt.HasValue)
-                {
-                    var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date);
-                    bool isToday = dt.Value.Date == DateTime.Today;
+                var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date);
+                bool isToday = dt.Value.Date == DateTime.Today;
 
-                    var click = dt.HasValue && dateEvents.Count() > 0
-                    ? EventCallback.Factory.Create(this, () => OnShowModalClick(dt.Value))
-                    : EventCallback.Factory.Create(this, () => Task.CompletedTask);
+                var click = dt.HasValue && dateEvents.Count() > 0
+                ? EventCallback.Factory.Create(this, () => OnShowModalClick(dt.Value))
+                : EventCallback.Factory.Create(this, () => Task.CompletedTask);
 
-                    <div class="cell" @onclick="click">
-                        <div class="row">
-                            @if (isToday)
-                            {
-                                <div class="col-6 fw-bold text-black">@dt.Value.Day</div>
-                            }
-                            else
-                            {
-                                <div class="col-6 text-secondary">@dt.Value.Day</div>
-                            }
+                <div class="cell border border-1" @onclick="click">
+                    <div class="row">
+                        @if (isToday)
+                        {
+                            <div class="col-6 fw-bold text-black text-decoration-underline">@dt.Value.Day</div>
+                        }
+                        else
+                        {
+                            <div class="col-6 text-secondary">@dt.Value.Day</div>
+                        }
 
-                            @if (dateEvents.Count() > 0)
+                        @if (dateEvents.Count() > 0)
+                        {
+                            <div class="col-6 text-end fw-bold">
+                                <span class="badge rounded-pill bg-danger small">@dateEvents.Count()</span>
+                            </div>
+                            @foreach (var ev in dateEvents)
                             {
-                                <div class="col-6 text-end fw-bold">
-                                    <span class="badge rounded-pill bg-danger small">@dateEvents.Count()</span>
+                                <div class="text-black text-truncate" style="font-size: 12px" title="@ev.Description">
+                                    <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
                                 </div>
-                                @foreach (var ev in dateEvents)
-                                {
-                                    <div class="text-black text-truncate" style="font-size: 12px" title="@ev.Description">
-                                        <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
-                                    </div>
-                                }
                             }
-                        </div>
+                        }
                     </div>
-                } else
-                {
-                    <div class="cell">
-                    </div>
-                }
+                </div>
             }
-        </div>
+            else
+            {
+                <div class="cell border border-1">
+                </div>
+            }
+        }
     </div>
 }
 else
@@ -163,7 +161,7 @@ else
         @for (int d = 0; d < 7; d++)
         {
             bool isToday = WeekStart.AddDays(d) == DateTime.Today;
-            var todayClass = isToday ? "text-decoration-underline" : "";
+            var todayClass = isToday ? "fw-bold" : "fw-light";
             var dateEvents = Events.Where(e => e.Start.Date == WeekStart.AddDays(d).Date);
 
             var index = d; // Freeze the current value
@@ -173,8 +171,8 @@ else
             ? EventCallback.Factory.Create(this, () => OnShowModalClick(currentDate))
             : EventCallback.Factory.Create(this, () => Task.CompletedTask);
 
-            <div class="week-col" @onclick="weeklyClick">
-                <div class="fw-semibold text-center border-bottom @todayClass">
+            <div class="week-col bg-white text-black" @onclick="weeklyClick">
+                <div class="border text-center border-1 @todayClass">
                     <span class="m-2">
                         @daysList[d] @WeekStart.AddDays(d).ToShortDateString()
                     </span>
@@ -183,7 +181,7 @@ else
                         <span class="badge rounded-pill bg-danger small">@dateEvents.Count()</span>
                     }
                 </div>
-                <div class="border bg-white text-black" style="height: 500px; overflow-y: auto;">
+                <div class="border" style="height: 500px; overflow-y: auto;">
                     @foreach (var ev in dateEvents)
                     {
                         <div class="small m-2" title="@ev.Description">
