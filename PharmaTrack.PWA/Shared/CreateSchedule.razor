@@ -1,6 +1,7 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using PharmaTrack.PWA.Helpers
 @inject ScheduleService scheduleService
+@inject AuthService authService
 
 <EditForm Model="eventModel" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -107,7 +108,7 @@
 
     private FormModel eventModel = new()
         {
-            // prefill today’s date
+        // prefill today’s date
             Date = DateOnly.FromDateTime(DateTime.Today)
         };
 
@@ -121,53 +122,26 @@
 
     [Parameter] public EventCallback<MouseEventArgs> OnCloseCallback { get; set; }
 
-    public class User
-    {
-        public int Id { get; set; }
-        public string Username { get; set; } = string.Empty;
-    }
+
 
     private IEnumerable<User>? users;
 
     private async Task<AutoCompleteDataProviderResult<User>> UsersDataProvider(AutoCompleteDataProviderRequest<User> request)
     {
         if (users is null)
-            users = GetUsers();
+            users = await GetUsers();
 
         return await Task.FromResult(request.ApplyTo(users.OrderBy(u => u.Username)));
     }
 
-    private IEnumerable<User> GetUsers()
+    private async Task<IEnumerable<User>> GetUsers()
     {
-        return new List<User> {
-            new User { Id =  1, Username = "Pich S"     },
-            new User { Id =  2, Username = "sfh Sobi"    },
-            new User { Id =  3, Username = "Jojo chan"   },
-            new User { Id =  4, Username = "Jee ja"      },
-            new User { Id =  5, Username = "Rose Canon"  },
-            new User { Id =  6, Username = "Manju A"     },
-            new User { Id =  7, Username = "Bandita PA"  },
-            new User { Id =  8, Username = "Sagar Adil"  },
-            new User { Id =  9, Username = "Isha Wang"   },
-            new User { Id = 10, Username = "Daina JJ"    },
-            new User { Id = 11, Username = "Komala Mug"  },
-            new User { Id = 12, Username = "Dikshita BD" },
-            new User { Id = 13, Username = "Neha Gosar"  },
-            new User { Id = 14, Username = "Preeti S"    },
-            new User { Id = 15, Username = "Sagar Seth"  },
-            new User { Id = 16, Username = "Vinayak MM"  },
-            new User { Id = 17, Username = "Vijaya Lakhsmi"},
-            new User { Id = 18, Username = "Jahan K"     },
-            new User { Id = 19, Username = "Joy B"       },
-            new User { Id = 20, Username = "Zaraiah C"   },
-            new User { Id = 21, Username = "Laura L"     },
-            new User { Id = 22, Username = "Punith ES"   }
-        };
+        return await authService.GetUsernames();
     }
 
     private void OnAutoCompleteChanged(User u)
     {
-        eventModel.UserName = u?.Username;
+        eventModel.UserName = u?.Username!;
     }
 
     private async Task HandleValidSubmit()

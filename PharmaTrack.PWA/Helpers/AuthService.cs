@@ -2,16 +2,25 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace PharmaTrack.PWA.Helpers
 {
+    public class User
+    {
+        public int Id { get; set; }
+        public string Username { get; set; } = string.Empty;
+    }
     public class AuthService
     {
         private readonly HttpClient _http;
         private readonly ILocalStorageService _storage;
         private readonly JwtAuthStateProvider _authState;
-
+        private readonly JsonSerializerOptions _jsonOptions = new()
+        {
+            PropertyNameCaseInsensitive = true
+        };
         public AuthService(HttpClient http,
                            ILocalStorageService storage,
                            AuthenticationStateProvider authState)
@@ -107,7 +116,34 @@ namespace PharmaTrack.PWA.Helpers
             return true;
         }
 
+        public async Task<List<User>> GetUsernames()
+        {
+            var url = "users/usernames";
+            try
+            {
+                // 1) Fetch the raw strings
+                var usernames = await _http.GetFromJsonAsync<List<string>>(url, _jsonOptions);
 
+                // If the API gave us nothing, bail out with an empty list
+                if (usernames is null || usernames.Count == 0)
+                    return [];
+
+                // 2) Map each into a User object
+                return [.. usernames
+                    .Select((name, idx) => new User
+                    {
+                        // idx+1 just gives you a simple Id; 
+                        // if your back-end knows real IDs, fetch them instead
+                        Id = idx + 1,
+                        Username = name
+                    })];
+            }
+            catch (HttpRequestException)
+            {
+                // TODO: log error or handle accordingly
+                return [];
+            }
+        }
         private class LoginResponse
         {
             [JsonPropertyName("accessToken")]
