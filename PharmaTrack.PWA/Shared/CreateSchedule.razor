@@ -8,12 +8,12 @@
 
     <div class="row mb-3">
         <AutoComplete @bind-Value="eventModel.UserName"
-                      Id="usernameList"
-                      TItem="User"
-                      DataProvider="UsersDataProvider"
-                      PropertyName="Username"
-                      Placeholder="Search a user..."
-                      OnChanged="(User u) => OnAutoCompleteChanged(u)" />
+        Id="usernameList"
+        TItem="User"
+        DataProvider="UsersDataProvider"
+        PropertyName="Username"
+        Placeholder="Search a user..."
+        OnChanged="(User u) => OnAutoCompleteChanged(u)" />
     </div>
 
     <div class="row mb-3 g-3 align-items-center">
@@ -22,8 +22,8 @@
         </div>
         <div class="col-auto">
             <DateInput Id="date"
-                       TValue="DateOnly?"
-                       @bind-Value="eventModel.Date" />
+            TValue="DateOnly"
+            @bind-Value="eventModel.Date" />
         </div>
     </div>
 
@@ -33,9 +33,9 @@
         </div>
         <div class="col-auto">
             <TimeInput 
-                Id="startTime"
-                TValue="TimeOnly?"
-                @bind-Value="eventModel.Start" />
+            Id="startTime"
+            TValue="TimeOnly"
+            @bind-Value="eventModel.Start" />
         </div>
 
         <div class="col-auto">
@@ -43,16 +43,16 @@
         </div>
         <div class="col-auto">
             <TimeInput Id="endTime"
-                       TValue="TimeOnly?"
-                       @bind-Value="eventModel.End" />
+            TValue="TimeOnly"
+            @bind-Value="eventModel.End" />
         </div>
     </div>
 
     <div class="row mb-3">
         <div class="col">
             <TextAreaInput @bind-Value="eventModel.Description"
-                           Placeholder="Task Description"
-                           Rows="3" />
+            Placeholder="Task Description"
+            Rows="3" />
         </div>
     </div>
 
@@ -69,24 +69,24 @@
     public class FormModel : IValidatableObject
     {
         [Required(ErrorMessage = "Username is required")]
-        public string? UserName { get; set; }
+        public string UserName { get; set; } = default!;
 
         [Required(ErrorMessage = "Date is required")]
-        public DateOnly? Date { get; set; }
+        public DateOnly Date { get; set; }
 
         [Required(ErrorMessage = "Start time is required")]
-        public TimeOnly? Start { get; set; }
+        public TimeOnly Start { get; set; }
 
         [Required(ErrorMessage = "End time is required")]
-        public TimeOnly? End { get; set; }
+        public TimeOnly End { get; set; }
 
         [Required(ErrorMessage = "Description is required")]
-        public string? Description { get; set; }
+        public string Description { get; set; } = default!;
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             // 1) Date must be today or later
-            if (Date.HasValue && Date.Value < DateOnly.FromDateTime(DateTime.Today))
+            if (Date < DateOnly.FromDateTime(DateTime.Today))
             {
                 yield return new ValidationResult(
                     "Date cannot be in the past.",
@@ -95,11 +95,11 @@
             }
 
             // 2) End must be strictly after Start
-            if (Start.HasValue && End.HasValue && End.Value <= Start.Value)
+            if (End <= Start)
             {
                 yield return new ValidationResult(
                     "End time must be later than Start time.",
-                    new[] { nameof(End), nameof(Start) }
+                    new[] { nameof(End) }
                 );
             }
         }
@@ -180,8 +180,8 @@
         var evt = new ScheduleEvent
             {
                 UserName = eventModel.UserName!,
-                Start = eventModel.Date.Value.ToDateTime(eventModel.Start.Value),
-                End = eventModel.Date.Value.ToDateTime(eventModel.End.Value),
+                Start = eventModel.Date.ToDateTime(eventModel.Start),
+                End = eventModel.Date.ToDateTime(eventModel.End),
                 Description = eventModel.Description!
             };
 
