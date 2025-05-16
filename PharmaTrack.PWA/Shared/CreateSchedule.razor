@@ -1,0 +1,199 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using PharmaTrack.PWA.Helpers
+@inject ScheduleService scheduleService
+
+<EditForm Model="eventModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="row mb-3">
+        <AutoComplete @bind-Value="eventModel.UserName"
+                      Id="usernameList"
+                      TItem="User"
+                      DataProvider="UsersDataProvider"
+                      PropertyName="Username"
+                      Placeholder="Search a user..."
+                      OnChanged="(User u) => OnAutoCompleteChanged(u)" />
+    </div>
+
+    <div class="row mb-3 g-3 align-items-center">
+        <div class="col-auto">
+            <label for="date" class="col-form-label">Date:</label>
+        </div>
+        <div class="col-auto">
+            <DateInput Id="date"
+                       TValue="DateOnly?"
+                       @bind-Value="eventModel.Date" />
+        </div>
+    </div>
+
+    <div class="row mb-3 g-3 align-items-center">
+        <div class="col-auto">
+            <label for="startTime" class="col-form-label">Start:</label>
+        </div>
+        <div class="col-auto">
+            <TimeInput 
+                Id="startTime"
+                TValue="TimeOnly?"
+                @bind-Value="eventModel.Start" />
+        </div>
+
+        <div class="col-auto">
+            <label for="endTime" class="col-form-label">End:</label>
+        </div>
+        <div class="col-auto">
+            <TimeInput Id="endTime"
+                       TValue="TimeOnly?"
+                       @bind-Value="eventModel.End" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col">
+            <TextAreaInput @bind-Value="eventModel.Description"
+                           Placeholder="Task Description"
+                           Rows="3" />
+        </div>
+    </div>
+
+    <div class="row mb-3 text-end">
+        <div class="col">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-secondary" @onclick="OnCloseCallback">Cancel</button>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    // View-model with DataAnnotations
+    public class FormModel : IValidatableObject
+    {
+        [Required(ErrorMessage = "Username is required")]
+        public string? UserName { get; set; }
+
+        [Required(ErrorMessage = "Date is required")]
+        public DateOnly? Date { get; set; }
+
+        [Required(ErrorMessage = "Start time is required")]
+        public TimeOnly? Start { get; set; }
+
+        [Required(ErrorMessage = "End time is required")]
+        public TimeOnly? End { get; set; }
+
+        [Required(ErrorMessage = "Description is required")]
+        public string? Description { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            // 1) Date must be today or later
+            if (Date.HasValue && Date.Value < DateOnly.FromDateTime(DateTime.Today))
+            {
+                yield return new ValidationResult(
+                    "Date cannot be in the past.",
+                    new[] { nameof(Date) }
+                );
+            }
+
+            // 2) End must be strictly after Start
+            if (Start.HasValue && End.HasValue && End.Value <= Start.Value)
+            {
+                yield return new ValidationResult(
+                    "End time must be later than Start time.",
+                    new[] { nameof(End), nameof(Start) }
+                );
+            }
+        }
+    }
+
+    private FormModel eventModel = new()
+        {
+            // prefill today’s date
+            Date = DateOnly.FromDateTime(DateTime.Today)
+        };
+
+    private EditContext editContext;
+
+    protected override void OnInitialized()
+    {
+        // create an EditContext you can use to trigger validation
+        editContext = new EditContext(eventModel);
+    }
+
+    [Parameter] public EventCallback<MouseEventArgs> OnCloseCallback { get; set; }
+
+    public class User
+    {
+        public int Id { get; set; }
+        public string Username { get; set; } = string.Empty;
+    }
+
+    private IEnumerable<User>? users;
+
+    private async Task<AutoCompleteDataProviderResult<User>> UsersDataProvider(AutoCompleteDataProviderRequest<User> request)
+    {
+        if (users is null)
+            users = GetUsers();
+
+        return await Task.FromResult(request.ApplyTo(users.OrderBy(u => u.Username)));
+    }
+
+    private IEnumerable<User> GetUsers()
+    {
+        return new List<User> {
+            new User { Id =  1, Username = "Pich S"     },
+            new User { Id =  2, Username = "sfh Sobi"    },
+            new User { Id =  3, Username = "Jojo chan"   },
+            new User { Id =  4, Username = "Jee ja"      },
+            new User { Id =  5, Username = "Rose Canon"  },
+            new User { Id =  6, Username = "Manju A"     },
+            new User { Id =  7, Username = "Bandita PA"  },
+            new User { Id =  8, Username = "Sagar Adil"  },
+            new User { Id =  9, Username = "Isha Wang"   },
+            new User { Id = 10, Username = "Daina JJ"    },
+            new User { Id = 11, Username = "Komala Mug"  },
+            new User { Id = 12, Username = "Dikshita BD" },
+            new User { Id = 13, Username = "Neha Gosar"  },
+            new User { Id = 14, Username = "Preeti S"    },
+            new User { Id = 15, Username = "Sagar Seth"  },
+            new User { Id = 16, Username = "Vinayak MM"  },
+            new User { Id = 17, Username = "Vijaya Lakhsmi"},
+            new User { Id = 18, Username = "Jahan K"     },
+            new User { Id = 19, Username = "Joy B"       },
+            new User { Id = 20, Username = "Zaraiah C"   },
+            new User { Id = 21, Username = "Laura L"     },
+            new User { Id = 22, Username = "Punith ES"   }
+        };
+    }
+
+    private void OnAutoCompleteChanged(User u)
+    {
+        eventModel.UserName = u?.Username;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // this will run ALL your [Required] checks + your IValidatableObject.Validate()
+        if (!editContext.Validate())
+            return;
+
+        // build the event
+        var evt = new ScheduleEvent
+            {
+                UserName = eventModel.UserName!,
+                Start = eventModel.Date.Value.ToDateTime(eventModel.Start.Value),
+                End = eventModel.Date.Value.ToDateTime(eventModel.End.Value),
+                Description = eventModel.Description!
+            };
+
+        var created = await scheduleService.CreateScheduleAsync(evt);
+        if (created != null)
+        {
+            Console.WriteLine($"New schedule created with Id {created.Id}");
+            await OnCloseCallback.InvokeAsync();
+        }
+        else
+        {
+            Console.Error.WriteLine("Failed to create schedule.");
+        }
+    }
+}

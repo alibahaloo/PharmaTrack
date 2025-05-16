@@ -41,6 +41,7 @@
     max-width: 14.2857%; /* 100 / 7 */
     }
 </style>
+<Modal @ref="createScheduleModal" />
 <Modal @ref="modal" Title=@SelectedDate.ToLongDateString() Size="ModalSize.Large">
     <BodyTemplate>
         @{
@@ -69,7 +70,7 @@
 
 <div class="row">
     <div class="col-4">
-        <span class="navbar-brand mb-0 fs-1">Calendar</span>
+        <h1>Calendar</h1>
     </div>
     <div class="col-4 text-center">
         <div class="btn-group">
@@ -79,11 +80,12 @@
         </div>
     </div>
     <div class="col-4 text-end">
-        <div class="btn-group mb-2">
+        <button class="btn btn-info bi bi-plus-square" @onclick="OnShowCreateScheduleModalClick"></button>
+        <div class="btn-group">
             <button class="btn @GetMonthlyClass()" @onclick="ShowMonthly">Monthly</button>
             <button class="btn @GetWeeklyClass()" @onclick="ShowWeekly">Weekly</button>
         </div>
-        <div class="btn-group mb-2">
+        <div class="btn-group">
             <button class="btn btn-outline-primary">Team</button>
             <button class="btn btn-outline-primary">Individual</button>
         </div>
@@ -204,8 +206,10 @@ else
         "Saturday",
         "Sunday"
     };
+    // Modal for daily events
     private Modal modal = default!;
-
+    // Modal for creating new events
+    private Modal createScheduleModal = default!;
     private DateTime SelectedDate;
     private DateTime CurrentDate = DateTime.Today;
     private bool IsMonthlyView = true;
@@ -225,6 +229,15 @@ else
         SelectedDateEvents = await ScheduleService.GetDailySchedulesAsync(dt);
         await modal.ShowAsync();
     }
+
+    private async Task OnShowCreateScheduleModalClick()
+    {
+        var parameters = new Dictionary<string, object>();
+        parameters.Add("OnCloseCallback", EventCallback.Factory.Create<MouseEventArgs>(this, HideCreateScheduleModal));
+        await createScheduleModal.ShowAsync<CreateSchedule>(title: "Create new schedule", parameters: parameters);
+    }
+
+    private void HideCreateScheduleModal(MouseEventArgs e) => createScheduleModal.HideAsync();
 
     private async Task LoadEvents()
     {
