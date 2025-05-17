@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net.Http.Json;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PharmaTrack.PWA.Helpers
 {
@@ -68,9 +69,16 @@ namespace PharmaTrack.PWA.Helpers
             }
         }
 
-        public async Task<List<ScheduleEvent>> GetMonthlySchedulesAsync(DateTime date)
+        public async Task<List<ScheduleEvent>> GetMonthlySchedulesAsync(DateTime date, string username = "")
         {
-            var url = $"schedules/monthly?date={date:yyyy-MM-dd}";
+            string url;
+            if (username != string.Empty) {
+                url = $"schedules/monthly/user/{username}?date={date:yyyy-MM-dd}";
+            }
+            else {
+                url = $"schedules/monthly?date={date:yyyy-MM-dd}";
+            }
+
             try
             {
                 var result = await _http.GetFromJsonAsync<List<ScheduleEvent>>(url, _jsonOptions);
@@ -83,9 +91,18 @@ namespace PharmaTrack.PWA.Helpers
             }
         }
 
-        public async Task<List<ScheduleEvent>> GetWeeklySchedulesAsync(DateTime weekStart)
+        public async Task<List<ScheduleEvent>> GetWeeklySchedulesAsync(DateTime weekStart, string username = "")
         {
-            var url = $"schedules/weekly?date={weekStart:yyyy-MM-dd}";
+            string url;
+            if (username != string.Empty)
+            {
+                url = $"schedules/weekly/user/{username}?date={weekStart:yyyy-MM-dd}";
+            }
+            else
+            {
+                url = $"schedules/weekly?date={weekStart:yyyy-MM-dd}";
+            }
+
             try
             {
                 var result = await _http.GetFromJsonAsync<List<ScheduleEvent>>(url);

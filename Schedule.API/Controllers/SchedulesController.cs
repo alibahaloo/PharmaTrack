@@ -71,6 +71,28 @@ namespace Schedule.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("weekly/user/{userName}")]
+        public async Task<IActionResult> GetWeeklySchedules(DateTime date, string userName)
+        {
+            // 1) Find the Monday of the week that 'date' falls in
+            int diff = (7 + ((int)date.DayOfWeek - (int)DayOfWeek.Monday)) % 7;
+            var startOfWeek = date.Date.AddDays(-diff);
+
+            // 2) End of week is Sunday
+            var endOfWeek = startOfWeek.AddDays(6);
+
+            // 3) Fetch tasks overlapping that range
+            var result = await _context.ScheduleTasks
+                .Where(st =>
+                    st.Start.Date <= endOfWeek &&
+                    st.End.Date >= startOfWeek &&
+                    st.UserName == userName
+                )
+                .ToListAsync();
+
+            return Ok(result);
+        }
+
         [HttpGet("monthly")]
         public async Task<IActionResult> GetMonthlySchedules(DateTime date)
         {

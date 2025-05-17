@@ -85,7 +85,15 @@
 
         <div class="input-group input-group-sm">
             <span class="input-group-text" id="basic-addon1">Filter by User</span>
-            <input @bind="SelectedUser" class="form-control form-control-sm" list="usersList" id="usernameList" placeholder="Select user ..." aria-label="Username" aria-describedby="basic-addon1">
+            <input 
+                @bind="SelectedUser" 
+                @onselectionchange="LoadEvents"
+                class="form-control form-control-sm" 
+                list="usersList" 
+                id="usernameList" 
+                placeholder="Select user ..." 
+                aria-label="Username" 
+                aria-describedby="basic-addon1">
             <datalist id="usersList">
                 @{
                     foreach (var item in Users)
@@ -98,7 +106,6 @@
         </div>
 
         <div class="btn-group">
-            <button class="btn btn-sm btn-primary bi bi-filter"></button>
             <button class="btn btn-sm btn-warning bi bi-x" @onclick="ClearUserFilter"></button>
         </div>
     </div>
@@ -229,6 +236,7 @@ else
     private List<ScheduleEvent> Events = new();
     private List<ScheduleEvent> SelectedDateEvents = new();
     private List<User> Users = new();
+    private string SelectedUser = string.Empty;
 
     private DateTime WeekStart => StartOfWeek(CurrentDate, DayOfWeek.Monday);
 
@@ -238,11 +246,10 @@ else
         Users = await AuthService.GetUsernames();
     }
 
-    private string SelectedUser = string.Empty;
-
-    void ClearUserFilter()
+    async Task ClearUserFilter()
     {
         SelectedUser = string.Empty;
+        await LoadEvents();
     }
 
     private string GetMonthlyClass() => IsMonthlyView ? "btn-primary" : "btn-outline-primary";
@@ -267,8 +274,8 @@ else
     private async Task LoadEvents()
     {
         Events = IsMonthlyView
-            ? await ScheduleService.GetMonthlySchedulesAsync(CurrentDate)
-            : await ScheduleService.GetWeeklySchedulesAsync(WeekStart);
+            ? await ScheduleService.GetMonthlySchedulesAsync(CurrentDate, SelectedUser)
+            : await ScheduleService.GetWeeklySchedulesAsync(WeekStart, SelectedUser);
     }
 
     private async Task ShowMonthly()
