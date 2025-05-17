@@ -86,14 +86,14 @@
         <div class="input-group input-group-sm">
             <span class="input-group-text" id="basic-addon1">Filter by User</span>
             <input 
-                @bind="SelectedUser" 
-                @onselectionchange="LoadEvents"
-                class="form-control form-control-sm" 
-                list="usersList" 
-                id="usernameList" 
-                placeholder="Select user ..." 
-                aria-label="Username" 
-                aria-describedby="basic-addon1">
+            @bind="SelectedUser" 
+            @onselectionchange="LoadEvents"
+            class="form-control form-control-sm" 
+            list="usersList" 
+            id="usernameList" 
+            placeholder="Select user ..." 
+            aria-label="Username" 
+            aria-describedby="basic-addon1">
             <datalist id="usersList">
                 @{
                     foreach (var item in Users)
@@ -266,9 +266,14 @@ else
     {
         var parameters = new Dictionary<string, object>();
         parameters.Add("OnCloseCallback", EventCallback.Factory.Create<MouseEventArgs>(this, HideCreateScheduleModal));
+        parameters.Add("OnSaveCallback", EventCallback.Factory.Create<MouseEventArgs>(this, OnSaveCallback));
         await createScheduleModal.ShowAsync<CreateSchedule>(title: "Create new schedule", parameters: parameters);
     }
-
+    private async Task OnSaveCallback(MouseEventArgs e)
+    {
+        await LoadEvents();
+        await createScheduleModal.HideAsync();
+    }
     private void HideCreateScheduleModal(MouseEventArgs e) => createScheduleModal.HideAsync();
 
     private async Task LoadEvents()

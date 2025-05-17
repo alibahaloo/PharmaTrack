@@ -121,7 +121,7 @@
     }
 
     [Parameter] public EventCallback<MouseEventArgs> OnCloseCallback { get; set; }
-
+    [Parameter] public EventCallback<MouseEventArgs> OnSaveCallback { get; set; }
 
 
     private IEnumerable<User>? users;
@@ -163,7 +163,7 @@
         if (created != null)
         {
             Console.WriteLine($"New schedule created with Id {created.Id}");
-            await OnCloseCallback.InvokeAsync();
+            await OnSaveCallback.InvokeAsync();
         }
         else
         {
