@@ -1,6 +1,7 @@
 ﻿@page "/calendar"
 @using PharmaTrack.PWA.Helpers
 @inject ScheduleService ScheduleService
+@inject AuthService AuthService
 @inject IJSRuntime JSRuntime
 @attribute [Authorize]
 
@@ -68,26 +69,37 @@
     </BodyTemplate>
 </Modal>
 
-<div class="row">
-    <div class="col-4">
-        <h1>Calendar</h1>
+<div class="row mb-1">
+    <div class="col-8">
+        <button class="btn-sm btn btn-secondary" @onclick="GoToToday">Today</button>
+        <button class="btn-sm btn btn-secondary bi bi-caret-left" @onclick="GoToPrev"></button>
+        <button class="btn-sm btn btn-secondary bi bi-caret-right" @onclick="GoToNext"></button>
+        <button class="btn btn-sm btn-primary bi bi-plus-square" @onclick="OnShowCreateScheduleModalClick"></button>
     </div>
-    <div class="col-4 text-center">
+    <div class="col-4 d-flex align-items-center justify-content-end gap-2">
+
         <div class="btn-group">
-            <button class="btn btn-secondary" @onclick="GoToPrev">Prev</button>
-            <button class="btn btn-secondary" @onclick="GoToToday">Today</button>
-            <button class="btn btn-secondary" @onclick="GoToNext">Next</button>
+            <button class="btn btn-sm @GetMonthlyClass()" @onclick="ShowMonthly">Monthly</button>
+            <button class="btn btn-sm @GetWeeklyClass()" @onclick="ShowWeekly">Weekly</button>
         </div>
-    </div>
-    <div class="col-4 text-end">
-        <button class="btn btn-info bi bi-plus-square" @onclick="OnShowCreateScheduleModalClick"></button>
-        <div class="btn-group">
-            <button class="btn @GetMonthlyClass()" @onclick="ShowMonthly">Monthly</button>
-            <button class="btn @GetWeeklyClass()" @onclick="ShowWeekly">Weekly</button>
+
+        <div class="input-group input-group-sm">
+            <span class="input-group-text" id="basic-addon1">Filter by User</span>
+            <input @bind="SelectedUser" class="form-control form-control-sm" list="usersList" id="usernameList" placeholder="Select user ..." aria-label="Username" aria-describedby="basic-addon1">
+            <datalist id="usersList">
+                @{
+                    foreach (var item in Users)
+                    {
+                        <option value="@item.Username">
+                        </option>
+                    }
+                }
+            </datalist>
         </div>
+
         <div class="btn-group">
-            <button class="btn btn-outline-primary">Team</button>
-            <button class="btn btn-outline-primary">Individual</button>
+            <button class="btn btn-sm btn-primary bi bi-filter"></button>
+            <button class="btn btn-sm btn-warning bi bi-x" @onclick="ClearUserFilter"></button>
         </div>
     </div>
 </div>
@@ -141,7 +153,7 @@
                             </div>
                             @foreach (var ev in dateEvents)
                             {
-                                <div class="text-black text-truncate" style="font-size: 12px" title="@ev.Description">
+                                <div class="text-black text-truncate" style="font-size: 12px" title="@ev.UserName - @ev.Description">
                                     <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
                                 </div>
                             }
@@ -213,12 +225,25 @@ else
     private DateTime SelectedDate;
     private DateTime CurrentDate = DateTime.Today;
     private bool IsMonthlyView = true;
+    private bool IsAllView = true;
     private List<ScheduleEvent> Events = new();
     private List<ScheduleEvent> SelectedDateEvents = new();
+    private List<User> Users = new();
 
     private DateTime WeekStart => StartOfWeek(CurrentDate, DayOfWeek.Monday);
 
-    protected override async Task OnInitializedAsync() => await LoadEvents();
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEvents();
+        Users = await AuthService.GetUsernames();
+    }
+
+    private string SelectedUser = string.Empty;
+
+    void ClearUserFilter()
+    {
+        SelectedUser = string.Empty;
+    }
 
     private string GetMonthlyClass() => IsMonthlyView ? "btn-primary" : "btn-outline-primary";
     private string GetWeeklyClass() => IsMonthlyView ? "btn-outline-primary" : "btn-primary";
