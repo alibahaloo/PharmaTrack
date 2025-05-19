@@ -1,0 +1,54 @@
+﻿@page "/interactions"
+@using PharmaTrack.PWA.Helpers
+@inject DrugService DrugService
+
+<h3>Drug Lookup</h3>
+
+<div class="mb-3">
+    <label for="drugDataList" class="form-label">Datalist example</label>
+    <input id="drugDataList"
+           autocomplete="off"
+           class="form-control"
+           placeholder="Type to search..."
+           value="@searchTerm"
+           list="drugOptions"
+           @onfocus="LoadInitialOptions"
+           @oninput="OnInputChanged" />
+    <datalist id="drugOptions">
+        @foreach (var drug in drugList)
+        {
+            <option value="@drug.BrandName"></option>
+        }
+    </datalist>
+</div>
+
+@code {
+    private string searchTerm = string.Empty;
+    private List<DrugListResponse> drugList = new();
+    private bool hasLoadedInitial = false;
+
+    /// <summary>
+    /// Fired the first time the user focuses the input.
+    /// Loads the “first page” (e.g. first 10) with no filter.
+    /// </summary>
+    private async Task LoadInitialOptions(FocusEventArgs args)
+    {
+        if (!hasLoadedInitial)
+        {
+            drugList = await DrugService.GetDrugListAsync();
+            hasLoadedInitial = true;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Fired on every keystroke.
+    /// Uses the current input value as the 'startWith' filter.
+    /// </summary>
+    private async Task OnInputChanged(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? "";
+        drugList = await DrugService.GetDrugListAsync(searchTerm);
+        StateHasChanged();
+    }
+}
