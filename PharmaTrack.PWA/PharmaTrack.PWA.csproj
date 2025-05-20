@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PharmaTrack.DTOs\PharmaTrack.DTOs.csproj" />
+    <ProjectReference Include="..\PharmaTrack.Core\PharmaTrack.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

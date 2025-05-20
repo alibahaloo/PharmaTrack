@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PharmaTrack.DTOs.Schedule;
-using PharmaTrack.Shared.APIModels;
-using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Core.DTOs;
 using Schedule.API.Data;
 
 namespace Schedule.API.Controllers

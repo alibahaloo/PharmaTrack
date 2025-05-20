@@ -10,11 +10,13 @@ WORKDIR /source
 # Copy csproj & restore
 COPY ./PharmaTrack/Drug.API/*.csproj ./Drug.API/
 COPY ./PharmaTrack/PharmaTrack.Shared/*.csproj ./PharmaTrack.Shared/
+COPY ./PharmaTrack/PharmaTrack.Core/*.csproj ./PharmaTrack.Core/
 RUN dotnet restore ./Drug.API
 
 # Copy code + DataFiles and publish
 COPY ./PharmaTrack/Drug.API ./Drug.API
 COPY ./PharmaTrack/PharmaTrack.Shared ./PharmaTrack.Shared
+COPY ./PharmaTrack/PharmaTrack.Core ./PharmaTrack.Core
 
 WORKDIR /source/Drug.API
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \

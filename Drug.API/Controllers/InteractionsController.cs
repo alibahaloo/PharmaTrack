@@ -1,8 +1,8 @@
 ﻿using Drug.API.Data;
+using PharmaTrack.Core.DBModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PharmaTrack.Shared.DBModels;
-using PharmaTrack.Shared.DTOs;
+using PharmaTrack.Core.DTOs;
 
 namespace Drug.API.Controllers
 {
@@ -61,7 +61,7 @@ namespace Drug.API.Controllers
                 .ToList();
 
             // Retrieve drug names for these drug codes.
-            var drugsInfo = await _context.DrugProducts
+            var drugsInfo = await _context.Drugs
                 .Where(d => codeList.Contains(d.DrugCode))
                 .Select(d => new { d.DrugCode, d.BrandName })
                 .ToListAsync();

@@ -2,11 +2,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PharmaTrack.Shared.APIModels;
-using PharmaTrack.DTOs.Drug;
+using PharmaTrack.Core.DBModels;
+using PharmaTrack.Core.DTOs;
 using PharmaTrack.Shared.Services;
 using System.Security.Claims;
-using AutoMapper;
 
 namespace Drug.API.Controllers
 {
@@ -16,11 +15,9 @@ namespace Drug.API.Controllers
     public class DrugsController : ControllerBase
     {
         private readonly DrugDBContext _context;
-        private readonly IMapper _mapper;
-        public DrugsController(DrugDBContext context, IMapper mapper)
+        public DrugsController(DrugDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         [HttpGet("list")]
@@ -33,7 +30,7 @@ namespace Drug.API.Controllers
 
             if (string.IsNullOrEmpty(startWith))
             {
-                list = await _context.DrugProducts
+                list = await _context.Drugs
                     .Select(u => new DrugListDto
                     {
                         Id = u.Id,
@@ -46,7 +43,7 @@ namespace Drug.API.Controllers
                     .ToListAsync();
             } else
             {
-                list = await _context.DrugProducts
+                list = await _context.Drugs
                     .Where(u => u.BrandName != null && u.BrandName.StartsWith(startWith))
                     .Select(u => new DrugListDto
                     {
@@ -65,7 +62,7 @@ namespace Drug.API.Controllers
         [HttpGet("{drugCode}")]
         public async Task<IActionResult> GetDrugByCode(int drugCode)
         {
-            var drugProduct = await _context.DrugProducts.Where(d => d.DrugCode == drugCode).FirstOrDefaultAsync();
+            var drugProduct = await _context.Drugs.Where(d => d.DrugCode == drugCode).FirstOrDefaultAsync();
 
             if (drugProduct == null) return NotFound();
 
@@ -75,7 +72,7 @@ namespace Drug.API.Controllers
         [HttpGet("DIN/{DIN}")]
         public async Task<IActionResult> GetDrugByDIN(string DIN)
         {
-            var drugProduct = await _context.DrugProducts.Where(d => d.DrugIdentificationNumber == DIN).FirstOrDefaultAsync();
+            var drugProduct = await _context.Drugs.Where(d => d.DrugIdentificationNumber == DIN).FirstOrDefaultAsync();
 
             if (drugProduct == null) return NotFound();
 
@@ -98,7 +95,7 @@ namespace Drug.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetDrugs([FromQuery] DrugInfoRequest request, int curPage = 1)
         {
-            IQueryable<DrugProduct> query = _context.DrugProducts;
+            IQueryable<DrugProduct> query = _context.Drugs;
             if (request != null)
             {
                 query = query.Where(t =>
@@ -123,7 +120,6 @@ namespace Drug.API.Controllers
 
         private async Task<ActionResult<DrugInfoDto>> GetDrugInfoDtoAsync(DrugProduct drugProduct)
         {
-            /*
             DrugInfoDto drugInfo = new()
             {
                 Product = drugProduct,
@@ -140,87 +136,6 @@ namespace Drug.API.Controllers
             };
 
             return drugInfo;
-            */
-            // 1. load the product entity
-            var product = await _context.DrugProducts
-                .FirstOrDefaultAsync(p => p.DrugCode == drugProduct.DrugCode);
-
-            if (product == null) return NotFound();
-
-            // 2. map the root Product
-            var dto = new DrugInfoDto
-            {
-                Product = _mapper.Map<DrugProductDto>(product)
-            };
-
-            // 3. fetch & map each child list
-            dto.Ingredients = _mapper.Map<List<DrugIngredientDto>>(
-                                      await _context.DrugIngredients
-                                         .Where(x => x.DrugCode == drugProduct.DrugCode)
-                                         .ToListAsync()
-                                   );
-
-            dto.Companies = _mapper.Map<List<DrugCompanyDto>>(
-                                      await _context.DrugCompanies
-                                         .Where(x => x.DrugCode == drugProduct.DrugCode)
-                                         .ToListAsync()
-                                   );
-
-            dto.Statuses = _mapper.Map<List<DrugStatusDto>>(
-                                      await _context.DrugStatuses
-                                         .Where(x => x.DrugCode == drugProduct.DrugCode)
-                                         .ToListAsync()
-                                   );
-
-            dto.Forms = _mapper.Map<List<DrugFormDto>>(
-                                      await _context.DrugForms
-                                         .Where(x => x.DrugCode == drugProduct.DrugCode)
-                                         .ToListAsync()
-                                   );
-
-            dto.Packagings = _mapper.Map<List<DrugPackagingDto>>(
-                                      await _context.DrugPackagings
-                                         .Where(x => x.DrugCode == drugProduct.DrugCode)
-                                         .ToListAsync()
-                                   );
-
-            dto.PharmaceuticalStds = _mapper.Map<List<DrugPharmaceuticalStdDto>>(
-                                      await _context.DrugPharmaceuticalStds
-                                         .Where(x => x.DrugCode == drugProduct.DrugCode)
-                                         .ToListAsync()
-                                   );
-
-            dto.Routes = _mapper.Map<List<DrugRouteDto>>(
-                                      await _context.DrugRoutes
-                                         .Where(x => x.DrugCode == drugProduct.DrugCode)
-                                         .ToListAsync()
-                                   );
-
-            dto.Schedules = _mapper.Map<List<DrugScheduleDto>>(
-                                      await _context.DrugSchedules
-                                         .Where(x => x.DrugCode == drugProduct.DrugCode)
-                                         .ToListAsync()
-                                   );
-
-            dto.TherapeuticClasses = _mapper.Map<List<DrugTherapeuticClassDto>>(
-                                      await _context.DrugTherapeuticClasses
-                                         .Where(x => x.DrugCode == drugProduct.DrugCode)
-                                         .ToListAsync()
-                                   );
-
-            dto.VeterinarySpecies = _mapper.Map<List<DrugVeterinarySpeciesDto>>(
-                                      await _context.DrugVeterinarySpecies
-                                         .Where(x => x.DrugCode == drugProduct.DrugCode)
-                                         .ToListAsync()
-                                   );
-
-            // (if you need interactions too)
-            // dto.Interactions = _mapper.Map<List<DrugInteractionDto>>(
-            //                      await _context.DrugInteractions
-            //                         .Where(...).ToListAsync()
-            //                    );
-
-            return dto;
         }
     }
 }

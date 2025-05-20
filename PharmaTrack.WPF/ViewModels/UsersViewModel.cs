@@ -1,4 +1,4 @@
-﻿using PharmaTrack.DTOs.Auth;
+﻿using PharmaTrack.Core.DTOs;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

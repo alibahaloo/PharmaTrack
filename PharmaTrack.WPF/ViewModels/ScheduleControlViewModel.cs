@@ -1,4 +1,4 @@
-﻿using PharmaTrack.DTOs.Schedule;
+﻿using PharmaTrack.Core.DTOs;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;

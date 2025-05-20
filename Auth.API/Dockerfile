@@ -10,11 +10,13 @@ WORKDIR /source
 # Copy and restore
 COPY ./PharmaTrack/Auth.API/*.csproj ./Auth.API/
 COPY ./PharmaTrack/PharmaTrack.Shared/*.csproj ./PharmaTrack.Shared/
+COPY ./PharmaTrack/PharmaTrack.Core/*.csproj ./PharmaTrack.Core/
 RUN dotnet restore ./Auth.API
 
 # Copy the rest and publish
 COPY ./PharmaTrack/Auth.API ./Auth.API
 COPY ./PharmaTrack/PharmaTrack.Shared ./PharmaTrack.Shared
+COPY ./PharmaTrack/PharmaTrack.Core ./PharmaTrack.Core
 
 WORKDIR /source/Auth.API
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \

@@ -1,4 +1,4 @@
-﻿namespace PharmaTrack.Shared.DTOs
+﻿namespace PharmaTrack.Core.DTOs
 {
     public class IngredientListDto
     {

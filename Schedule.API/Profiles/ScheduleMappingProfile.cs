@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using PharmaTrack.DTOs.Schedule;
+using PharmaTrack.Core.DTOs;
 using Schedule.API.Data;
 
 namespace Schedule.API.Profiles

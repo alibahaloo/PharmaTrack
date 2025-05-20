@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
-using PharmaTrack.Shared.DBModels;
+
 using PharmaTrack.Shared.Services;
 
 var options = new WebApplicationOptions

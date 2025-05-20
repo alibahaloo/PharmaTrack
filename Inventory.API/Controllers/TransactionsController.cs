@@ -1,8 +1,8 @@
 ﻿using Inventory.API.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PharmaTrack.Shared.APIModels;
-using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Core.DTOs;
+using PharmaTrack.Core.DBModels;
 using PharmaTrack.Shared.Services;
 
 

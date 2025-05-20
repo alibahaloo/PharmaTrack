@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PharmaTrack.Shared.DBModels
+namespace PharmaTrack.Core.DBModels
 {
     public class Transaction
     {

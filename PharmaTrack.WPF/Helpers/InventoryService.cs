@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
-using PharmaTrack.Shared.APIModels;
+using PharmaTrack.Core.DBModels;
+using PharmaTrack.Core.DTOs;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text;
-using PharmaTrack.Shared.DBModels;
 
 namespace PharmaTrack.WPF.Helpers
 {

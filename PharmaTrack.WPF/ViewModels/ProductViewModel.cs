@@ -1,5 +1,5 @@
-﻿using PharmaTrack.DTOs.Drug;
-using PharmaTrack.Shared.DBModels;
+﻿using PharmaTrack.Core.DTOs;
+using PharmaTrack.Core.DBModels;
 using PharmaTrack.WPF.Helpers;
 using PharmaTrack.WPF.ViewModels;
 using System.ComponentModel;

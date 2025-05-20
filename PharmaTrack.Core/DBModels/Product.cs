@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using PharmaTrack.Shared.DBModels;
-namespace PharmaTrack.Shared.APIModels
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+
+namespace PharmaTrack.Core.DBModels
 {
-    public class StockTransferRequest
+    public class Product
     {
-        [Required]
-        public TransactionType Type { get; set; }
+        [Key]
+        public int Id { get; set; }
 
         [Required, MaxLength(50)]
         public string UPC { get; set; } = string.Empty;
@@ -21,7 +22,14 @@ namespace PharmaTrack.Shared.APIModels
 
         [MaxLength(100)]
         public string? Brand { get; set; }
+
         [Required, Range(1, int.MaxValue, ErrorMessage = "Quantity must be at least 1.")]
         public int Quantity { get; set; }
+
+        [Required]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     }
 }

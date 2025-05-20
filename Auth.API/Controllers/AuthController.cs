@@ -2,8 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PharmaTrack.Shared.APIModels;
-using PharmaTrack.DTOs.Auth;
+using PharmaTrack.Core.DTOs;
 using PharmaTrack.Shared.Services;
 
 namespace Auth.API.Controllers

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
-using PharmaTrack.Shared.APIModels;
-using PharmaTrack.DTOs.Drug;
-using PharmaTrack.Shared.DTOs;
+using PharmaTrack.Core.DBModels;
+using PharmaTrack.Core.DTOs;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
@@ -240,7 +239,7 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
             };
         }
-        public async Task<DrugIngredientDto?> GetIngredientByIngredientCode(int activeIngredientCode)
+        public async Task<DrugIngredient?> GetIngredientByIngredientCode(int activeIngredientCode)
         {
             string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
 
@@ -257,7 +256,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Deserialize JSON into a DrugInfoDto object
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<DrugIngredientDto>(
+                return JsonSerializer.Deserialize<DrugIngredient>(
                     responseData,
                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
                 );
@@ -276,7 +275,7 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{response.StatusCode}: {await response.Content.ReadAsStringAsync()}"),
             };
         }
-        public async Task<PagedResponse<DrugProductDto>?> GetDrugsAsync(DrugInfoRequest request, int curPage = 1)
+        public async Task<PagedResponse<DrugProduct>?> GetDrugsAsync(DrugInfoRequest request, int curPage = 1)
         {
             string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
 
@@ -312,7 +311,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into PagedResponse<Transaction>)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<PagedResponse<DrugProductDto>>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<PagedResponse<DrugProduct>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -331,7 +330,7 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
-        public async Task<PagedResponse<DrugIngredientDto>?> GetIngredientsAsync(DrugIngredientRequest request, int curPage = 1)
+        public async Task<PagedResponse<DrugIngredient>?> GetIngredientsAsync(DrugIngredientRequest request, int curPage = 1)
         {
             string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
 
@@ -367,7 +366,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into PagedResponse<Transaction>)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<PagedResponse<DrugIngredientDto>>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<PagedResponse<DrugIngredient>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });

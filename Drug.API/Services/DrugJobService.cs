@@ -2,12 +2,12 @@
 using CsvHelper.Configuration;
 using Drug.API.Data;
 using Microsoft.EntityFrameworkCore;
-using PharmaTrack.Shared.DBModels;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using PharmaTrack.Core.DBModels;
 
 namespace Drug.API.Services
 {
@@ -714,7 +714,7 @@ namespace Drug.API.Services
             }
 
             // Preload existing drug hashes from the database.
-            var existingHashes = await _context.DrugProducts
+            var existingHashes = await _context.Drugs
                                                  .Select(d => d.Hash)
                                                  .ToListAsync();
             var hashSet = new HashSet<string>(
@@ -760,7 +760,7 @@ namespace Drug.API.Services
 
             if (drugs.Count != 0)
             {
-                await _context.DrugProducts.AddRangeAsync(drugs);
+                await _context.Drugs.AddRangeAsync(drugs);
             }
         }
 

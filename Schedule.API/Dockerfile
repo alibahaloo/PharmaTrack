@@ -10,11 +10,13 @@ WORKDIR /source
 # Copy project files and restore
 COPY ./PharmaTrack/Schedule.API/*.csproj ./Schedule.API/
 COPY ./PharmaTrack/PharmaTrack.Shared/*.csproj ./PharmaTrack.Shared/
+COPY ./PharmaTrack/PharmaTrack.Core/*.csproj ./PharmaTrack.Core/
 RUN dotnet restore ./Schedule.API
 
 # Copy the rest of the code and publish
 COPY ./PharmaTrack/Schedule.API ./Schedule.API
 COPY ./PharmaTrack/PharmaTrack.Shared ./PharmaTrack.Shared
+COPY ./PharmaTrack/PharmaTrack.Core ./PharmaTrack.Core
 
 WORKDIR /source/Schedule.API
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \

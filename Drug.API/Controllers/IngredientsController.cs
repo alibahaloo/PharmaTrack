@@ -1,8 +1,8 @@
 ﻿using Drug.API.Data;
+using PharmaTrack.Core.DBModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PharmaTrack.Shared.APIModels;
-using PharmaTrack.Shared.DBModels;
+using PharmaTrack.Core.DTOs;
 using PharmaTrack.Shared.Services;
 
 namespace Drug.API.Controllers

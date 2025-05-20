@@ -1,4 +1,4 @@
-﻿namespace PharmaTrack.DTOs.Drug
+﻿namespace PharmaTrack.Core.DTOs
 {
     public class DrugQuery
     {

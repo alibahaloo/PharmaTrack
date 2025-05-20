@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace PharmaTrack.DTOs.Schedule
+namespace PharmaTrack.Core.DTOs
 {
     public class ScheduleTaskDto : IValidatableObject
     {

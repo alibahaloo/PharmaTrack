@@ -1,6 +1,5 @@
-﻿using PharmaTrack.Shared.DBModels;
-
-namespace PharmaTrack.Shared.APIModels
+﻿using PharmaTrack.Core.DBModels;
+namespace PharmaTrack.Core.DTOs
 {
     public class TransactionsRequest
     {

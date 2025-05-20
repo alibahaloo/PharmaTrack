@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
-using PharmaTrack.DTOs.Drug;
+using PharmaTrack.Core.DTOs;
 
 namespace PharmaTrack.PWA.Helpers
 {

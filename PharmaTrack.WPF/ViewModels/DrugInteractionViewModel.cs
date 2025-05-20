@@ -1,5 +1,5 @@
-﻿using PharmaTrack.DTOs.Drug;
-using PharmaTrack.Shared.DTOs;
+﻿using PharmaTrack.Core.DTOs;
+using PharmaTrack.Core.DBModels;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -16,7 +16,7 @@ namespace PharmaTrack.WPF.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         public ObservableCollection<DrugListDto> DrugList { get; set; } = [];
-        public ObservableCollection<DrugProductDto> SelectedDrugs { get; set; } = [];
+        public ObservableCollection<DrugProduct> SelectedDrugs { get; set; } = [];
         private string _searchText = string.Empty;
         public string SearchText
         {
@@ -141,7 +141,7 @@ namespace PharmaTrack.WPF.ViewModels
         private async void ExecuteRemoveDrug(object? parameter)
         {
             IsLoading = true;
-            if (parameter is DrugProductDto drug)
+            if (parameter is DrugProduct drug)
             {
                 SelectedDrugs.Remove(drug);
             }

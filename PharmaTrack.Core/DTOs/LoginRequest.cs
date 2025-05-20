@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PharmaTrack.DTOs.Auth
+namespace PharmaTrack.Core.DTOs
 {
     public class LoginRequest
     {

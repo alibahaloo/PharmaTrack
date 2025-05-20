@@ -1,9 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
-namespace PharmaTrack.Shared.APIModels
+using PharmaTrack.Core.DBModels;
+namespace PharmaTrack.Core.DTOs
 {
-    public class ProductUpdateRequest
+    public class StockTransferRequest
     {
+        [Required]
+        public TransactionType Type { get; set; }
+
         [Required, MaxLength(50)]
         public string UPC { get; set; } = string.Empty;
 

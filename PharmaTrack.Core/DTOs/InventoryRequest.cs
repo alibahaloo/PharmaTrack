@@ -1,4 +1,4 @@
-﻿namespace PharmaTrack.Shared.APIModels
+﻿namespace PharmaTrack.Core.DTOs
 {
     public class InventoryRequest
     {

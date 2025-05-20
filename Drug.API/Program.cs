@@ -1,5 +1,4 @@
 ﻿using Drug.API.Data;
-using Drug.API.Profiles;
 using Drug.API.Services;
 using Hangfire;
 using Hangfire.Dashboard;
@@ -96,8 +95,6 @@ builder.Configuration.AddConfiguration(sharedConfiguration);
 // Add JWT configuration using the shared extension
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
-
-builder.Services.AddAutoMapper(typeof(DrugMappingProfile).Assembly);
 
 var app = builder.Build();
 

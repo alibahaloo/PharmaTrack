@@ -10,11 +10,13 @@ WORKDIR /source
 # Copy project files and restore
 COPY ./PharmaTrack/Inventory.API/*.csproj ./Inventory.API/
 COPY ./PharmaTrack/PharmaTrack.Shared/*.csproj ./PharmaTrack.Shared/
+COPY ./PharmaTrack/PharmaTrack.Core/*.csproj ./PharmaTrack.Core/
 RUN dotnet restore ./Inventory.API
 
 # Copy the rest of the code and publish
 COPY ./PharmaTrack/Inventory.API ./Inventory.API
 COPY ./PharmaTrack/PharmaTrack.Shared ./PharmaTrack.Shared
+COPY ./PharmaTrack/PharmaTrack.Core ./PharmaTrack.Core
 
 WORKDIR /source/Inventory.API
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \

@@ -1,9 +1,7 @@
-﻿using PharmaTrack.Shared.DBModels;
-using PharmaTrack.Shared.DTOs;
+﻿using PharmaTrack.Core.DTOs;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Windows.Input;
 using System.Windows.Media;
 
