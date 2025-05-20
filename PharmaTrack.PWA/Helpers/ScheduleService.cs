@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
-using PharmaTrack.Core.DTOs;
+using PharmaTrack.Core.DBModels;
 namespace PharmaTrack.PWA.Helpers
 {
     
@@ -15,7 +15,7 @@ namespace PharmaTrack.PWA.Helpers
         {
             _http = http;
         }
-        public async Task<ScheduleTaskDto?> CreateScheduleAsync(ScheduleTaskDto newTask)
+        public async Task<ScheduleTask?> CreateScheduleAsync(ScheduleTask newTask)
         {
             const string url = "schedules";
             try
@@ -25,7 +25,7 @@ namespace PharmaTrack.PWA.Helpers
 
                 // if the server returns success, deserialize and return the created object
                 response.EnsureSuccessStatusCode();
-                var created = await response.Content.ReadFromJsonAsync<ScheduleTaskDto>(_jsonOptions);
+                var created = await response.Content.ReadFromJsonAsync<ScheduleTask>(_jsonOptions);
                 return created;
             }
             catch (HttpRequestException)
@@ -35,7 +35,7 @@ namespace PharmaTrack.PWA.Helpers
             }
         }
 
-        public async Task<List<ScheduleTaskDto>> GetMonthlySchedulesAsync(DateTime date, string username = "")
+        public async Task<List<ScheduleTask>> GetMonthlySchedulesAsync(DateTime date, string username = "")
         {
             string url;
             if (username != string.Empty) {
@@ -47,17 +47,17 @@ namespace PharmaTrack.PWA.Helpers
 
             try
             {
-                var result = await _http.GetFromJsonAsync<List<ScheduleTaskDto>>(url, _jsonOptions);
-                return result ?? new List<ScheduleTaskDto>();
+                var result = await _http.GetFromJsonAsync<List<ScheduleTask>>(url, _jsonOptions);
+                return result ?? [];
             }
             catch (HttpRequestException)
             {
                 // TODO: log error or handle accordingly
-                return new List<ScheduleTaskDto>();
+                return [];
             }
         }
 
-        public async Task<List<ScheduleTaskDto>> GetWeeklySchedulesAsync(DateTime weekStart, string username = "")
+        public async Task<List<ScheduleTask>> GetWeeklySchedulesAsync(DateTime weekStart, string username = "")
         {
             string url;
             if (username != string.Empty)
@@ -71,28 +71,28 @@ namespace PharmaTrack.PWA.Helpers
 
             try
             {
-                var result = await _http.GetFromJsonAsync<List<ScheduleTaskDto>>(url);
-                return result ?? new List<ScheduleTaskDto>();
+                var result = await _http.GetFromJsonAsync<List<ScheduleTask>>(url);
+                return result ?? [];
             }
             catch (HttpRequestException)
             {
                 // TODO: log error or handle accordingly
-                return new List<ScheduleTaskDto>();
+                return [];
             }
         }
 
-        public async Task<List<ScheduleTaskDto>> GetDailySchedulesAsync(DateTime date)
+        public async Task<List<ScheduleTask>> GetDailySchedulesAsync(DateTime date)
         {
             var url = $"schedules/daily?date={date:yyyy-MM-dd}";
             try
             {
-                var result = await _http.GetFromJsonAsync<List<ScheduleTaskDto>>(url, _jsonOptions);
-                return result ?? new List<ScheduleTaskDto>();
+                var result = await _http.GetFromJsonAsync<List<ScheduleTask>>(url, _jsonOptions);
+                return result ?? [];
             }
             catch (HttpRequestException)
             {
                 // TODO: log error or handle accordingly
-                return new List<ScheduleTaskDto>();
+                return [];
             }
         }
     }

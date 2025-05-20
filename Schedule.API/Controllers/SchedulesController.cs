@@ -1,8 +1,7 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PharmaTrack.Core.DTOs;
+using PharmaTrack.Core.DBModels;
 using Schedule.API.Data;
 
 namespace Schedule.API.Controllers
@@ -13,17 +12,15 @@ namespace Schedule.API.Controllers
     public class SchedulesController : ControllerBase
     {
         private readonly ScheduleDBContext _context;
-        private readonly IMapper _mapper;
 
 
-        public SchedulesController(ScheduleDBContext context, IMapper mapper)
+        public SchedulesController(ScheduleDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         [HttpGet("daily")]
-        public async Task<ActionResult<IEnumerable<ScheduleTaskDto>>> GetDailySchedules (DateTime date)
+        public async Task<ActionResult<IEnumerable<ScheduleTask>>> GetDailySchedules (DateTime date)
         {
             // Get the start and end of the specific day
             var startOfDay = date.Date; // Start of the day at 00:00:00
@@ -34,13 +31,12 @@ namespace Schedule.API.Controllers
                 .Where(st => st.Start <= endOfDay && st.End >= startOfDay)
                 .ToListAsync();
 
-            var dtos = _mapper.Map<List<ScheduleTaskDto>>(result);
 
-            return Ok(dtos);
+            return Ok(result);
         }
 
         [HttpGet("daily/user/{userName}")]
-        public async Task<ActionResult<IEnumerable<ScheduleTaskDto>>> GetDailySchedulesForUser(DateTime date, string userName)
+        public async Task<ActionResult<IEnumerable<ScheduleTask>>> GetDailySchedulesForUser(DateTime date, string userName)
         {
             // Get the start and end of the specific day
             var startOfDay = date.Date; // Start of the day at 00:00:00
@@ -51,13 +47,11 @@ namespace Schedule.API.Controllers
                 .Where(st => st.Start <= endOfDay && st.End >= startOfDay && st.UserName == userName)
                 .ToListAsync();
 
-            var dtos = _mapper.Map<List<ScheduleTaskDto>>(result);
-
-            return Ok(dtos);
+            return Ok(result);
         }
 
         [HttpGet("weekly")]
-        public async Task<ActionResult<IEnumerable<ScheduleTaskDto>>> GetWeeklySchedules(DateTime date)
+        public async Task<ActionResult<IEnumerable<ScheduleTask>>> GetWeeklySchedules(DateTime date)
         {
             // 1) Find the Monday of the week that 'date' falls in
             int diff = (7 + ((int)date.DayOfWeek - (int)DayOfWeek.Monday)) % 7;
@@ -74,13 +68,11 @@ namespace Schedule.API.Controllers
                 )
                 .ToListAsync();
 
-            var dtos = _mapper.Map<List<ScheduleTaskDto>>(result);
-
-            return Ok(dtos);
+            return Ok(result);
         }
 
         [HttpGet("weekly/user/{userName}")]
-        public async Task<ActionResult<IEnumerable<ScheduleTaskDto>>    > GetWeeklySchedules(DateTime date, string userName)
+        public async Task<ActionResult<IEnumerable<ScheduleTask>>    > GetWeeklySchedules(DateTime date, string userName)
         {
             // 1) Find the Monday of the week that 'date' falls in
             int diff = (7 + ((int)date.DayOfWeek - (int)DayOfWeek.Monday)) % 7;
@@ -98,13 +90,11 @@ namespace Schedule.API.Controllers
                 )
                 .ToListAsync();
 
-            var dtos = _mapper.Map<List<ScheduleTaskDto>>(result);
-
-            return Ok(dtos);
+            return Ok(result);
         }
 
         [HttpGet("monthly")]
-        public async Task<ActionResult<IEnumerable<ScheduleTaskDto>>> GetMonthlySchedules(DateTime date)
+        public async Task<ActionResult<IEnumerable<ScheduleTask>>> GetMonthlySchedules(DateTime date)
         {
             // Determine the start and end dates for the given month
             var startOfMonth = new DateTime(date.Year, date.Month, 1);
@@ -115,13 +105,11 @@ namespace Schedule.API.Controllers
                 .Where(st => st.Start.Date <= endOfMonth && st.End.Date >= startOfMonth)
                 .ToListAsync();
 
-            var dtos = _mapper.Map<List<ScheduleTaskDto>>(result);
-
-            return Ok(dtos);
+            return Ok(result);
         }
 
         [HttpGet("monthly/user/{userName}")]
-        public async Task<ActionResult<IEnumerable<ScheduleTaskDto>>> GetMonthlySchedulesForUser(DateTime date, string userName)
+        public async Task<ActionResult<IEnumerable<ScheduleTask>>> GetMonthlySchedulesForUser(DateTime date, string userName)
         {
             // Determine the start and end dates for the given month
             var startOfMonth = new DateTime(date.Year, date.Month, 1);
@@ -132,20 +120,18 @@ namespace Schedule.API.Controllers
                 .Where(st => st.Start.Date <= endOfMonth && st.End.Date >= startOfMonth && st.UserName == userName)
                 .ToListAsync();
 
-            var dtos = _mapper.Map<List<ScheduleTaskDto>>(result);
-
-            return Ok(dtos);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ScheduleTaskDto>> GetScheduleTask(int id)
+        public async Task<ActionResult<ScheduleTask>> GetScheduleTask(int id)
         {
             var result = await _context.ScheduleTasks.FindAsync(id);
             return result != null ? Ok(result) : NotFound();
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateScheduleTask(int id, [FromBody] ScheduleTaskDto request)
+        public async Task<IActionResult> UpdateScheduleTask(int id, [FromBody] ScheduleTask request)
         {
             var existingScheduleTask = await _context.ScheduleTasks.FindAsync(id);
 
@@ -208,7 +194,7 @@ namespace Schedule.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<ScheduleTaskDto>> CreateScheduleTask([FromBody] ScheduleTaskDto request)
+        public async Task<IActionResult> CreateScheduleTask([FromBody] ScheduleTask request)
         {
             //Check if the user is actually an admin
             //var isAdmin = User.IsInRole("admin");
@@ -220,8 +206,6 @@ namespace Schedule.API.Controllers
 
             try
             {
-                // 3) map DTO → EF entity
-                var entity = _mapper.Map<ScheduleTask>(request);
                 /*
                 var newScheduleTask = new ScheduleTask
                 {
@@ -231,18 +215,10 @@ namespace Schedule.API.Controllers
                     UserName = request.UserName,
                 };*/
 
-                _context.ScheduleTasks.Add(entity);
+                _context.ScheduleTasks.Add(request);
                 await _context.SaveChangesAsync();
 
-                // 4) map saved entity → response DTO
-                var responseDto = _mapper.Map<ScheduleTaskDto>(entity);
-
-                // 5) return 201 with the new resource
-                return CreatedAtAction(
-                    nameof(GetDailySchedules),               // your “get” endpoint
-                    new { date = responseDto.Start.Date },   // route values
-                    responseDto                             // body
-                );
+                return Ok();
             }
             catch (Exception ex)
             {

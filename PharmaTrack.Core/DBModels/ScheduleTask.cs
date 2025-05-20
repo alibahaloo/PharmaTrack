@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace PharmaTrack.Core.DTOs
+namespace PharmaTrack.Core.DBModels
 {
-    public class ScheduleTaskDto : IValidatableObject
+    public class ScheduleTask : IValidatableObject
     {
-        public int? Id { get; set; }
+        [Key]
+        public int Id { get; set; }
         [Required(ErrorMessage = "Username is required")]
         public string UserName { get; set; } = default!;
         [Required(ErrorMessage = "Start date & time is required")]
@@ -15,7 +16,6 @@ namespace PharmaTrack.Core.DTOs
         public DateTime End { get; set; }
         [Required(ErrorMessage = "Description is required")]
         public string Description { get; set; } = default!;
-
         public IEnumerable<ValidationResult> Validate(ValidationContext ctx)
         {
             // 1) Start.Date must be today or later

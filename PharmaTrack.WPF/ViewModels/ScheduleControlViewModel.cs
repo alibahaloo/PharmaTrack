@@ -1,4 +1,4 @@
-﻿using PharmaTrack.Core.DTOs;
+﻿using PharmaTrack.Core.DBModels;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -150,7 +150,7 @@ namespace PharmaTrack.WPF.ViewModels
             IsLoading = true;
             try
             {
-                var scheduleTask = new ScheduleTaskDto
+                var scheduleTask = new ScheduleTask
                 {
                     UserName = SelectedUser,
                     Start = SelectedDate.Add(StartTime),

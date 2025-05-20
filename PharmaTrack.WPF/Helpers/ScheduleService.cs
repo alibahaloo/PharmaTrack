@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using PharmaTrack.Core.DTOs;
+using PharmaTrack.Core.DBModels;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -27,7 +27,7 @@ namespace PharmaTrack.WPF.Helpers
             _dailyForUserURL = configuration["SchedulesUrls:DailyUser"]
                         ?? throw new ArgumentException("DailyUser URL is not configured in the application settings.", nameof(configuration));
         }
-        public async Task<bool> CreateScheduleAsync(ScheduleTaskDto request)
+        public async Task<bool> CreateScheduleAsync(ScheduleTask request)
         {
             if (request == null)
             {
@@ -58,7 +58,7 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
-        public async Task<List<ScheduleTaskDto>?> GetMyMonthlyScheduleTasksAsync(DateTime month)
+        public async Task<List<ScheduleTask>?> GetMyMonthlyScheduleTasksAsync(DateTime month)
         {
             string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
             string? userName = !string.IsNullOrEmpty(TokenStorage.UserName) ? TokenStorage.UserName : throw new UnauthorizedAccessException(TokenStorage.UserName);
@@ -73,7 +73,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into Product object)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<ScheduleTaskDto>>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<List<ScheduleTask>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -86,7 +86,7 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
-        public async Task<List<ScheduleTaskDto>?> GetMyDailyScheduleTasksAsync(DateTime date)
+        public async Task<List<ScheduleTask>?> GetMyDailyScheduleTasksAsync(DateTime date)
         {
             string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
             string? userName = !string.IsNullOrEmpty(TokenStorage.UserName) ? TokenStorage.UserName : throw new UnauthorizedAccessException(TokenStorage.UserName);
@@ -101,7 +101,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into Product object)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<ScheduleTaskDto>>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<List<ScheduleTask>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -114,7 +114,7 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
-        public async Task<List<ScheduleTaskDto>?> GetMonthlyScheduleTasksAsync(DateTime month)
+        public async Task<List<ScheduleTask>?> GetMonthlyScheduleTasksAsync(DateTime month)
         {
             string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
 
@@ -128,7 +128,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into Product object)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<ScheduleTaskDto>>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<List<ScheduleTask>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -141,7 +141,7 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
-        public async Task<List<ScheduleTaskDto>?> GetDailyScheduleTasksAsync(DateTime date)
+        public async Task<List<ScheduleTask>?> GetDailyScheduleTasksAsync(DateTime date)
         {
             string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
             string? userName = !string.IsNullOrEmpty(TokenStorage.UserName) ? TokenStorage.UserName : throw new UnauthorizedAccessException(TokenStorage.UserName);
@@ -156,7 +156,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into Product object)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<ScheduleTaskDto>>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<List<ScheduleTask>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -169,7 +169,7 @@ namespace PharmaTrack.WPF.Helpers
             };
         }
 
-        public async Task<List<ScheduleTaskDto>?> GetUserScheduleTasksAsync(DateTime month, string userName)
+        public async Task<List<ScheduleTask>?> GetUserScheduleTasksAsync(DateTime month, string userName)
         {
             string? accessToken = !string.IsNullOrEmpty(TokenStorage.AccessToken) ? TokenStorage.AccessToken : throw new UnauthorizedAccessException(TokenStorage.AccessToken);
 
@@ -183,7 +183,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into Product object)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<ScheduleTaskDto>>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<List<ScheduleTask>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
