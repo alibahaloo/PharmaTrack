@@ -1,5 +1,5 @@
 ﻿using PharmaTrack.Shared.APIModels;
-using PharmaTrack.Shared.DBModels;
+using PharmaTrack.DTOs.Drug;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -18,7 +18,7 @@ namespace PharmaTrack.WPF.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         private readonly DrugService _drugService;
-        public ObservableCollection<DrugProduct> Drugs { get; set; } = [];
+        public ObservableCollection<DrugProductDto> Drugs { get; set; } = [];
         private string _statusMessage = default!;
         public string StatusMessage
         {
@@ -88,8 +88,8 @@ namespace PharmaTrack.WPF.ViewModels
             set { _drugCode = value; OnPropertyChanged(nameof(DrugCode)); }
         }
 
-        private DrugProduct _selectedDrug = default!;
-        public DrugProduct SelectedDrug
+        private DrugProductDto _selectedDrug = default!;
+        public DrugProductDto SelectedDrug
         {
             get => _selectedDrug;
             set

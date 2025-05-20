@@ -61,7 +61,7 @@ namespace Drug.API.Controllers
                 .ToList();
 
             // Retrieve drug names for these drug codes.
-            var drugsInfo = await _context.Drugs
+            var drugsInfo = await _context.DrugProducts
                 .Where(d => codeList.Contains(d.DrugCode))
                 .Select(d => new { d.DrugCode, d.BrandName })
                 .ToListAsync();

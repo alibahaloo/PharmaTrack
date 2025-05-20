@@ -714,7 +714,7 @@ namespace Drug.API.Services
             }
 
             // Preload existing drug hashes from the database.
-            var existingHashes = await _context.Drugs
+            var existingHashes = await _context.DrugProducts
                                                  .Select(d => d.Hash)
                                                  .ToListAsync();
             var hashSet = new HashSet<string>(
@@ -760,7 +760,7 @@ namespace Drug.API.Services
 
             if (drugs.Count != 0)
             {
-                await _context.Drugs.AddRangeAsync(drugs);
+                await _context.DrugProducts.AddRangeAsync(drugs);
             }
         }
 

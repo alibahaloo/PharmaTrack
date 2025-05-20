@@ -1,10 +1,8 @@
-﻿using PharmaTrack.Shared.DBModels;
-using PharmaTrack.Shared.DTOs;
+﻿using PharmaTrack.DTOs.Drug;
+using PharmaTrack.Shared.DBModels;
 using PharmaTrack.WPF.Helpers;
 using PharmaTrack.WPF.ViewModels;
 using System.ComponentModel;
-using System.Net;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
