@@ -70,8 +70,9 @@ builder.Configuration.AddConfiguration(sharedConfiguration);
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
 
-
 var app = builder.Build();
+
+app.UseCors("AllowBlazorClient");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
