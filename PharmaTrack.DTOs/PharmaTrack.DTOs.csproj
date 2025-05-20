@@ -7,7 +7,6 @@
 
   <ItemGroup>
     <Folder Include="Inventory\" />
-    <Folder Include="Auth\" />
   </ItemGroup>
 
   <ItemGroup>
