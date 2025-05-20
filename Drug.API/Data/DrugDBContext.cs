@@ -1,5 +1,4 @@
-﻿using CsvHelper.Configuration.Attributes;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Core.DBModels;
 
 namespace Drug.API.Data

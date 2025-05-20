@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text.Json;
 using PharmaTrack.Core.DTOs;
+using PharmaTrack.Core.DBModels;
 
 namespace PharmaTrack.PWA.Helpers
 {
@@ -33,7 +34,7 @@ namespace PharmaTrack.PWA.Helpers
             }
         }
 
-        public async Task<List<DrugDto>> GetDrugsAsync(DrugQuery request, int curPage = 1)
+        public async Task<List<DrugProduct>> GetDrugsAsync(DrugQuery request, int curPage = 1)
         {
             // Convert TransactionsRequest to query parameters
             var queryParameters = new List<string>
@@ -58,7 +59,7 @@ namespace PharmaTrack.PWA.Helpers
 
             try
             {
-                var result = await _http.GetFromJsonAsync<List<DrugDto>>(url, _jsonOptions);
+                var result = await _http.GetFromJsonAsync<List<DrugProduct>>(url, _jsonOptions);
                 return result ?? [];
             }
             catch (Exception ex)
