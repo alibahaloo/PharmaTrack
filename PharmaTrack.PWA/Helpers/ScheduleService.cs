@@ -15,7 +15,7 @@ namespace PharmaTrack.PWA.Helpers
         {
             _http = http;
         }
-        public async Task<ScheduleTask?> CreateScheduleAsync(ScheduleTask newTask)
+        public async Task<bool> CreateScheduleAsync(ScheduleTask newTask)
         {
             const string url = "schedules";
             try
@@ -25,13 +25,12 @@ namespace PharmaTrack.PWA.Helpers
 
                 // if the server returns success, deserialize and return the created object
                 response.EnsureSuccessStatusCode();
-                var created = await response.Content.ReadFromJsonAsync<ScheduleTask>(_jsonOptions);
-                return created;
+                return true;
             }
             catch (HttpRequestException)
             {
                 // TODO: log the error, or propagate
-                return null;
+                return false;
             }
         }
 

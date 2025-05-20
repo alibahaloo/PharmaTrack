@@ -1,6 +1,7 @@
 ﻿@page "/calendar"
 @using PharmaTrack.PWA.Helpers
 @using PharmaTrack.Core.DBModels;
+@using PharmaTrack.Core.DTOs;
 @inject ScheduleService ScheduleService
 @inject AuthService AuthService
 @inject IJSRuntime JSRuntime
@@ -99,7 +100,7 @@
                 @{
                     foreach (var item in Users)
                     {
-                        <option value="@item.Username">
+                        <option value="@item.UserName">
                         </option>
                     }
                 }
@@ -233,10 +234,9 @@ else
     private DateTime SelectedDate;
     private DateTime CurrentDate = DateTime.Today;
     private bool IsMonthlyView = true;
-    private bool IsAllView = true;
     private List<ScheduleTask> Events = new();
     private List<ScheduleTask> SelectedDateEvents = new();
-    private List<User> Users = new();
+    private List<UserDto> Users = new();
     private string SelectedUser = string.Empty;
 
     private DateTime WeekStart => StartOfWeek(CurrentDate, DayOfWeek.Monday);

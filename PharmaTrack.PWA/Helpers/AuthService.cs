@@ -3,15 +3,10 @@ using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using PharmaTrack.Core.DTOs;
 
 namespace PharmaTrack.PWA.Helpers
 {
-    public class User
-    {
-        public int Id { get; set; }
-        public string Username { get; set; } = string.Empty;
-    }
     public class AuthService
     {
         private readonly HttpClient _http;
@@ -54,7 +49,7 @@ namespace PharmaTrack.PWA.Helpers
                 return false;
 
             var data = await response.Content
-                           .ReadFromJsonAsync<LoginResponse>();
+                           .ReadFromJsonAsync<AuthDto>();
             if (data is null || string.IsNullOrWhiteSpace(data.AccessToken))
                 return false;
 
@@ -101,7 +96,7 @@ namespace PharmaTrack.PWA.Helpers
 
             // 3) deserialize the new tokens
             var data = await resp.Content
-                           .ReadFromJsonAsync<LoginResponse>();
+                           .ReadFromJsonAsync<AuthDto>();
             if (data == null || string.IsNullOrWhiteSpace(data.AccessToken))
                 return false;
 
@@ -116,47 +111,25 @@ namespace PharmaTrack.PWA.Helpers
             return true;
         }
 
-        public async Task<List<User>> GetUsernames()
+        public async Task<List<UserDto>> GetUsernames()
         {
             var url = "users/usernames";
             try
             {
                 // 1) Fetch the raw strings
-                var usernames = await _http.GetFromJsonAsync<List<string>>(url, _jsonOptions);
+                var usernames = await _http.GetFromJsonAsync<List<UserDto>>(url, _jsonOptions);
 
                 // If the API gave us nothing, bail out with an empty list
                 if (usernames is null || usernames.Count == 0)
                     return [];
 
-                // 2) Map each into a User object
-                return [.. usernames
-                    .Select((name, idx) => new User
-                    {
-                        // idx+1 just gives you a simple Id; 
-                        // if your back-end knows real IDs, fetch them instead
-                        Id = idx + 1,
-                        Username = name
-                    })];
+                return usernames;
             }
             catch (HttpRequestException)
             {
                 // TODO: log error or handle accordingly
                 return [];
             }
-        }
-        private class LoginResponse
-        {
-            [JsonPropertyName("accessToken")]
-            public string AccessToken { get; set; }
-
-            [JsonPropertyName("refreshToken")]
-            public string RefreshToken { get; set; }
-
-            [JsonPropertyName("userName")]
-            public string UserName { get; set; }
-
-            [JsonPropertyName("isAdmin")]
-            public bool IsAdmin { get; set; }
         }
     }
 }

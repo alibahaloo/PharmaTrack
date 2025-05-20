@@ -18,16 +18,21 @@ namespace Auth.API.Controllers
         }
 
         [HttpGet("usernames")]
-        public async Task<IActionResult> GetUsernames()
+        public async Task<ActionResult<List<UserDto>>> GetUsernames()
         {
             var usernames = await _context.ApplicationUsers
-                                  .Select(u => u.UserName)
+                                  .Select(user => new UserDto
+                                  {
+                                      Id = user.Id,
+                                      UserName = user.UserName ?? string.Empty,
+                                      Email = user.Email ?? string.Empty
+                                  })
                                   .ToListAsync();
             return Ok(usernames);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUsers(int curPage = 1)
+        public async Task<ActionResult<PagedResponse<UserDto>>> GetUsers(int curPage = 1)
         {
             IQueryable<ApplicationUser> query = _context.ApplicationUsers;
 

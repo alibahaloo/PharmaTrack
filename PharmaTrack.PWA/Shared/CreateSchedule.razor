@@ -1,6 +1,7 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using PharmaTrack.PWA.Helpers
 @using PharmaTrack.Core.DBModels;
+@using PharmaTrack.Core.DTOs;
 @inject ScheduleService scheduleService
 @inject AuthService authService
 
@@ -11,11 +12,11 @@
     <div class="row mb-3">
         <AutoComplete @bind-Value="eventModel.UserName"
         Id="usernameList"
-        TItem="User"
+        TItem="UserDto"
         DataProvider="UsersDataProvider"
-        PropertyName="Username"
+        PropertyName="UserName"
         Placeholder="Search a user..."
-        OnChanged="(User u) => OnAutoCompleteChanged(u)" />
+        OnChanged="(UserDto u) => OnAutoCompleteChanged(u)" />
     </div>
 
     <div class="row mb-3 g-3 align-items-center">
@@ -125,24 +126,24 @@
     [Parameter] public EventCallback<MouseEventArgs> OnSaveCallback { get; set; }
 
 
-    private IEnumerable<User>? users;
+    private IEnumerable<UserDto>? users;
 
-    private async Task<AutoCompleteDataProviderResult<User>> UsersDataProvider(AutoCompleteDataProviderRequest<User> request)
+    private async Task<AutoCompleteDataProviderResult<UserDto>> UsersDataProvider(AutoCompleteDataProviderRequest<UserDto> request)
     {
         if (users is null)
             users = await GetUsers();
 
-        return await Task.FromResult(request.ApplyTo(users.OrderBy(u => u.Username)));
+        return await Task.FromResult(request.ApplyTo(users.OrderBy(u => u.UserName)));
     }
 
-    private async Task<IEnumerable<User>> GetUsers()
+    private async Task<IEnumerable<UserDto>> GetUsers()
     {
         return await authService.GetUsernames();
     }
 
-    private void OnAutoCompleteChanged(User u)
+    private void OnAutoCompleteChanged(UserDto u)
     {
-        eventModel.UserName = u?.Username!;
+        eventModel.UserName = u?.UserName!;
     }
 
     private async Task HandleValidSubmit()
@@ -153,22 +154,16 @@
 
         // build the event
         var evt = new ScheduleTask
-            {
-                UserName = eventModel.UserName!,
-                Start = eventModel.Date.ToDateTime(eventModel.Start),
-                End = eventModel.Date.ToDateTime(eventModel.End),
-                Description = eventModel.Description!
-            };
+        {
+            UserName = eventModel.UserName!,
+            Start = eventModel.Date.ToDateTime(eventModel.Start),
+            End = eventModel.Date.ToDateTime(eventModel.End),
+            Description = eventModel.Description!
+        };
 
-        var created = await scheduleService.CreateScheduleAsync(evt);
-        if (created != null)
+        if (await scheduleService.CreateScheduleAsync(evt))
         {
-            Console.WriteLine($"New schedule created with Id {created.Id}");
             await OnSaveCallback.InvokeAsync();
-        }
-        else
-        {
-            Console.Error.WriteLine("Failed to create schedule.");
         }
     }
 }
