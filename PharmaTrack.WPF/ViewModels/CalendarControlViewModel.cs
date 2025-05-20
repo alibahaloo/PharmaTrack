@@ -1,8 +1,7 @@
-﻿using PharmaTrack.Shared.DBModels;
+﻿using PharmaTrack.DTOs.Schedule;
 using PharmaTrack.WPF.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
@@ -161,7 +160,7 @@ namespace PharmaTrack.WPF.ViewModels
             ControlMode = ControlMode.List;
         }
 
-        public ObservableCollection<ScheduleTask> DailySchedules { get; } = new();
+        public ObservableCollection<ScheduleTaskDto> DailySchedules { get; } = new();
 
         public ICommand LoadDetailsCommand { get; }
         public ICommand LoadCalendarCommand { get; }
@@ -229,7 +228,7 @@ namespace PharmaTrack.WPF.ViewModels
                 // Simulate API delay
                 //await Task.Delay(500);
 
-                List<ScheduleTask>? scheduleTasks = DataMode switch
+                List<ScheduleTaskDto>? scheduleTasks = DataMode switch
                 {
                     DataMode.MySchedule => await _scheduleService.GetMyDailyScheduleTasksAsync(SelectedDate),
                     _ => await _scheduleService.GetDailyScheduleTasksAsync(SelectedDate),
@@ -252,7 +251,7 @@ namespace PharmaTrack.WPF.ViewModels
             ControlMode = ControlMode.Loading;
             //await Task.Delay(500); // Simulate API delay
 
-            List<ScheduleTask>? scheduleTasks = null;
+            List<ScheduleTaskDto>? scheduleTasks = null;
 
             switch (DataMode)
             {

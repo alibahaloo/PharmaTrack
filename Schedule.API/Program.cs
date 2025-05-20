@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Shared.Services;
 using Schedule.API.Data;
+using Schedule.API.Profiles;
 
 var options = new WebApplicationOptions
 {
@@ -68,6 +69,8 @@ builder.Configuration.AddConfiguration(sharedConfiguration);
 // Add JWT configuration using the shared extension
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
+
+builder.Services.AddAutoMapper(typeof(ScheduleMappingProfile).Assembly);
 
 var app = builder.Build();
 

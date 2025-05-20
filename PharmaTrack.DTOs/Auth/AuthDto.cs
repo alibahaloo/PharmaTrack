@@ -1,4 +1,4 @@
-﻿namespace PharmaTrack.Shared.DTOs
+﻿namespace PharmaTrack.DTOs.Auth
 {
     public class AuthDto
     {

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using PharmaTrack.Shared.DTOs;
+using PharmaTrack.DTOs.Auth;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;

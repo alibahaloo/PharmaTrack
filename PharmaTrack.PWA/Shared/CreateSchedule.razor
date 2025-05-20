@@ -1,5 +1,6 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using PharmaTrack.PWA.Helpers
+@using PharmaTrack.DTOs.Schedule
 @inject ScheduleService scheduleService
 @inject AuthService authService
 
@@ -151,7 +152,7 @@
             return;
 
         // build the event
-        var evt = new ScheduleEvent
+        var evt = new ScheduleTaskDto
             {
                 UserName = eventModel.UserName!,
                 Start = eventModel.Date.ToDateTime(eventModel.Start),

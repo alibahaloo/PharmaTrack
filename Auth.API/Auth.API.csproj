@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PharmaTrack.DTOs\PharmaTrack.DTOs.csproj" />
     <ProjectReference Include="..\PharmaTrack.Shared\PharmaTrack.Shared.csproj" />
   </ItemGroup>
 

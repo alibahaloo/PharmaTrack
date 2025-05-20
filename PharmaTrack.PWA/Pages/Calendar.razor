@@ -1,5 +1,6 @@
 ﻿@page "/calendar"
 @using PharmaTrack.PWA.Helpers
+@using PharmaTrack.DTOs.Schedule
 @inject ScheduleService ScheduleService
 @inject AuthService AuthService
 @inject IJSRuntime JSRuntime
@@ -233,8 +234,8 @@ else
     private DateTime CurrentDate = DateTime.Today;
     private bool IsMonthlyView = true;
     private bool IsAllView = true;
-    private List<ScheduleEvent> Events = new();
-    private List<ScheduleEvent> SelectedDateEvents = new();
+    private List<ScheduleTaskDto> Events = new();
+    private List<ScheduleTaskDto> SelectedDateEvents = new();
     private List<User> Users = new();
     private string SelectedUser = string.Empty;
 

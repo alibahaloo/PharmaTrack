@@ -1,5 +1,6 @@
 ﻿@page "/interactions"
 @using PharmaTrack.PWA.Helpers
+@using PharmaTrack.DTOs.Drug
 @inject DrugService DrugService
 
 <h3>Drug Lookup</h3>
@@ -24,7 +25,7 @@
 
 @code {
     private string searchTerm = string.Empty;
-    private List<DrugListResponse> drugList = new();
+    private List<DrugListDto> drugList = new();
     private bool hasLoadedInitial = false;
 
     /// <summary>
