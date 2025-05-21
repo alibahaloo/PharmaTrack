@@ -118,7 +118,7 @@ namespace Drug.API.Controllers
             return Ok(response);
         }
 
-        private async Task<ActionResult<DrugInfoDto>> GetDrugInfoDtoAsync(DrugProduct drugProduct)
+        private async Task<DrugInfoDto> GetDrugInfoDtoAsync(DrugProduct drugProduct)
         {
             DrugInfoDto drugInfo = new()
             {

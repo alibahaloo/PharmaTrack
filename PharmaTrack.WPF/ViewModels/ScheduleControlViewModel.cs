@@ -138,7 +138,7 @@ namespace PharmaTrack.WPF.ViewModels
             if (users != null) {
                 foreach (var user in users)
                 {
-                    Users.Add(user);
+                    Users.Add(user.UserName);
                 }
 
             }

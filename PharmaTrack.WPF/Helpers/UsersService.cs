@@ -19,7 +19,7 @@ namespace PharmaTrack.WPF.Helpers
             _usernamesUrl = configuration["UsersUrls:Usernames"]
                         ?? throw new ArgumentException("Usernames URL is not configured in the application settings.", nameof(configuration));
         }
-        public async Task<List<string>?> GetUsernamesAsync()
+        public async Task<List<UserDto>?> GetUsernamesAsync()
         {
             string? accessToken = TokenStorage.AccessToken;
             if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
@@ -33,7 +33,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into Product object)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<List<string>>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<List<UserDto>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });

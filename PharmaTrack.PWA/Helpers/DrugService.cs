@@ -34,7 +34,7 @@ namespace PharmaTrack.PWA.Helpers
             }
         }
 
-        public async Task<List<DrugProduct>> GetDrugsAsync(DrugQuery request, int curPage = 1)
+        public async Task<PagedResponse<DrugProduct>?> GetDrugsAsync(DrugQuery request, int curPage = 1)
         {
             // Convert TransactionsRequest to query parameters
             var queryParameters = new List<string>
@@ -59,14 +59,14 @@ namespace PharmaTrack.PWA.Helpers
 
             try
             {
-                var result = await _http.GetFromJsonAsync<List<DrugProduct>>(url, _jsonOptions);
-                return result ?? [];
+                var result = await _http.GetFromJsonAsync<PagedResponse<DrugProduct>>(url, _jsonOptions);
+                return result ?? null;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 // TODO: log error or handle accordingly
-                return [];
+                return null;
             }
         }
     }

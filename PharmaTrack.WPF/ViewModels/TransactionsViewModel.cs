@@ -170,7 +170,7 @@ namespace PharmaTrack.WPF.ViewModels
             {
                 foreach (var user in users)
                 {
-                    Users.Add(user);
+                    Users.Add(user.UserName);
                 }
             }
         }
