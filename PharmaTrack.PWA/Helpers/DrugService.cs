@@ -69,5 +69,24 @@ namespace PharmaTrack.PWA.Helpers
                 return null;
             }
         }
+
+        public async Task<DrugInteractionResultDto> GetDrugInteractionsAsync(List<int> drugCodes)
+        {
+            string drugCodesString = string.Join(",", drugCodes);
+
+            string url = $"/interactions/drugs/{drugCodesString}";
+
+            try
+            {
+                var result = await _http.GetFromJsonAsync<DrugInteractionResultDto>(url, _jsonOptions);
+                return result ?? new();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                // TODO: log error or handle accordingly
+                return new();
+            }
+        }
     }
 }

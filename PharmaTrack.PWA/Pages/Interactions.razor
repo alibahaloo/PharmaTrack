@@ -4,60 +4,161 @@
 @using PharmaTrack.Core.DBModels;
 @inject DrugService DrugService
 
-<div class="w-50">
-    <div class="row mb-1">
-        <div class="col-8">
-            <button class="btn-sm btn btn-secondary bi bi-caret-left @GetPrevBtnStatus()" @onclick="LoadPrevPageAsync"></button>
-            <button class="btn-sm btn btn-secondary bi bi-caret-right @GetNextBtnStatus()" @onclick="LoadNextPageAsync"></button>
-            <small>@GetShowingText()</small>
-        </div>
-        <div class="col-4 d-flex align-items-center justify-content-end gap-2">
-            <div class="input-group input-group-sm">
-                <input class="form-control" type="search" placeholder="Search" aria-label="Search" />
+<div class="row">
+    <div class="col-6">
+        <div class="row mb-1">
+            <div class="col-8">
+                <button class="btn-sm btn btn-secondary bi bi-caret-left @GetPrevBtnStatus()" @onclick="LoadPrevPageAsync"></button>
+                <button class="btn-sm btn btn-secondary bi bi-caret-right @GetNextBtnStatus()" @onclick="LoadNextPageAsync"></button>
+                <small>@GetShowingText()</small>
             </div>
+            <div class="col-4 d-flex align-items-center justify-content-end gap-2">
+                <div class="input-group input-group-sm">
+                    <input class="form-control" type="search" placeholder="Search" aria-label="Search" @bind="searchTerm"/>
+                </div>
 
-            <div class="btn-group btn-group-sm">
-                <button class="btn btn-sm btn-primary bi bi-search" type="button"></button>
-                <button class="btn btn-sm btn-warning bi bi-x"></button>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-sm btn-primary bi bi-search" type="button" @onclick="LoadDrugs"></button>
+                    <button class="btn btn-sm btn-warning bi bi-x" type="reset" @onclick="ResetSearch"></button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <table class="table table-sm table-hover">
-        <thead>
-            <tr>
-                <th scope="col" style="width: 20px">Select</th>
-                <th scope="col" style="width: 30px">Drug Code</th>
-                <th scope="col" class="w-50">Brand Name</th>
-                <th scope="col" style="width: 30px">DIN</th>
-                <th scope="col" class="w-25">Categorization / Class</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (drugsResponse != null)
-            {
-                @foreach (var drug in drugsResponse.Data)
+        <table class="table table-sm table-hover" style="width: 100%">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 50px;">Select</th>
+                    <th scope="col" class="w-50">Brand Name</th>
+                    <th scope="col" class="w-25">Codes</th>
+                    <th scope="col" class="auto">Categorization / Class</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < 10; i++)
                 {
-                    <tr class="small">
-                        <th scope="row" class="text-center">
-                            <button type="button" class="btn btn-primary"
-                                    style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
-                                Select
-                            </button>
-                        </th>
-                        <th scope="row">@drug.DrugCode</th>
-                        <td>@drug.BrandName</td>
-                        <td>@drug.DrugIdentificationNumber</td>
+                    <tr class="placeholder-glow @GetDrugsLoadingStatus()">
                         <td>
-                            <small>Categorization: @drug.ProductCategorization</small>
-                            <br />
-                            <small>Class: @drug.Class</small>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                        <td>
+                            <div class="placeholder col-12"></div>
                         </td>
                     </tr>
                 }
+
+                @if (drugsResponse != null)
+                {
+                    @foreach (var drug in drugsResponse.Data)
+                    {
+                        <tr class="small @GetDrugsDataStatus()">
+                            <th scope="row" class="text-center">
+                                <button type="button" class="btn btn-outline-primary btn-sm bi-plus" @onclick="async () => await SelectDrug(drug.DrugCode)">
+                                </button>
+                            </th>
+                            <td>@drug.BrandName</td>
+                            <td>
+                                <small>Drug Code: @drug.DrugCode</small>
+                                <br />
+                                <small>DIN: @drug.DrugIdentificationNumber</small>
+                            </td>
+                            <td>
+                                <small>Categorization: @drug.ProductCategorization</small>
+                                <br />
+                                <small>Class: @drug.Class</small>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-6">
+        <div class="d-flex align-items-center @GetInteractionsLoadingStatus()">
+          <strong role="status">Loading...</strong>
+          <div class="spinner-border ms-auto" aria-hidden="true"></div>
+        </div>
+
+        <div class="@GetInteractionsDataStatus()">        
+            @if (drugInteractionResult.Drugs.Count() == 0)
+            {
+                <div class="alert alert-info" role="alert">
+                    No Drugs Selected, please select one
+                </div>
+            } else
+            {
+                <div class="row mb-1">
+                    <div class="col-8">
+
+                        <small>@drugInteractionResult.Drugs.Count() item(s) selected</small>
+                    </div>
+                    <div class="col-4 d-flex align-items-center justify-content-end gap-2">
+                        <button class="btn btn-sm btn-danger bi bi-x" @onclick="RemovedAllSelectedDrugs">Remove all</button>
+                    </div>
+                </div>
+
+                <ul class="list-group">
+                    @foreach (var drug in drugInteractionResult.Drugs)
+                    {
+                        <li class="list-group-item bi bi-dash">
+                            @drug.DrugName
+
+                            @if (drug.Ingredients.Count() > 0)
+                            {
+                                <ul class="list-group mt-2 ms-3">
+                                    @foreach (var ingredient in drug.Ingredients)
+                                    {
+                                        <li class="list-group-item">@ingredient.Ingredient</li>
+                                    }
+                                </ul>
+                            }
+                        </li>
+                    }
+                </ul>
+
+                @if (drugInteractionResult.Interactions.Count() == 0)
+                {
+                    <div class="alert alert-success" role="alert">
+                        No Interactions Found
+                    </div>
+                } else
+                {
+                    <div class="alert alert-warning" role="alert">
+                        Interactions Found -- see below for details
+                    </div>
+
+                    <ul class="list-group">
+                        @foreach (var interaction in drugInteractionResult.Interactions)
+                        {
+                            string listClass;
+                            switch (interaction.Level)
+                            {
+                                case "Minor":
+                                    listClass = "list-group-item-info";
+                                    break;
+                                case "Moderate":
+                                    listClass = "list-group-item-warning";
+                                    break;
+                                case "Major":
+                                    listClass = "list-group-item-danger";
+                                    break;
+                                default:
+                                    listClass = "list-group-item-light";
+                                    break;
+                            }
+                            <li class="list-group-item @listClass">@interaction.IngredientA - @interaction.IngredientB : @interaction.Level </li>
+                        }
+                    </ul>
+                }
             }
-        </tbody>
-    </table>
+        </div>
+    </div>
 </div>
 
 
@@ -71,21 +172,57 @@
     private PagedResponse<DrugProduct>? drugsResponse;
     private List<DrugListDto> drugList = new();
     private bool hasLoadedInitial = false;
+    private List<int> selectedDrugCodes = [];
+    private DrugInteractionResultDto drugInteractionResult = new();
+
+    private bool isLoadingInteractions = false;
+    private bool isLoadingDrugs = false;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadDrugs();
     }
 
+    private async Task GetDrugInteractions()
+    {
+        isLoadingInteractions = true;
+        await Task.Delay(500);
+        drugInteractionResult = await DrugService.GetDrugInteractionsAsync(selectedDrugCodes);
+        isLoadingInteractions = false;
+    }
+
+    private async Task SelectDrug(int drugCode)
+    {
+        selectedDrugCodes.Add(drugCode);
+        await GetDrugInteractions();
+    }
+
+    private async Task ResetSearch()
+    {
+        curPage = 1;
+        searchTerm = string.Empty;
+        await LoadDrugs();
+    }
+
+    private void RemovedAllSelectedDrugs()
+    {
+        selectedDrugCodes.Clear();
+        drugInteractionResult = new();
+    }
+
     private async Task LoadDrugs()
     {
-        var query = new DrugQuery();
+        isLoadingDrugs = true;
+        await Task.Delay(500);
+        var query = new DrugQuery{ BrandName = searchTerm };
         drugsResponse = await DrugService.GetDrugsAsync(query, curPage);
         if (drugsResponse != null)
         {
             totalItemCount = drugsResponse.TotalItemCount;
             totalPageCount = drugsResponse.TotalPageCount;
         }
+
+        isLoadingDrugs = false;
     }
 
     private async Task LoadNextPageAsync()
@@ -109,6 +246,12 @@
 
     private string GetPrevBtnStatus() => curPage == 1 ? "disabled" : string.Empty;
     private string GetNextBtnStatus() => curPage == totalPageCount ? "disabled" : string.Empty;
+
+    private string GetDrugsLoadingStatus() => isLoadingDrugs ? "" : "d-none";
+    private string GetDrugsDataStatus() => isLoadingDrugs ? "d-none" : "";
+    
+    private string GetInteractionsLoadingStatus() => isLoadingInteractions ? "" : "d-none";
+    private string GetInteractionsDataStatus() => isLoadingInteractions ? "d-none" : "";
 
     /// <summary>
     /// Fired the first time the user focuses the input.
