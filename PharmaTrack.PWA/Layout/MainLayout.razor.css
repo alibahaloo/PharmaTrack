@@ -19,6 +19,8 @@ main {
     height: 3.5rem;
     display: flex;
     align-items: center;
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
 }
 
     .top-row ::deep a, .top-row ::deep .btn-link {
