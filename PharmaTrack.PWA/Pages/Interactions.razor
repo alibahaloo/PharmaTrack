@@ -80,10 +80,12 @@
     </div>
 
     <div class="col-6">
-        <div class="d-flex align-items-center @GetInteractionsLoadingStatus()">
-          <strong role="status">Loading...</strong>
-          <div class="spinner-border ms-auto" aria-hidden="true"></div>
+        <div class="d-flex justify-content-center @GetInteractionsLoadingStatus()">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
+
 
         <div class="@GetInteractionsDataStatus()">        
             @if (drugInteractionResult.Drugs.Count() == 0)
@@ -103,7 +105,7 @@
                     </div>
                 </div>
 
-                <ul class="list-group">
+                <ul class="list-group mb-3">
                     @foreach (var drug in drugInteractionResult.Drugs)
                     {
                         <li class="list-group-item bi bi-dash">
@@ -114,7 +116,10 @@
                                 <ul class="list-group mt-2 ms-3">
                                     @foreach (var ingredient in drug.Ingredients)
                                     {
-                                        <li class="list-group-item">@ingredient.Ingredient</li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            @ingredient.Ingredient
+                                            <span class="badge text-bg-primary rounded-pill">@drugInteractionResult.Interactions.Count(i => i.IngredientA?.ToLower() == @ingredient.Ingredient.ToLower() || i.IngredientB?.ToLower() == @ingredient.Ingredient.ToLower())</span>
+                                        </li>
                                     }
                                 </ul>
                             }
