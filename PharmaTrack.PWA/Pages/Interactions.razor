@@ -102,13 +102,14 @@
                     @foreach (var drug in drugInteractionResult.Drugs)
                     {
                         <li class="list-group-item">
-                            <i class="bi bi-x-square" role="button" @onclick="async () => await RemoveDrug(drug.DrugCode)"></i>
+                            <i class="bi bi-dash-square" role="button" @onclick="async () => await RemoveDrug(drug.DrugCode)"></i>
                             <span class="ms-1">
                                 @drug.DrugName
                              </span>
                             
                             @if (drug.Ingredients.Count() > 0)
                             {
+                                <small class="d-block">Active Ingredients:</small>
                                 <ul class="list-group mt-2 ms-3">
                                     @foreach (var ingredient in drug.Ingredients)
                                     {
@@ -184,6 +185,7 @@
                     
 
                     <ul class="list-group small">
+                        <li class="list-group-item fw-bold">Active Ingredients : Level </li>
                         @foreach (var interaction in FilteredInteractions)
                         {
                             string listClass;
