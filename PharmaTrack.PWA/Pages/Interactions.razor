@@ -53,8 +53,7 @@
                     {
                         <tr class="small @GetDrugsDataStatus()">
                             <th scope="row" class="text-center">
-                                <button type="button" class="btn btn-outline-primary btn-sm bi-plus" @onclick="async () => await SelectDrug(drug.DrugCode)">
-                                </button>
+                                <i role="button" class="bi bi-plus-square fs-5" @onclick="async () => await SelectDrug(drug.DrugCode)"></i>
                             </th>
                             <td>@drug.BrandName</td>
                             <td>
@@ -94,7 +93,7 @@
             {
                 <div class="row mb-1">
                     <div class="col-12">
-                        <button class="btn btn-sm btn-secondary bi bi-trash" @onclick="RemovedAllSelectedDrugs"></button>
+                        <button class="btn btn-sm btn-secondary bi bi-trash" @onclick="RemoveAllSelectedDrugs"></button>
                         <small>@drugInteractionResult.Drugs.Count() item(s) selected</small>
                     </div>
                 </div>
@@ -102,9 +101,12 @@
                 <ul class="list-group mb-3">
                     @foreach (var drug in drugInteractionResult.Drugs)
                     {
-                        <li class="list-group-item bi bi-dash">
-                            @drug.DrugName
-
+                        <li class="list-group-item">
+                            <i class="bi bi-x-square" role="button" @onclick="async () => await RemoveDrug(drug.DrugCode)"></i>
+                            <span class="ms-1">
+                                @drug.DrugName
+                             </span>
+                            
                             @if (drug.Ingredients.Count() > 0)
                             {
                                 <ul class="list-group mt-2 ms-3">
@@ -138,36 +140,44 @@
                     <div class="mb-2">
                       <label>Filter:</label>
 
-                      <div class="form-check form-check-inline text-info">
+                      <div class="form-check form-check-inline text-info align-content-center">
                         <input class="form-check-input"
                                type="checkbox"
                                id="minorCheckbox"
                                @bind="showMinor" />
-                        <label class="form-check-label" for="minorCheckbox">Minor</label>
+                        <label class="form-check-label" for="minorCheckbox">Minor
+                            <span class="badge text-bg-primary rounded-pill">@drugInteractionResult.Interactions.Count(i => i.Level == "Minor")</span>
+                        </label>
                       </div>
 
-                      <div class="form-check form-check-inline text-warning">
+                      <div class="form-check form-check-inline text-warning align-content-center">
                         <input class="form-check-input"
                                type="checkbox"
                                id="moderateCheckbox"
                                @bind="showModerate" />
-                        <label class="form-check-label" for="moderateCheckbox">Moderate</label>
+                        <label class="form-check-label" for="moderateCheckbox">Moderate
+                            <span class="badge text-bg-primary rounded-pill">@drugInteractionResult.Interactions.Count(i => i.Level == "Moderate")</span>
+                        </label>
                       </div>
 
-                      <div class="form-check form-check-inline text-danger">
+                      <div class="form-check form-check-inline text-danger align-content-center">
                         <input class="form-check-input"
                                type="checkbox"
                                id="majorCheckbox"
                                @bind="showMajor" />
-                        <label class="form-check-label" for="majorCheckbox">Major</label>
+                        <label class="form-check-label" for="majorCheckbox">Major
+                             <span class="badge text-bg-primary rounded-pill">@drugInteractionResult.Interactions.Count(i => i.Level == "Major")</span>
+                        </label>
                       </div>
 
-                      <div class="form-check form-check-inline text-light">
+                      <div class="form-check form-check-inline text-light align-content-center">
                         <input class="form-check-input"
                                type="checkbox"
                                id="unknownCheckbox"
                                @bind="showUnknown" />
-                        <label class="form-check-label" for="unknownCheckbox">Unknown</label>
+                        <label class="form-check-label" for="unknownCheckbox">Unknown
+                             <span class="badge text-bg-primary rounded-pill">@drugInteractionResult.Interactions.Count(i => i.Level == "Unknown")</span>
+                        </label>
                       </div>
                     </div>
 
@@ -301,7 +311,13 @@
         await GetDrugInteractions();
     }
 
-    private void RemovedAllSelectedDrugs()
+    private async Task  RemoveDrug(int drugCode)
+    {
+        selectedDrugCodes.Remove(drugCode);
+        await GetDrugInteractions();
+    }
+
+    private void RemoveAllSelectedDrugs()
     {
         selectedDrugCodes.Clear();
         drugInteractionResult = new();
@@ -353,30 +369,4 @@
     
     private string GetInteractionsLoadingStatus() => isLoadingInteractions ? "" : "d-none";
     private string GetInteractionsDataStatus() => isLoadingInteractions ? "d-none" : "";
-
-    /// <summary>
-    /// Fired the first time the user focuses the input.
-    /// Loads the “first page” (e.g. first 10) with no filter.
-    /// </summary>
-    private async Task LoadInitialOptions(FocusEventArgs args)
-    {
-        /*
-        if (!hasLoadedInitial)
-        {
-            drugList = await DrugService.GetDrugListAsync();
-            hasLoadedInitial = true;
-            StateHasChanged();
-        }*/
-    }
-
-    /// <summary>
-    /// Fired on every keystroke.
-    /// Uses the current input value as the 'startWith' filter.
-    /// </summary>
-    private async Task OnInputChanged(ChangeEventArgs e)
-    {
-        searchTerm = e.Value?.ToString() ?? "";
-        drugList = await DrugService.GetDrugListAsync(searchTerm);
-        StateHasChanged();
-    }
 }
