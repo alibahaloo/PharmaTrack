@@ -7,19 +7,14 @@
 <div class="row">
     <div class="col-6">
         <div class="row mb-1">
-            <div class="col-8">
+            <div class="col-4">
                 <button class="btn-sm btn btn-secondary bi bi-caret-left @GetPrevBtnStatus()" @onclick="LoadPrevPageAsync"></button>
                 <button class="btn-sm btn btn-secondary bi bi-caret-right @GetNextBtnStatus()" @onclick="LoadNextPageAsync"></button>
                 <small>@GetShowingText()</small>
             </div>
-            <div class="col-4 d-flex align-items-center justify-content-end gap-2">
+            <div class="col-8 d-flex align-items-center justify-content-end gap-2">
                 <div class="input-group input-group-sm">
-                    <input class="form-control" type="search" placeholder="Search" aria-label="Search" @bind="searchTerm"/>
-                </div>
-
-                <div class="btn-group btn-group-sm">
-                    <button class="btn btn-sm btn-primary bi bi-search" type="button" @onclick="LoadDrugs"></button>
-                    <button class="btn btn-sm btn-warning bi bi-x" type="reset" @onclick="ResetSearch"></button>
+                    <input class="form-control" type="search" placeholder="Search" aria-label="Search" @bind="SearchTerm" @bind:event="oninput"/>
                 </div>
             </div>
         </div>
@@ -90,18 +85,17 @@
         <div class="@GetInteractionsDataStatus()">        
             @if (drugInteractionResult.Drugs.Count() == 0)
             {
-                <div class="alert alert-info" role="alert">
-                    No Drugs Selected, please select one
+                <div class="alert alert-primary" role="alert">
+                    <span class="m-2 bi bi-info-circle">
+                        No items selected. Please select from the list on the left.
+                    </span>
                 </div>
             } else
             {
                 <div class="row mb-1">
-                    <div class="col-8">
-
+                    <div class="col-12">
+                        <button class="btn btn-sm btn-secondary bi bi-trash" @onclick="RemovedAllSelectedDrugs"></button>
                         <small>@drugInteractionResult.Drugs.Count() item(s) selected</small>
-                    </div>
-                    <div class="col-4 d-flex align-items-center justify-content-end gap-2">
-                        <button class="btn btn-sm btn-danger bi bi-x" @onclick="RemovedAllSelectedDrugs">Remove all</button>
                     </div>
                 </div>
 
@@ -130,16 +124,57 @@
                 @if (drugInteractionResult.Interactions.Count() == 0)
                 {
                     <div class="alert alert-success" role="alert">
-                        No Interactions Found
-                    </div>
+                    <span class="m-2 bi bi-check-square">
+                        No interactions found.
+                    </span>
+                </div>
                 } else
                 {
-                    <div class="alert alert-warning" role="alert">
-                        Interactions Found -- see below for details
+                    <div class="alert alert-danger bi bi-exclamation-triangle" role="alert">
+                        <span class="m-2">
+                            @drugInteractionResult.Interactions.Count() interaction(s) found -- see below for details.
+                        </span>
+                    </div>
+                    <div class="mb-2">
+                      <label>Filter:</label>
+
+                      <div class="form-check form-check-inline text-info">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="minorCheckbox"
+                               @bind="showMinor" />
+                        <label class="form-check-label" for="minorCheckbox">Minor</label>
+                      </div>
+
+                      <div class="form-check form-check-inline text-warning">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="moderateCheckbox"
+                               @bind="showModerate" />
+                        <label class="form-check-label" for="moderateCheckbox">Moderate</label>
+                      </div>
+
+                      <div class="form-check form-check-inline text-danger">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="majorCheckbox"
+                               @bind="showMajor" />
+                        <label class="form-check-label" for="majorCheckbox">Major</label>
+                      </div>
+
+                      <div class="form-check form-check-inline text-light">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="unknownCheckbox"
+                               @bind="showUnknown" />
+                        <label class="form-check-label" for="unknownCheckbox">Unknown</label>
+                      </div>
                     </div>
 
-                    <ul class="list-group">
-                        @foreach (var interaction in drugInteractionResult.Interactions)
+                    
+
+                    <ul class="list-group small">
+                        @foreach (var interaction in FilteredInteractions)
                         {
                             string listClass;
                             switch (interaction.Level)
@@ -171,6 +206,7 @@
 
 @code {
     private string searchTerm = string.Empty;
+    private CancellationTokenSource? _debounceCts;
     private int curPage = 1;
     private int totalPageCount = 1;
     private int totalItemCount = 1;
@@ -183,15 +219,78 @@
     private bool isLoadingInteractions = false;
     private bool isLoadingDrugs = false;
 
+    private bool showMinor    = true;
+    private bool showModerate = true;
+    private bool showMajor    = true;
+    private bool showUnknown  = true;
+
+    // Computed property: only the interactions the user wants to see
+    private IEnumerable<InteractionIngredientDto> FilteredInteractions =>
+        drugInteractionResult.Interactions
+            .Where(i =>
+                (showMinor    && i.Level == "Minor")    ||
+                (showModerate && i.Level == "Moderate") ||
+                (showMajor    && i.Level == "Major")    ||
+                (showUnknown  && i.Level == "Unknown")
+            );
+
     protected override async Task OnInitializedAsync()
     {
         await LoadDrugs();
     }
 
+    public string SearchTerm
+    {
+        get => searchTerm;
+        set
+        {
+            if (searchTerm == value) return;
+            searchTerm = value;
+
+            // cancel any pending invocation
+            _debounceCts?.Cancel();
+            _debounceCts = new CancellationTokenSource();
+            var token = _debounceCts.Token;
+
+            // Kick off a delayed LoadDrugs; if 'SearchTerm' changes again within 300 ms, this run is cancelled.
+            _ = InvokeAsync(async () =>
+            {
+                try
+                {
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested) return;
+
+                    isLoadingDrugs = true;
+                    StateHasChanged();           // show spinner
+
+                    var query = new DrugQuery { BrandName = searchTerm };
+                    drugsResponse = await DrugService.GetDrugsAsync(query, curPage);
+
+                    if (drugsResponse is not null)
+                    {
+                        totalItemCount = drugsResponse.TotalItemCount;
+                        totalPageCount = drugsResponse.TotalPageCount;
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    // ignore; a new keystroke arrived
+                }
+                finally
+                {
+                    if (!token.IsCancellationRequested)
+                    {
+                        isLoadingDrugs = false;
+                        StateHasChanged();         // render results
+                    }
+                }
+            });
+        }
+    }
+
     private async Task GetDrugInteractions()
     {
         isLoadingInteractions = true;
-        await Task.Delay(500);
         drugInteractionResult = await DrugService.GetDrugInteractionsAsync(selectedDrugCodes);
         isLoadingInteractions = false;
     }
@@ -202,23 +301,20 @@
         await GetDrugInteractions();
     }
 
-    private async Task ResetSearch()
-    {
-        curPage = 1;
-        searchTerm = string.Empty;
-        await LoadDrugs();
-    }
-
     private void RemovedAllSelectedDrugs()
     {
         selectedDrugCodes.Clear();
         drugInteractionResult = new();
+
+        showMajor = true;
+        showMinor = true;
+        showModerate = true;
+        showUnknown = true;
     }
 
     private async Task LoadDrugs()
     {
         isLoadingDrugs = true;
-        await Task.Delay(500);
         var query = new DrugQuery{ BrandName = searchTerm };
         drugsResponse = await DrugService.GetDrugsAsync(query, curPage);
         if (drugsResponse != null)
