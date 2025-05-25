@@ -1,0 +1,16 @@
+﻿@page "/InteractionsByActiveIngredient"
+@using PharmaTrack.PWA.Helpers
+@using PharmaTrack.Core.DTOs;
+@using PharmaTrack.Core.DBModels;
+@inject DrugService DrugService
+
+
+@code {
+    private string searchTerm = string.Empty;
+    private CancellationTokenSource? _debounceCts;
+    private int curPage = 1;
+    private int totalPageCount = 1;
+    private int totalItemCount = 1;
+    private PagedResponse<DrugIngredient>? response;
+    
+}

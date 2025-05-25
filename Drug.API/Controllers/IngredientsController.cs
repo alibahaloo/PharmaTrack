@@ -59,7 +59,7 @@ namespace Drug.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetIngredients([FromQuery] DrugIngredientRequest request, int curPage = 1)
+        public async Task<IActionResult> GetIngredients([FromQuery] DrugIngredientQuery request, int curPage = 1)
         {
             IQueryable<DrugIngredient> query = _context.DrugIngredients;
 

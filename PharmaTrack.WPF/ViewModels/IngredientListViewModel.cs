@@ -120,7 +120,7 @@ namespace PharmaTrack.WPF.ViewModels
             try
             {
                 // Create a request with filters from ViewModel properties
-                var request = new DrugIngredientRequest
+                var request = new DrugIngredientQuery
                 {
                     DrugCode = DrugCode,
                     ActiveIngredientCode = ActiveIngredientCode,

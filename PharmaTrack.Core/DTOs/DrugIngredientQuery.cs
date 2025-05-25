@@ -1,6 +1,6 @@
 ﻿namespace PharmaTrack.Core.DTOs
 {
-    public class DrugIngredientRequest
+    public class DrugIngredientQuery
     {
         public int? DrugCode { get; set; }
         public int? ActiveIngredientCode { get; set; }

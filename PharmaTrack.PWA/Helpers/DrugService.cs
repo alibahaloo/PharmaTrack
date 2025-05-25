@@ -33,7 +33,41 @@ namespace PharmaTrack.PWA.Helpers
                 return [];
             }
         }
+        public async Task<PagedResponse<DrugIngredient>?> GetIngredientsAsync(DrugIngredientQuery request, int curPage = 1)
+        {
+            // Convert TransactionsRequest to query parameters
+            var queryParameters = new List<string>
+                {
+                    $"curPage={curPage}"
+                };
+            if (request.DrugCode != null)
+            {
+                queryParameters.Add($"DrugCode={Uri.EscapeDataString(request.DrugCode.Value.ToString())}");
+            }
+            if (request.ActiveIngredientCode != null)
+            {
+                queryParameters.Add($"ActiveIngredientCode={Uri.EscapeDataString(request.ActiveIngredientCode.Value.ToString())}");
+            }
+            if (!string.IsNullOrEmpty(request.Ingredient))
+            {
+                queryParameters.Add($"Ingredient={Uri.EscapeDataString(request.Ingredient)}");
+            }
 
+            string queryString = string.Join("&", queryParameters);
+            string url = $"/Ingredients?{queryString}";
+
+            try
+            {
+                var result = await _http.GetFromJsonAsync<PagedResponse<DrugIngredient>>(url, _jsonOptions);
+                return result ?? null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                // TODO: log error or handle accordingly
+                return null;
+            }
+        }
         public async Task<PagedResponse<DrugProduct>?> GetDrugsAsync(DrugQuery request, int curPage = 1)
         {
             // Convert TransactionsRequest to query parameters

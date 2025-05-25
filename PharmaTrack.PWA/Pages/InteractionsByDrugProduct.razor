@@ -1,4 +1,4 @@
-﻿@page "/interactions"
+﻿@page "/InteractionsByDrugProduct"
 @using PharmaTrack.PWA.Helpers
 @using PharmaTrack.Core.DTOs;
 @using PharmaTrack.Core.DBModels;
@@ -223,8 +223,6 @@
     private int totalPageCount = 1;
     private int totalItemCount = 1;
     private PagedResponse<DrugProduct>? drugsResponse;
-    private List<DrugListDto> drugList = new();
-    private bool hasLoadedInitial = false;
     private List<int> selectedDrugCodes = [];
     private DrugInteractionResultDto drugInteractionResult = new();
 

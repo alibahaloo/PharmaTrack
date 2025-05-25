@@ -330,7 +330,7 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
-        public async Task<PagedResponse<DrugIngredient>?> GetIngredientsAsync(DrugIngredientRequest request, int curPage = 1)
+        public async Task<PagedResponse<DrugIngredient>?> GetIngredientsAsync(DrugIngredientQuery request, int curPage = 1)
         {
             string? accessToken = TokenStorage.AccessToken ?? throw new UnauthorizedAccessException("Access token is null or expired.");
 
