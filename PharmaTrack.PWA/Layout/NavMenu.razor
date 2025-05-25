@@ -33,14 +33,15 @@
 
         <!-- Interactions with Nested Items -->
         <div class="nav-item px-3">
-            <a class="nav-link">
-                <span class="bi bi-heart-pulse-nav-menu" aria-hidden="true"></span> Interactions
-            </a>
+            <div class="d-flex align-items-center">
+                <span class="bi bi-heart-pulse-nav-menu me-2" aria-hidden="true"></span>
+                <span>Interactions</span>
+            </div>
             <div class="collapse ps-3">
                 <NavLink class="nav-link" href="InteractionsByDrugProduct">
                     <span class="bi bi-capsule-pill-nav-menu" aria-hidden="true"></span> By Drug Product
                 </NavLink>
-                <NavLink class="nav-link" href="interactions/ingredients">
+                <NavLink class="nav-link" href="InteractionsByActiveIngredient">
                     <span class="bi bi-flask-nav-menu" aria-hidden="true"></span> By Active Ingredient
                 </NavLink>
             </div>

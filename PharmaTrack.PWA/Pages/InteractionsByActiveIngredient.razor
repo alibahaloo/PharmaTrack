@@ -4,7 +4,201 @@
 @using PharmaTrack.Core.DBModels;
 @inject DrugService DrugService
 
+<div class="row">
+    <div class="col-6">
+        <div class="row mb-1">
+            <div class="col-4">
+                <button class="btn-sm btn btn-secondary bi bi-caret-left @GetPrevBtnStatus()" @onclick="LoadPrevPageAsync"></button>
+                <button class="btn-sm btn btn-secondary bi bi-caret-right @GetNextBtnStatus()" @onclick="LoadNextPageAsync"></button>
+                <small>@GetShowingText()</small>
+            </div>
+            <div class="col-8 d-flex align-items-center justify-content-end gap-2">
+                <div class="input-group input-group-sm">
+                    <input class="form-control" type="search" placeholder="Search" aria-label="Search" @bind="SearchTerm" @bind:event="oninput" />
+                </div>
+            </div>
+        </div>
 
+        <table class="table table-sm table-hover" style="width: 100%">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 50px;">Select</th>
+                    <th scope="col" class="w-50">Brand Name</th>
+                    <th scope="col" class="w-25">Codes</th>
+                    <th scope="col" class="auto">Categorization / Class</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < 10; i++)
+                {
+                    <tr class="placeholder-glow @GetIngredientsLoadingStatus()">
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                    </tr>
+                }
+
+                @if (response != null)
+                {
+                    @foreach (var ingredient in response.Data)
+                    {
+                        <tr class="small @GetIngredientsDataStatus()">
+                            <th scope="row" class="text-center">
+                                <i role="button" class="bi bi-plus-square fs-5" @onclick="async () => await SelectItem(ingredient.Ingredient)"></i>
+                            </th>
+                            <td>@ingredient.Ingredient</td>
+                            <td>
+                                <small>Drug Code: @ingredient.DrugCode</small>
+                                <br />
+                                <small>DIN: @ingredient.ActiveIngredientCode</small>
+                            </td>
+                            <td>
+                                <small>Categorization: @ingredient.Base</small>
+                                <br />
+                                <small>Class: @ingredient.Base</small>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+    </div>
+
+    <div class="col-6">
+        <div class="d-flex justify-content-center @GetInteractionsLoadingStatus()">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+
+        <div class="@GetInteractionsDataStatus()">
+            @if (selectedIngredients.Count() == 0)
+            {
+                <div class="alert alert-primary" role="alert">
+                    <span class="m-2 bi bi-info-circle">
+                        No items selected. Please select from the list on the left.
+                    </span>
+                </div>
+            } else
+            {
+                <div class="row mb-1">
+                    <div class="col-12">
+                        <button class="btn btn-sm btn-secondary bi bi-trash" @onclick="RemoveAllSelectedItems"></button>
+                        <small>@selectedIngredients.Count() item(s) selected</small>
+                    </div>
+                </div>
+
+                <ul class="list-group mb-3">
+                    @foreach (var ingredient in selectedIngredients)
+                    {
+                        <li class="list-group-item d-flex align-items-center">
+                            <i class="bi bi-dash-square" role="button" @onclick="async () => await RemoveItem(ingredient)"></i>
+                            <span class="ms-1">@ingredient</span>
+                            <span class="badge text-bg-primary rounded-pill ms-auto">
+                                @interactionResult.Interactions.Count(i => i.IngredientA?.ToLower() == ingredient.ToLower() || i.IngredientB?.ToLower() == ingredient.ToLower())
+                            </span>
+                        </li>
+                    }
+                </ul>
+
+
+                @if (interactionResult.Interactions.Count() == 0)
+                {
+                    <div class="alert alert-success" role="alert">
+                        <span class="m-2 bi bi-check-square">
+                            No interactions found.
+                        </span>
+                    </div>
+                } else
+                {
+                    <div class="alert alert-danger bi bi-exclamation-triangle" role="alert">
+                        <span class="m-2">
+                            @interactionResult.Interactions.Count() interaction(s) found -- see below for details.
+                        </span>
+                    </div>
+
+                    <div class="mb-2">
+                      <label>Filter:</label>
+
+                      <div class="form-check form-check-inline text-info align-content-center">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="minorCheckbox"
+                               @bind="showMinor" />
+                        <label class="form-check-label" for="minorCheckbox">Minor
+                            <span class="badge text-bg-primary rounded-pill">@interactionResult.Interactions.Count(i => i.Level == "Minor")</span>
+                        </label>
+                      </div>
+
+                      <div class="form-check form-check-inline text-warning align-content-center">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="moderateCheckbox"
+                               @bind="showModerate" />
+                        <label class="form-check-label" for="moderateCheckbox">Moderate
+                            <span class="badge text-bg-primary rounded-pill">@interactionResult.Interactions.Count(i => i.Level == "Moderate")</span>
+                        </label>
+                      </div>
+
+                      <div class="form-check form-check-inline text-danger align-content-center">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="majorCheckbox"
+                               @bind="showMajor" />
+                        <label class="form-check-label" for="majorCheckbox">Major
+                             <span class="badge text-bg-primary rounded-pill">@interactionResult.Interactions.Count(i => i.Level == "Major")</span>
+                        </label>
+                      </div>
+
+                      <div class="form-check form-check-inline text-light align-content-center">
+                        <input class="form-check-input"
+                               type="checkbox"
+                               id="unknownCheckbox"
+                               @bind="showUnknown" />
+                        <label class="form-check-label" for="unknownCheckbox">Unknown
+                             <span class="badge text-bg-primary rounded-pill">@interactionResult.Interactions.Count(i => i.Level == "Unknown")</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <ul class="list-group small">
+                        <li class="list-group-item fw-bold">Active Ingredients : Level </li>
+                        @foreach (var interaction in FilteredInteractions)
+                        {
+                            string listClass;
+                            switch (interaction.Level)
+                            {
+                                case "Minor":
+                                    listClass = "list-group-item-info";
+                                    break;
+                                case "Moderate":
+                                    listClass = "list-group-item-warning";
+                                    break;
+                                case "Major":
+                                    listClass = "list-group-item-danger";
+                                    break;
+                                default:
+                                    listClass = "list-group-item-light";
+                                    break;
+                            }
+                            <li class="list-group-item @listClass">@interaction.IngredientA - @interaction.IngredientB : @interaction.Level </li>
+                        }
+                    </ul>
+                }
+            }
+        </div>
+    </div>
+</div>
 @code {
     private string searchTerm = string.Empty;
     private CancellationTokenSource? _debounceCts;
@@ -12,5 +206,154 @@
     private int totalPageCount = 1;
     private int totalItemCount = 1;
     private PagedResponse<DrugIngredient>? response;
-    
+    private List<string> selectedIngredients = [];
+    private IngredientInteractionResultDto interactionResult = new();
+
+    private bool isLoadingInteractions = false;
+    private bool isLoadingIngredients = false;
+
+    private bool showMinor = true;
+    private bool showModerate = true;
+    private bool showMajor = true;
+    private bool showUnknown = true;
+
+    // Computed property: only the interactions the user wants to see
+    private IEnumerable<InteractionIngredientDto> FilteredInteractions =>
+        interactionResult.Interactions
+            .Where(i =>
+                (showMinor && i.Level == "Minor") ||
+                (showModerate && i.Level == "Moderate") ||
+                (showMajor && i.Level == "Major") ||
+                (showUnknown && i.Level == "Unknown")
+            );
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDrugs();
+    }
+
+    public string SearchTerm
+    {
+        get => searchTerm;
+        set
+        {
+            if (searchTerm == value) return;
+            searchTerm = value;
+
+            // cancel any pending invocation
+            _debounceCts?.Cancel();
+            _debounceCts = new CancellationTokenSource();
+            var token = _debounceCts.Token;
+
+            // Kick off a delayed LoadDrugs; if 'SearchTerm' changes again within 300 ms, this run is cancelled.
+            _ = InvokeAsync(async () =>
+            {
+                try
+                {
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested) return;
+
+                    isLoadingIngredients = true;
+                    StateHasChanged();           // show spinner
+
+                    var query = new DrugIngredientQuery { Ingredient = searchTerm };
+                    response = await DrugService.GetIngredientsAsync(query, curPage);
+
+                    if (response is not null)
+                    {
+                        totalItemCount = response.TotalItemCount;
+                        totalPageCount = response.TotalPageCount;
+                    }
+                }
+                catch (TaskCanceledException)
+                {
+                    // ignore; a new keystroke arrived
+                }
+                finally
+                {
+                    if (!token.IsCancellationRequested)
+                    {
+                        isLoadingIngredients = false;
+                        StateHasChanged();         // render results
+                    }
+                }
+            });
+        }
+    }
+
+    private async Task GetInteractions()
+    {
+        isLoadingInteractions = true;
+        interactionResult = await DrugService.GetIngredientInteractionResultAsync(selectedIngredients);
+        isLoadingInteractions = false;
+    }
+
+    private async Task SelectItem(string ingredient)
+    {
+        if (!selectedIngredients.Contains(ingredient, StringComparer.OrdinalIgnoreCase))
+        {
+            selectedIngredients.Add(ingredient);
+            await GetInteractions();
+        }
+    }
+
+
+    private async Task RemoveItem(string ingredient)
+    {
+        selectedIngredients.Remove(ingredient);
+        await GetInteractions();
+    }
+
+    private void RemoveAllSelectedItems()
+    {
+        selectedIngredients.Clear();
+        interactionResult = new();
+
+        showMajor = true;
+        showMinor = true;
+        showModerate = true;
+        showUnknown = true;
+    }
+
+    private async Task LoadDrugs()
+    {
+        isLoadingIngredients = true;
+        var query = new DrugIngredientQuery { Ingredient = searchTerm };
+        response = await DrugService.GetIngredientsAsync(query, curPage);
+        if (response != null)
+        {
+            totalItemCount = response.TotalItemCount;
+            totalPageCount = response.TotalPageCount;
+        }
+
+        isLoadingIngredients = false;
+    }
+
+    private async Task LoadNextPageAsync()
+    {
+        curPage++;
+        await LoadDrugs();
+    }
+
+    private async Task LoadPrevPageAsync()
+    {
+        curPage--;
+        await LoadDrugs();
+    }
+
+    private string GetShowingText()
+    {
+        int start = (curPage - 1) * 10 + 1;
+        int end = Math.Min(curPage * 10, totalItemCount);
+        return $"Showing {start}–{end} of {totalItemCount}";
+    }
+
+    private string GetPrevBtnStatus() => curPage == 1 ? "disabled" : string.Empty;
+    private string GetNextBtnStatus() => curPage == totalPageCount ? "disabled" : string.Empty;
+
+    private string GetIngredientsLoadingStatus() => isLoadingIngredients ? "" : "d-none";
+    private string GetIngredientsDataStatus() => isLoadingIngredients ? "d-none" : "";
+
+    private string GetInteractionsLoadingStatus() => isLoadingInteractions ? "" : "d-none";
+    private string GetInteractionsDataStatus() => isLoadingInteractions ? "d-none" : "";
 }

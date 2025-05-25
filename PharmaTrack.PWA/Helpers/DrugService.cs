@@ -68,6 +68,26 @@ namespace PharmaTrack.PWA.Helpers
                 return null;
             }
         }
+
+        public async Task<IngredientInteractionResultDto> GetIngredientInteractionResultAsync(List<string> ingredients)
+        {
+            string ingredientsString = string.Join(",", ingredients);
+
+            string url = $"/interactions/ingredients/{ingredientsString}";
+
+            try
+            {
+                var result = await _http.GetFromJsonAsync<IngredientInteractionResultDto>(url, _jsonOptions);
+                return result ?? new();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                // TODO: log error or handle accordingly
+                return new();
+            }
+        }
+
         public async Task<PagedResponse<DrugProduct>?> GetDrugsAsync(DrugQuery request, int curPage = 1)
         {
             // Convert TransactionsRequest to query parameters
