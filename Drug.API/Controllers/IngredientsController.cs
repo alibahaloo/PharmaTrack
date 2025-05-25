@@ -69,7 +69,9 @@ namespace Drug.API.Controllers
                     t => (string.IsNullOrEmpty(request.Ingredient) || (t.Ingredient != null && t.Ingredient.ToLower().Contains(request.Ingredient.ToLower()))) &&
                     (request.DrugCode == null || t.DrugCode == request.DrugCode) &&
                     (request.ActiveIngredientCode == null || t.ActiveIngredientCode == request.ActiveIngredientCode)
-                );
+                )
+                    .GroupBy(t => t.Ingredient)
+                    .Select(g => g.First());
             }
             var result = await EFExtensions.GetPaged(query, curPage);
             var response = new PagedResponse<DrugIngredient>

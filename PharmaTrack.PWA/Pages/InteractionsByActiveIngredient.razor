@@ -22,19 +22,15 @@
         <table class="table table-sm table-hover" style="width: 100%">
             <thead>
                 <tr>
-                    <th scope="col" style="width: 50px;">Select</th>
-                    <th scope="col" class="w-50">Brand Name</th>
-                    <th scope="col" class="w-25">Codes</th>
-                    <th scope="col" class="auto">Categorization / Class</th>
+                    <th scope="col" style="width: 50px;"></th>
+                    <th scope="col" class="w-75">Active Ingredient</th>
+                    <th scope="col">Code</th>
                 </tr>
             </thead>
             <tbody>
                 @for (int i = 0; i < 10; i++)
                 {
                     <tr class="placeholder-glow @GetIngredientsLoadingStatus()">
-                        <td>
-                            <div class="placeholder col-12"></div>
-                        </td>
                         <td>
                             <div class="placeholder col-12"></div>
                         </td>
@@ -57,14 +53,7 @@
                             </th>
                             <td>@ingredient.Ingredient</td>
                             <td>
-                                <small>Drug Code: @ingredient.DrugCode</small>
-                                <br />
-                                <small>DIN: @ingredient.ActiveIngredientCode</small>
-                            </td>
-                            <td>
-                                <small>Categorization: @ingredient.Base</small>
-                                <br />
-                                <small>Class: @ingredient.Base</small>
+                                <small>@ingredient.ActiveIngredientCode</small>
                             </td>
                         </tr>
                     }

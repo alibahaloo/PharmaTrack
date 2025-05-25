@@ -102,7 +102,9 @@ namespace Drug.API.Controllers
                     (string.IsNullOrEmpty(request.DIN) || t.DrugIdentificationNumber == request.DIN) &&
                     (string.IsNullOrEmpty(request.BrandName) || ((t.BrandName ?? string.Empty).ToLower().Contains(request.BrandName.ToLower()))) &&
                     (request.DrugCode == null || t.DrugCode == request.DrugCode)
-                );
+                )
+                    .GroupBy(t => t.BrandName)
+                    .Select(g => g.First());
             }
             var result = await EFExtensions.GetPaged(query, curPage);
 
