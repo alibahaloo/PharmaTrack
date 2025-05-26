@@ -124,6 +124,23 @@ namespace PharmaTrack.PWA.Helpers
             }
         }
 
+        public async Task<DrugInfoDto?> GetDrugInfoByDrugCodeAsync(int drugCode)
+        {
+            string url = $"/Drugs/{drugCode}";
+
+            try
+            {
+                var result = await _http.GetFromJsonAsync<DrugInfoDto>(url, _jsonOptions);
+                return result ?? null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                // TODO: log error or handle accordingly
+                return null;
+            }
+        }
+
         public async Task<DrugInteractionResultDto> GetDrugInteractionsAsync(List<int> drugCodes)
         {
             string drugCodesString = string.Join(",", drugCodes);

@@ -44,7 +44,7 @@
     max-width: 14.2857%; /* 100 / 7 */
     }
 </style>
-<Modal @ref="createScheduleModal" />
+<Modal @ref="createScheduleModal" UseStaticBackdrop=true/>
 <Modal @ref="modal" Title=@SelectedDate.ToLongDateString() Size="ModalSize.Large">
     <BodyTemplate>
         @{

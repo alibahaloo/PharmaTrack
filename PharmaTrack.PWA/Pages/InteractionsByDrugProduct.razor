@@ -4,6 +4,8 @@
 @using PharmaTrack.Core.DBModels;
 @inject DrugService DrugService
 
+<Modal @ref="drugInfoModal" UseStaticBackdrop=false CloseOnEscape=true Size="ModalSize.Large" IsScrollable=true/>
+
 <div class="row">
     <div class="col-6">
         <div class="row mb-1">
@@ -55,7 +57,12 @@
                             <th scope="row" class="text-center">
                                 <i role="button" class="bi bi-plus-square fs-5" @onclick="async () => await SelectDrug(drug.DrugCode)"></i>
                             </th>
-                            <td>@drug.BrandName</td>
+                            <td>
+                                <span>
+                                    @drug.BrandName
+                                </span>
+                                <span class="fst-italic text-info text-decoration-underline" role="button" @onclick="async () => await OnShowDrugInfoModal(drug.DrugCode)">See details</span>
+                            </td>
                             <td>
                                 <small>Drug Code: @drug.DrugCode</small>
                                 <br />
@@ -233,6 +240,17 @@
     private bool showModerate = true;
     private bool showMajor    = true;
     private bool showUnknown  = true;
+
+    private Modal drugInfoModal = default!;
+
+    private async Task OnShowDrugInfoModal(int drugCode)
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { nameof(DrugInfoModal.DrugCode), drugCode }
+        };
+        await drugInfoModal.ShowAsync<DrugInfoModal>(title: "Drug Info", parameters: parameters);
+    }
 
     // Computed property: only the interactions the user wants to see
     private IEnumerable<InteractionIngredientDto> FilteredInteractions =>
