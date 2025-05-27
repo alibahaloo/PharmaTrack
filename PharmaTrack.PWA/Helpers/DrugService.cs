@@ -124,6 +124,25 @@ namespace PharmaTrack.PWA.Helpers
             }
         }
 
+        public async Task<IngredientInfoDto?> GetIngredientInfoAsync(int ingredientCode)
+        {
+            string url = $"/Ingredients/{ingredientCode}";
+            try
+            {
+                var response = await _http.GetAsync(url);
+                response.EnsureSuccessStatusCode(); // Throws if not 2xx
+
+                var result = await _http.GetFromJsonAsync<IngredientInfoDto>(url, _jsonOptions);
+                return result ?? null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                // TODO: log error or handle accordingly
+                return null;
+            }
+        }
+
         public async Task<DrugInfoDto?> GetDrugInfoByDrugCodeAsync(int drugCode)
         {
             string url = $"/Drugs/{drugCode}";

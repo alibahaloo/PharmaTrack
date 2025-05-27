@@ -1,0 +1,102 @@
+﻿@using PharmaTrack.PWA.Helpers
+@using PharmaTrack.Core.DTOs;
+@inject DrugService DrugService
+
+
+@if (ingredientInfo == null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+} else
+{
+    <div class="row small">
+        <div class="col-sm-4 fw-bold">Active Ingredient Code:</div>
+        <div class="col-sm-8">@ingredientInfo.ActiveIngredientCode</div>
+
+        <div class="col-sm-4 fw-bold">Active Ingredient:</div>
+        <div class="col-sm-8">@ingredientInfo.Ingredient</div>
+    </div>
+
+    <hr />
+    <p class="lead small">Displaying all drug products containing this ingredient:</p>
+
+    <table class="table table-sm table-hover small table-bordered" style="width: 100%">
+        <thead class="table-light">
+            <tr>
+                <th scope="col">Drug Product</th>
+                <th scope="col">Ingredients</th>
+                <th scope="col">Companies</th>
+                <th scope="col">Forms</th>
+                <th scope="col">Routes</th>
+                <th scope="col">Schedules</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var drugInfo in ingredientInfo.DrugInfos)
+            {
+                <tr>
+                    <td>
+                        <span class="d-block">@drugInfo.Product?.BrandName (@drugInfo.Product?.DrugIdentificationNumber)</span>
+                    </td>
+                    <td>
+                        @foreach (var ingredient in drugInfo.Ingredients)
+                        {
+                            <span class="d-block">
+                                @ingredient.Ingredient (@ingredient.Strength @ingredient.StrengthUnit)
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        @foreach (var company in drugInfo.Companies)
+                        {
+                            <span class="d-block">
+                                @company.CompanyName
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        @foreach (var form in drugInfo.Forms)
+                        {
+                            <span class="d-block">
+                                @form.PharmaceuticalForm 
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        @foreach (var route in drugInfo.Routes)
+                        {
+                            <span class="d-block">
+                                @route.RouteOfAdministration 
+                            </span>
+                        }
+                    </td>
+                    <td>
+                        @foreach (var schedule in drugInfo.Schedules)
+                        {
+                            <span class="d-block">
+                                @schedule.Schedule
+                            </span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int ActiveIngredientCode { get; set; }
+
+    private IngredientInfoDto? ingredientInfo;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        // clear out old data so spinner shows
+        ingredientInfo = null;
+        ingredientInfo = await DrugService.GetIngredientInfoAsync(ActiveIngredientCode);
+    }
+}

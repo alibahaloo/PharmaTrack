@@ -4,6 +4,8 @@
 @using PharmaTrack.Core.DBModels;
 @inject DrugService DrugService
 
+<Modal @ref="ingredientInfoModal" UseStaticBackdrop=false CloseOnEscape=true Size="ModalSize.ExtraLarge" IsScrollable=true/>
+
 <div class="row">
     <div class="col-6">
         <div class="row mb-1">
@@ -51,7 +53,10 @@
                             <th scope="row" class="text-center">
                                 <i role="button" class="bi bi-plus-square fs-5" @onclick="async () => await SelectItem(ingredient.Ingredient)"></i>
                             </th>
-                            <td>@ingredient.Ingredient</td>
+                            <td>
+                                <span>@ingredient.Ingredient</span>
+                                <span class="fst-italic text-info text-decoration-underline" role="button" @onclick="async () => await OnShowIngredientInfoModal(ingredient.ActiveIngredientCode)">See details</span>
+                            </td>
                             <td>
                                 <small>@ingredient.ActiveIngredientCode</small>
                             </td>
@@ -206,6 +211,17 @@
     private bool showMajor = true;
     private bool showUnknown = true;
 
+    private Modal ingredientInfoModal = default!;
+
+    private async Task OnShowIngredientInfoModal(int activeIngredientCode)
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { nameof(IngredientInfoModal.ActiveIngredientCode), activeIngredientCode }
+        };
+        await ingredientInfoModal.ShowAsync<IngredientInfoModal>(title: "Ingredient Details", parameters: parameters);
+    }
+
     // Computed property: only the interactions the user wants to see
     private IEnumerable<InteractionIngredientDto> FilteredInteractions =>
         interactionResult.Interactions
@@ -218,7 +234,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadDrugs();
+        await LoadIngredients();
     }
 
     public string SearchTerm
@@ -242,17 +258,7 @@
                     await Task.Delay(300, token);
                     if (token.IsCancellationRequested) return;
 
-                    isLoadingIngredients = true;
-                    StateHasChanged();           // show spinner
-
-                    var query = new DrugIngredientQuery { Ingredient = searchTerm };
-                    response = await DrugService.GetIngredientsAsync(query, curPage);
-
-                    if (response is not null)
-                    {
-                        totalItemCount = response.TotalItemCount;
-                        totalPageCount = response.TotalPageCount;
-                    }
+                    await LoadIngredients();
                 }
                 catch (TaskCanceledException)
                 {
@@ -304,9 +310,10 @@
         showUnknown = true;
     }
 
-    private async Task LoadDrugs()
+    private async Task LoadIngredients()
     {
         isLoadingIngredients = true;
+        StateHasChanged(); 
         var query = new DrugIngredientQuery { Ingredient = searchTerm };
         response = await DrugService.GetIngredientsAsync(query, curPage);
         if (response != null)
@@ -316,18 +323,19 @@
         }
 
         isLoadingIngredients = false;
+        StateHasChanged(); 
     }
 
     private async Task LoadNextPageAsync()
     {
         curPage++;
-        await LoadDrugs();
+        await LoadIngredients();
     }
 
     private async Task LoadPrevPageAsync()
     {
         curPage--;
-        await LoadDrugs();
+        await LoadIngredients();
     }
 
     private string GetShowingText()

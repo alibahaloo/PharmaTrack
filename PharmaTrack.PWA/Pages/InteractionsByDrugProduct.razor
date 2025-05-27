@@ -4,7 +4,7 @@
 @using PharmaTrack.Core.DBModels;
 @inject DrugService DrugService
 
-<Modal @ref="drugInfoModal" UseStaticBackdrop=false CloseOnEscape=true Size="ModalSize.Large" IsScrollable=true/>
+<Modal @ref="drugInfoModal" UseStaticBackdrop=false CloseOnEscape=true Size="ModalSize.ExtraLarge" IsScrollable=true/>
 
 <div class="row">
     <div class="col-6">
@@ -249,7 +249,7 @@
         {
             { nameof(DrugInfoModal.DrugCode), drugCode }
         };
-        await drugInfoModal.ShowAsync<DrugInfoModal>(title: "Drug Info", parameters: parameters);
+        await drugInfoModal.ShowAsync<DrugInfoModal>(title: "Drug Details", parameters: parameters);
     }
 
     // Computed property: only the interactions the user wants to see
@@ -288,17 +288,7 @@
                     await Task.Delay(300, token);
                     if (token.IsCancellationRequested) return;
 
-                    isLoadingDrugs = true;
-                    StateHasChanged();           // show spinner
-
-                    var query = new DrugQuery { BrandName = searchTerm };
-                    drugsResponse = await DrugService.GetDrugsAsync(query, curPage);
-
-                    if (drugsResponse is not null)
-                    {
-                        totalItemCount = drugsResponse.TotalItemCount;
-                        totalPageCount = drugsResponse.TotalPageCount;
-                    }
+                    await LoadDrugs();
                 }
                 catch (TaskCanceledException)
                 {
@@ -349,6 +339,7 @@
     private async Task LoadDrugs()
     {
         isLoadingDrugs = true;
+        StateHasChanged();
         var query = new DrugQuery{ BrandName = searchTerm };
         drugsResponse = await DrugService.GetDrugsAsync(query, curPage);
         if (drugsResponse != null)
@@ -358,6 +349,7 @@
         }
 
         isLoadingDrugs = false;
+        StateHasChanged();
     }
 
     private async Task LoadNextPageAsync()

@@ -1,7 +1,8 @@
 ﻿using Drug.API.Data;
-using PharmaTrack.Core.DBModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using PharmaTrack.Core.DBModels;
 using PharmaTrack.Core.DTOs;
 using PharmaTrack.Shared.Services;
 
@@ -9,6 +10,7 @@ namespace Drug.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class IngredientsController : ControllerBase
     {
         private readonly DrugDBContext _context;
@@ -49,13 +51,14 @@ namespace Drug.API.Controllers
         }
 
         [HttpGet("{ingredientCode}")]
-        public async Task<IActionResult> GetIngredientByIngredientCode(int ingredientCode)
+        public async Task<ActionResult<IngredientInfoDto>> GetIngredientByIngredientCode(int ingredientCode)
         {
-            var drugIngredients = await _context.DrugIngredients.Where(di => di.ActiveIngredientCode == ingredientCode).ToListAsync();
+            var ingredientInfo = await ingredientCode.ToDtoAsync(_context);
 
-            if (drugIngredients == null) return NotFound();
+            if (ingredientInfo == null)
+                return NotFound();
 
-            return Ok(drugIngredients);
+            return Ok(ingredientInfo);
         }
 
         [HttpGet]

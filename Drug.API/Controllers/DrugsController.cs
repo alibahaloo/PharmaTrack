@@ -66,7 +66,8 @@ namespace Drug.API.Controllers
 
             if (drugProduct == null) return NotFound();
 
-            return Ok(await GetDrugInfoDtoAsync(drugProduct));
+            var dto = await drugProduct.ToDtoAsync(_context);
+            return Ok(dto);
         }
 
         [HttpGet("DIN/{DIN}")]
@@ -76,7 +77,8 @@ namespace Drug.API.Controllers
 
             if (drugProduct == null) return NotFound();
 
-            return Ok(await GetDrugInfoDtoAsync(drugProduct));
+            var dto = await drugProduct.ToDtoAsync(_context);
+            return Ok(dto);
         }
 
         [HttpGet("{drugCode}/ingredients")]
@@ -118,26 +120,6 @@ namespace Drug.API.Controllers
             };
 
             return Ok(response);
-        }
-
-        private async Task<DrugInfoDto> GetDrugInfoDtoAsync(DrugProduct drugProduct)
-        {
-            DrugInfoDto drugInfo = new()
-            {
-                Product = drugProduct,
-                Ingredients = await _context.DrugIngredients.Where(d => d.DrugCode == drugProduct.DrugCode).ToListAsync(),
-                Companies = await _context.DrugCompanies.Where(d => d.DrugCode == drugProduct.DrugCode).ToListAsync(),
-                Statuses = await _context.DrugStatuses.Where(d => d.DrugCode == drugProduct.DrugCode).ToListAsync(),
-                Forms = await _context.DrugForms.Where(d => d.DrugCode == drugProduct.DrugCode).ToListAsync(),
-                Packagings = await _context.DrugPackagings.Where(d => d.DrugCode == drugProduct.DrugCode).ToListAsync(),
-                PharmaceuticalStds = await _context.DrugPharmaceuticalStds.Where(d => d.DrugCode == drugProduct.DrugCode).ToListAsync(),
-                Routes = await _context.DrugRoutes.Where(d => d.DrugCode == drugProduct.DrugCode).ToListAsync(),
-                Schedules = await _context.DrugSchedules.Where(d => d.DrugCode == drugProduct.DrugCode).ToListAsync(),
-                TherapeuticClasses = await _context.DrugTherapeuticClasses.Where(d => d.DrugCode == drugProduct.DrugCode).ToListAsync(),
-                VeterinarySpecies = await _context.DrugVeterinarySpecies.Where(d => d.DrugCode == drugProduct.DrugCode).ToListAsync(),
-            };
-
-            return drugInfo;
         }
     }
 }
