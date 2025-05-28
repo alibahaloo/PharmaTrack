@@ -12,6 +12,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 var authUrl = builder.Configuration["ApiUrls:Auth"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Auth' (under ApiUrls in appsettings.json).");
 var scheduleUrl = builder.Configuration["ApiUrls:Schedule"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Schedule' (under ApiUrls in appsettings.json).");
 var drugUrl = builder.Configuration["ApiUrls:Drug"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Drug' (under ApiUrls in appsettings.json).");
+var inventoryUrl = builder.Configuration["ApiUrls:Inventory"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Inventory' (under ApiUrls in appsettings.json).");
 
 builder.Services.AddBlazorBootstrap();
 
@@ -39,9 +40,9 @@ builder.Services
     client.BaseAddress = new Uri(drugUrl))
   .AddHttpMessageHandler<JwtRefreshHandler>();
 
-// 4) (repeat for each back-end)
-// builder.Services
-//   .AddHttpClient<DrugService>(c => c.BaseAddress = new Uri(builder.Configuration["ApiUrls:Drug"]))
-//   .AddHttpMessageHandler<JwtAuthorizationHandler>();
+builder.Services
+  .AddHttpClient<InventoryService>(client =>
+    client.BaseAddress = new Uri(inventoryUrl))
+  .AddHttpMessageHandler<JwtRefreshHandler>();
 
 await builder.Build().RunAsync();

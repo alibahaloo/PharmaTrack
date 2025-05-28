@@ -4,7 +4,7 @@ namespace PharmaTrack.Core.DTOs
 {
     public class StockTransferRequest
     {
-        [Required]
+        [Required(ErrorMessage = "Stock Transfer Type is required.")]
         public TransactionType Type { get; set; }
 
         [Required, MaxLength(50)]

@@ -19,7 +19,7 @@ namespace PharmaTrack.PWA.Helpers
 
         public async Task<List<DrugListDto>> GetDrugListAsync(string startWith = "")
         {
-            string url = $"/Drugs/list?startWith={startWith}";
+            string url = $"drugs/list?startWith={startWith}";
 
             try
             {
@@ -54,7 +54,7 @@ namespace PharmaTrack.PWA.Helpers
             }
 
             string queryString = string.Join("&", queryParameters);
-            string url = $"/Ingredients?{queryString}";
+            string url = $"ingredients?{queryString}";
 
             try
             {
@@ -73,7 +73,7 @@ namespace PharmaTrack.PWA.Helpers
         {
             string ingredientsString = string.Join(",", ingredients);
 
-            string url = $"/interactions/ingredients/{ingredientsString}";
+            string url = $"interactions/ingredients/{ingredientsString}";
 
             try
             {
@@ -109,7 +109,7 @@ namespace PharmaTrack.PWA.Helpers
             }
 
             string queryString = string.Join("&", queryParameters);
-            string url = $"/Drugs?{queryString}";
+            string url = $"drugs?{queryString}";
 
             try
             {
@@ -126,7 +126,7 @@ namespace PharmaTrack.PWA.Helpers
 
         public async Task<IngredientInfoDto?> GetIngredientInfoAsync(int ingredientCode)
         {
-            string url = $"/Ingredients/{ingredientCode}";
+            string url = $"ingredients/{ingredientCode}";
             try
             {
                 var response = await _http.GetAsync(url);
@@ -145,7 +145,7 @@ namespace PharmaTrack.PWA.Helpers
 
         public async Task<DrugInfoDto?> GetDrugInfoByDrugCodeAsync(int drugCode)
         {
-            string url = $"/Drugs/{drugCode}";
+            string url = $"drugs/{drugCode}";
 
             try
             {
@@ -164,7 +164,7 @@ namespace PharmaTrack.PWA.Helpers
         {
             string drugCodesString = string.Join(",", drugCodes);
 
-            string url = $"/interactions/drugs/{drugCodesString}";
+            string url = $"interactions/drugs/{drugCodesString}";
 
             try
             {

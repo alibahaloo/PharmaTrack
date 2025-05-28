@@ -1,0 +1,207 @@
+﻿@using PharmaTrack.PWA.Helpers
+@using PharmaTrack.Core.DBModels;
+@using PharmaTrack.Core.DTOs;
+@inject InventoryService InventoryService;
+<h5>Stock Transfer</h5>
+
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+<EditForm EditContext="editContext" OnValidSubmit="HandleValidSubmit">
+    <div class="row">
+        <div class="col-4">
+            <div class="input-group mb-3">
+                <span role="button" @onclick="async () => await ShowToastForScanning()" title="Click to scan barcode" class="bg-success input-group-text bi bi-upc-scan"></span>
+                <input id="upc"
+                       @ref="upcInput"
+                       @bind="eventModel.UPC"
+                       @onkeydown="HandleUpcKeyDown"
+                       placeholder="UPC"
+                       class="form-control" />
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="input-group mb-3">
+                <span class="input-group-text bi bi-code"></span>
+                <InputText id="npn"
+                           @bind-Value="eventModel.NPN"
+                           placeholder="NPN"
+                           class="form-control" />
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="input-group mb-3">
+                <span class="input-group-text bi bi-code"></span>
+                <InputText id="DIN"
+                           @bind-Value="eventModel.DIN"
+                           placeholder="DIN"
+                           class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="input-group mb-3">
+                <span class="input-group-text">Product Name</span>
+                <InputText id="din"
+                           @bind-Value="eventModel.Name"
+                           class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="input-group mb-3">
+                <span class="input-group-text">Product Brand</span>
+                <InputText id="Brand"
+                           @bind-Value="eventModel.Brand"
+                           class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-3">
+            <div class="input-group mb-3">
+                <span class="input-group-text bi bi-arrow-left-right"></span>
+                <InputSelect id="type"
+                             @bind-Value="eventModel.Type"
+                             class="form-select">
+                    @foreach (var t in Enum.GetValues<TransactionType>())
+                    {
+                        <option value="@t">@t</option>
+                    }
+                </InputSelect>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="input-group mb-3">
+                <span class="input-group-text bi-hash"></span>
+                <InputNumber id="quantity"
+                             min="1"
+                             max="100"
+                             @bind-Value="eventModel.Quantity"
+                             class="form-control" />
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="form-check form-check-reverse">
+                <input class="form-check-input"
+                       type="checkbox"
+                       id="keepDataCheck"
+                       @bind="keepAfterSave" />
+                <label class="form-check-label small" for="keepDataCheck">
+                    Keep from data after saving
+                </label>
+            </div>
+        </div>
+        <div class="col-3 text-end">
+            @if (isSaving)
+            {
+                <button class="btn btn-primary" type="button" disabled>
+                    <span class="spinner-grow spinner-grow-sm" aria-hidden="true"></span>
+                    <span role="status">Saving ...</span>
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-primary bi bi-floppy ms-1">Save</button>
+            }
+
+            <button type="button"
+                    class="btn btn-secondary ms-1 bi bi-x-lg"
+                    @onclick="ResetForm">
+                Reset
+            </button>
+        </div>
+
+    </div>
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+</EditForm>
+@code {
+    private ElementReference upcInput;
+    private bool isSaving = false;
+    private bool keepAfterSave = true;
+    private EditContext editContext = default!;
+    private StockTransferRequest eventModel = new() { Quantity = 1, Type = TransactionType.In };
+    protected override void OnInitialized()
+    {
+        // create an EditContext you can use to trigger validation
+        editContext = new EditContext(eventModel);
+    }
+
+    // this method is called on every key-down in the <input>
+    private async Task HandleUpcKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            //await SubmitUpcAsync();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // this will re-run all validations, including IValidatableObject
+        if (!editContext.Validate())
+            return;
+
+        try
+        {
+            isSaving = true;
+            StateHasChanged();
+            await InventoryService.StockTransferAsync(eventModel);
+            ShowToastForSuccessSave();
+        }
+        catch (HttpRequestException ex)
+        {
+            ShowToastForError(ex.Message);
+        } finally
+        {
+            isSaving = false;
+            StateHasChanged();
+            if (!keepAfterSave)
+            {
+                ResetForm();
+            }
+        }
+    }
+
+    private void ResetForm()
+    {
+        eventModel = new() { Quantity = 1, Type = TransactionType.In };
+        editContext = new EditContext(eventModel);
+    }
+
+    List<ToastMessage> messages = new List<ToastMessage>();
+
+    private async Task ShowToastForScanning() {
+        messages.Add(ToastForScanning());
+        await upcInput.FocusAsync();
+    }
+    private void ShowToastForSuccessSave() => messages.Add(ToastForSuccessSave());
+    private void ShowToastForError(string message) => messages.Add(ToastForError(message));
+
+    private ToastMessage ToastForError(string message)
+    => new ToastMessage
+    {
+        Type = ToastType.Danger,
+        Message = $"{message}. DateTime: {DateTime.Now}",
+    };
+
+    private ToastMessage ToastForSuccessSave()
+    => new ToastMessage
+    {
+        Type = ToastType.Success,
+        Message = $"Stock transfer saved successfully. DateTime: {DateTime.Now}",
+    };
+
+    private ToastMessage ToastForScanning()
+    => new ToastMessage
+        {
+        Type = ToastType.Info,
+            Message = $"Ready to scan barcode.",
+        };
+
+}
