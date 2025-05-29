@@ -169,18 +169,18 @@
             ShowToastForSuccessSave();
 
             await OnSaved.InvokeAsync();
+            if (!keepAfterSave)
+            {
+                await ResetForm();
+            }
         }
-        catch (HttpRequestException ex)
+        catch (Exception ex)
         {
             ShowToastForError(ex.Message);
         } finally
         {
             isSaving = false;
             StateHasChanged();
-            if (!keepAfterSave)
-            {
-                await ResetForm();
-            }
         }
     }
 

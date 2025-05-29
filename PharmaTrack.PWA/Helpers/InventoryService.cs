@@ -8,13 +8,15 @@ namespace PharmaTrack.PWA.Helpers
     public class InventoryService
     {
         private readonly HttpClient _http;
+        private readonly DrugService _drugService;
         private readonly JsonSerializerOptions _jsonOptions = new()
         {
             PropertyNameCaseInsensitive = true
         };
-        public InventoryService(HttpClient http)
+        public InventoryService(HttpClient http, DrugService drugService)
         {
             _http = http;
+            _drugService = drugService;
         }
 
         public async Task<Product?> GetProductByUPCAsync(string UPC)
@@ -54,6 +56,11 @@ namespace PharmaTrack.PWA.Helpers
 
         public async Task StockTransferAsync(StockTransferRequest request)
         {
+            //Check if DIN is valid, if there's one
+            if (!string.IsNullOrEmpty(request.DIN)) {
+                _ = await _drugService.GetDrugInfoByDINAsync(request.DIN) ?? throw new InvalidOperationException("Invalid DIN. No drug found with the given DIN");
+            }
+
             string url = "inventory/stock-transfer";
 
             var response = await _http.PostAsJsonAsync(url, request, _jsonOptions);

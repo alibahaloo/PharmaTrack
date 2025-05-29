@@ -1,7 +1,8 @@
-﻿using System.Net.Http.Json;
-using System.Text.Json;
+﻿using PharmaTrack.Core.DBModels;
 using PharmaTrack.Core.DTOs;
-using PharmaTrack.Core.DBModels;
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace PharmaTrack.PWA.Helpers
 {
@@ -148,6 +149,8 @@ namespace PharmaTrack.PWA.Helpers
             string url = $"drugs/{drugCode}";
 
             var response = await _http.GetAsync(url);
+            if (response.StatusCode == HttpStatusCode.NotFound) return null;
+
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<DrugInfoDto>(_jsonOptions);
         }
@@ -157,6 +160,8 @@ namespace PharmaTrack.PWA.Helpers
             string url = $"drugs/DIN/{DIN}";
 
             var response = await _http.GetAsync(url);
+            if (response.StatusCode == HttpStatusCode.NotFound) return null;
+
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<DrugInfoDto>(_jsonOptions);
         }
