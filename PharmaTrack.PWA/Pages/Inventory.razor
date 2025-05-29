@@ -243,14 +243,7 @@
     {
         isLoadingProducts = true;
         StateHasChanged();
-        var query = new InventoryRequest {
-            Name = searchTerm,
-            Brand = searchTerm,
-            DIN = searchTerm,
-            NPN = searchTerm,
-            UPC = searchTerm
-        };
-        response = await InventoryService.GetProductsAsync(query, curPage);
+        response = await InventoryService.GetProductsAsync(searchTerm, curPage);
         if (response != null)
         {
             totalItemCount = response.TotalItemCount;

@@ -191,17 +191,7 @@ namespace PharmaTrack.WPF.ViewModels
             IsLoading = true;
             try
             {
-                // Create a InventoryRequest with filters from ViewModel properties
-                var request = new InventoryRequest
-                {
-                    UPC = UPC,
-                    Name = ProductName,
-                    Brand = Brand,
-                    DIN = DIN,
-                    NPN = NPN
-                };
-
-                var response = await _inventoryService.GetProductsAsync(request, CurrentPage);
+                var response = await _inventoryService.GetProductsAsync(UPC, CurrentPage);
                 if (response != null)
                 {
                     Products.Clear();

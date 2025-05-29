@@ -20,20 +20,24 @@ namespace Inventory.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProducts([FromQuery] InventoryRequest request, int curPage = 1)
+        public async Task<IActionResult> GetProducts([FromQuery] string? searchPhrase, int curPage = 1)
         {
             IQueryable<Product> query = _context.Products;
 
-            if (request != null)
+            if (!string.IsNullOrWhiteSpace(searchPhrase))
             {
-                query = query.Where(t =>
-                    (string.IsNullOrEmpty(request.UPC) || t.UPC == request.UPC) ||
-                    (string.IsNullOrEmpty(request.Name) || t.Name.ToLower().Contains(request.Name.ToLower())) ||
-                    (string.IsNullOrEmpty(request.NPN) || t.UPC == request.NPN) ||
-                    (string.IsNullOrEmpty(request.DIN) || t.UPC == request.DIN) ||
-                    (string.IsNullOrEmpty(request.Brand) || (t.Brand != null && t.Brand.ToLower().Contains(request.Brand.ToLower())))
+                var lower = searchPhrase!.Trim().ToLowerInvariant();
+                query = query.Where(p =>
+                    p.UPC.ToLower() == lower ||
+                    (p.NPN != null && p.NPN.ToLower() == lower) ||
+                    (p.DIN != null && p.DIN.ToLower() == lower) ||
+                    p.Name.ToLower().Contains(lower) ||
+                    (p.Brand != null && p.Brand.ToLower().Contains(lower))
                 );
             }
+
+            // always order before paging
+            query = query.OrderBy(p => p.Id);
 
             var result = await EFExtensions.GetPaged(query, curPage);
 

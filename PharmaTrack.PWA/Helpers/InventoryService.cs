@@ -67,7 +67,7 @@ namespace PharmaTrack.PWA.Helpers
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task<PagedResponse<Product>?> GetProductsAsync(InventoryRequest request, int curPage = 1)
+        public async Task<PagedResponse<Product>?> GetProductsAsync(string? searchPhrase, int curPage = 1)
         {
             // Convert TransactionsRequest to query parameters
             var queryParameters = new List<string>
@@ -75,25 +75,9 @@ namespace PharmaTrack.PWA.Helpers
                 $"curPage={curPage}"
             };
 
-            if (!string.IsNullOrEmpty(request.UPC))
+            if (!string.IsNullOrEmpty(searchPhrase))
             {
-                queryParameters.Add($"upc={Uri.EscapeDataString(request.UPC)}");
-            }
-            if (!string.IsNullOrEmpty(request.Name))
-            {
-                queryParameters.Add($"name={Uri.EscapeDataString(request.Name)}");
-            }
-            if (!string.IsNullOrEmpty(request.Brand))
-            {
-                queryParameters.Add($"brand={Uri.EscapeDataString(request.Brand)}");
-            }
-            if (!string.IsNullOrEmpty(request.DIN))
-            {
-                queryParameters.Add($"din={Uri.EscapeDataString(request.DIN)}");
-            }
-            if (!string.IsNullOrEmpty(request.NPN))
-            {
-                queryParameters.Add($"npn={Uri.EscapeDataString(request.NPN)}");
+                queryParameters.Add($"searchPhrase={Uri.EscapeDataString(searchPhrase)}");
             }
 
             string queryString = string.Join("&", queryParameters);
