@@ -13,8 +13,10 @@
                 <span role="button" @onclick="async () => await ShowToastForScanning()" title="Click to scan barcode" class="bg-success input-group-text bi bi-upc-scan"></span>
                 <input id="upc"
                        @ref="upcInput"
-                       @bind="eventModel.UPC"
+                       @bind-value="eventModel.UPC"
+                       @bind-value:event="oninput"
                        @onkeydown="HandleUpcKeyDown"
+                       @onkeydown:preventDefault="preventDefaultOnEnter"
                        placeholder="UPC"
                        class="form-control" />
                 <button class="btn btn-info bi bi-search" type="button" @onclick="async () => await OnUPCSearch.InvokeAsync(eventModel.UPC)"></button>
@@ -39,7 +41,6 @@
             </div>
         </div>
     </div>
-
     <div class="row">
         <div class="col">
             <div class="input-group mb-3">
@@ -100,20 +101,20 @@
         <div class="col-3 text-end">
             @if (isSaving)
             {
-                <button class="btn btn-primary" type="button" disabled>
+                <button class="btn btn-sm btn-primary bi bi-floppy mx-1" disabled>
                     <span class="spinner-grow spinner-grow-sm" aria-hidden="true"></span>
                     <span role="status">Saving ...</span>
                 </button>
             }
             else
             {
-                <button type="submit" class="btn btn-primary bi bi-floppy ms-1">Save</button>
+                <button type="submit" class="btn btn-sm btn-primary bi bi-floppy mx-1">
+                    <span class="ms-1">Save</span>
+                </button>
             }
 
-            <button type="button"
-                    class="btn btn-secondary ms-1 bi bi-x-lg"
-                    @onclick="ResetForm">
-                Reset
+            <button class="btn btn-sm btn-warning bi bi-x-lg mx-1" @onclick="ResetForm">
+                <span class="ms-1">Reset</span>
             </button>
         </div>
 
@@ -123,25 +124,34 @@
 </EditForm>
 @code {
     [Parameter] public EventCallback OnSaved { get; set; }
+    [Parameter] public EventCallback OnReset { get; set; }
     [Parameter] public EventCallback<string> OnUPCSearch { get; set; }
 
     private ElementReference upcInput;
     private bool isSaving = false;
     private bool keepAfterSave = true;
     private EditContext editContext = default!;
-    private StockTransferRequest eventModel = new() { Quantity = 1, Type = TransactionType.In };
+    public StockTransferRequest eventModel = new() { Quantity = 1, Type = TransactionType.In };
     protected override void OnInitialized()
     {
         // create an EditContext you can use to trigger validation
         editContext = new EditContext(eventModel);
     }
-
+    private bool preventDefaultOnEnter;
     // this method is called on every key-down in the <input>
     private async Task HandleUpcKeyDown(KeyboardEventArgs e)
     {
         if (e.Key == "Enter")
         {
-            //await SubmitUpcAsync();
+            // tell Blazor to suppress the Enter
+            preventDefaultOnEnter = true;
+            // run your lookup
+            await OnUPCSearch.InvokeAsync(eventModel.UPC);
+        }
+        else
+        {
+            // allow all other keys
+            preventDefaultOnEnter = false;
         }
     }
 
@@ -169,15 +179,16 @@
             StateHasChanged();
             if (!keepAfterSave)
             {
-                ResetForm();
+                await ResetForm();
             }
         }
     }
 
-    private void ResetForm()
+    private async Task ResetForm()
     {
         eventModel = new() { Quantity = 1, Type = TransactionType.In };
         editContext = new EditContext(eventModel);
+        await OnReset.InvokeAsync();
     }
 
     List<ToastMessage> messages = new List<ToastMessage>();
@@ -205,9 +216,9 @@
 
     private ToastMessage ToastForScanning()
     => new ToastMessage
-        {
-        Type = ToastType.Info,
-            Message = $"Ready to scan barcode.",
-        };
+    {
+    Type = ToastType.Info,
+        Message = $"Ready to scan barcode.",
+    };
 
 }

@@ -4,6 +4,8 @@
 @using PharmaTrack.Core.DBModels;
 @inject InventoryService InventoryService;
 @inject DrugService DrugService;
+
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 <div class="row">
     <div class="col-6">
         <div class="row mb-1">
@@ -94,7 +96,11 @@
         </table>
     </div>
     <div class="col-6">
-        <StockTransferComponent OnSaved="async () => await LoadProducts()" OnUPCSearch="HandleUPCSearch" />
+        <StockTransferComponent 
+            @ref="stockTransferComponent"
+            OnSaved="async () => await LoadProducts()"
+            OnReset="HandleReset"
+            OnUPCSearch="HandleUPCSearch" />
         <hr />
         @if (isLoadingProductDetails)
         {
@@ -125,6 +131,9 @@
 
     private bool isLoadingProducts = false;
     private bool isLoadingProductDetails = false;
+
+    private StockTransferComponent stockTransferComponent = default!;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -170,6 +179,18 @@
         }
     }
 
+    private void SetProductDetailsOnStockTransfer()
+    {
+        if (Product != null)
+        {
+            stockTransferComponent.eventModel.UPC = Product.UPC;
+            stockTransferComponent.eventModel.NPN = Product.NPN;
+            stockTransferComponent.eventModel.DIN = Product.DIN;
+            stockTransferComponent.eventModel.Name = Product.Name;
+            stockTransferComponent.eventModel.Brand = Product.Brand;
+        }
+    }
+
     private async Task LoadProductDetails(int id)
     {
         try
@@ -179,17 +200,19 @@
 
             Product = await InventoryService.GetProductByIdAsync(id);
 
+            SetProductDetailsOnStockTransfer();
+
             if (!string.IsNullOrEmpty(Product?.DIN))
             {
                 drugInfo = await DrugService.GetDrugInfoByDINAsync(Product.DIN);
             } else
             {
-                drugInfo = null;
+                HandleReset();
             }
         }
         catch (Exception ex)
         {
-
+            messages.Add(ToastForError(ex.Message));
         }
         finally
         {
@@ -208,7 +231,7 @@
         }
         catch (Exception ex)
         {
-
+            messages.Add(ToastForError(ex.Message));
         } finally
         {
             isLoadingProductDetails = false;
@@ -266,10 +289,50 @@
     private async Task HandleUPCSearch(string UPC)
     {
         SearchTerm = UPC;
-        Product = await InventoryService.GetProductByUPCAsync(UPC);
-        if (Product != null && !string.IsNullOrEmpty(Product.DIN))
+
+        try
         {
-            drugInfo = await DrugService.GetDrugInfoByDINAsync(Product.DIN);
+            Product = await InventoryService.GetProductByUPCAsync(UPC);
+            messages.Add(ToastForSuccessUPC());
+            if (Product != null && !string.IsNullOrEmpty(Product.DIN))
+            {
+                drugInfo = await DrugService.GetDrugInfoByDINAsync(Product.DIN);   
+            }            
+        }
+        catch (Exception)
+        {
+            messages.Add(ToastForFailUPC());
         }
     }
+
+    private void HandleReset()
+    {
+        SearchTerm = string.Empty;
+        Product = null;
+        drugInfo = null;
+        StateHasChanged();
+    }
+
+    List<ToastMessage> messages = new List<ToastMessage>();
+
+    private ToastMessage ToastForSuccessUPC()
+    => new ToastMessage
+    {
+        Type = ToastType.Info,
+        Message = $"Product found with the given UPC.",
+    };
+
+    private ToastMessage ToastForFailUPC()
+    => new ToastMessage
+    {
+        Type = ToastType.Warning,
+        Message = $"No product found with the given UPC.",
+    };
+
+    private ToastMessage ToastForError(string message)
+    => new ToastMessage
+    {
+        Type = ToastType.Danger,
+        Message = $"An Error Occurred: {message}",
+    };
 }
