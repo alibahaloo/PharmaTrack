@@ -147,17 +147,18 @@ namespace PharmaTrack.PWA.Helpers
         {
             string url = $"drugs/{drugCode}";
 
-            try
-            {
-                var result = await _http.GetFromJsonAsync<DrugInfoDto>(url, _jsonOptions);
-                return result ?? null;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                // TODO: log error or handle accordingly
-                return null;
-            }
+            var response = await _http.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<DrugInfoDto>(_jsonOptions);
+        }
+
+        public async Task<DrugInfoDto?> GetDrugInfoByDINAsync(string DIN)
+        {
+            string url = $"drugs/DIN/{DIN}";
+
+            var response = await _http.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<DrugInfoDto>(_jsonOptions);
         }
 
         public async Task<DrugInteractionResultDto> GetDrugInteractionsAsync(List<int> drugCodes)

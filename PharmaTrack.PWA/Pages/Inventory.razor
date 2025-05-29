@@ -3,7 +3,7 @@
 @using PharmaTrack.Core.DTOs;
 @using PharmaTrack.Core.DBModels;
 @inject InventoryService InventoryService;
-
+@inject DrugService DrugService;
 <div class="row">
     <div class="col-6">
         <div class="row mb-1">
@@ -54,7 +54,7 @@
                 {
                     @foreach (var product in response.Data)
                     {
-                        <tr class="small @GetDataStatus()">
+                        <tr class="small @GetDataStatus()" @onclick="async () => await LoadProductDetails(product.Id)">
                             <th scope="row" class="text-center">
                                 @product.Id
                             </th>
@@ -94,7 +94,22 @@
         </table>
     </div>
     <div class="col-6">
-        <StockTransferComponent OnSaved="async () => await HandleTransferCompleted()" />
+        <StockTransferComponent OnSaved="async () => await LoadProducts()" OnUPCSearch="HandleUPCSearch" />
+        <hr />
+        @if (isLoadingProductDetails)
+        {
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        } else
+        {
+            @if (drugInfo != null)
+            {
+                <DrugInfoComponent drugInfo="drugInfo" />
+            }
+        }
     </div>
 </div>
 
@@ -105,8 +120,11 @@
     private int totalPageCount = 1;
     private int totalItemCount = 1;
     private PagedResponse<Product>? response;
+    private DrugInfoDto? drugInfo;
+    private Product? Product;
 
     private bool isLoadingProducts = false;
+    private bool isLoadingProductDetails = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -152,11 +170,63 @@
         }
     }
 
+    private async Task LoadProductDetails(int id)
+    {
+        try
+        {
+            isLoadingProductDetails = true;
+            StateHasChanged();
+
+            Product = await InventoryService.GetProductByIdAsync(id);
+
+            if (!string.IsNullOrEmpty(Product?.DIN))
+            {
+                drugInfo = await DrugService.GetDrugInfoByDINAsync(Product.DIN);
+            } else
+            {
+                drugInfo = null;
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+        finally
+        {
+            isLoadingProductDetails = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadDrugInfoAsync(int drugCode)
+    {
+        try
+        {
+            isLoadingProductDetails = true;
+            StateHasChanged();
+            drugInfo = await DrugService.GetDrugInfoByDrugCodeAsync(drugCode);
+        }
+        catch (Exception ex)
+        {
+
+        } finally
+        {
+            isLoadingProductDetails = false;
+            StateHasChanged();
+        }
+    }
+
     private async Task LoadProducts()
     {
         isLoadingProducts = true;
         StateHasChanged();
-        var query = new InventoryRequest { Name = searchTerm };
+        var query = new InventoryRequest {
+            Name = searchTerm,
+            Brand = searchTerm,
+            DIN = searchTerm,
+            NPN = searchTerm,
+            UPC = searchTerm
+        };
         response = await InventoryService.GetProductsAsync(query, curPage);
         if (response != null)
         {
@@ -193,8 +263,13 @@
     private string GetLoadingStatus() => isLoadingProducts ? "" : "d-none";
     private string GetDataStatus() => isLoadingProducts ? "d-none" : "";
 
-    private async Task HandleTransferCompleted()
+    private async Task HandleUPCSearch(string UPC)
     {
-        await LoadProducts();
+        SearchTerm = UPC;
+        Product = await InventoryService.GetProductByUPCAsync(UPC);
+        if (Product != null && !string.IsNullOrEmpty(Product.DIN))
+        {
+            drugInfo = await DrugService.GetDrugInfoByDINAsync(Product.DIN);
+        }
     }
 }

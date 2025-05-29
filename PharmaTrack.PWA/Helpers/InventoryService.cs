@@ -19,39 +19,20 @@ namespace PharmaTrack.PWA.Helpers
 
         public async Task<Product?> GetProductByUPCAsync(string UPC)
         {
-            if (string.IsNullOrWhiteSpace(UPC))
-            {
-                throw new ArgumentException("UPC is required.", nameof(UPC));
-            }
-
             string url = $"products/upc/{UPC}";
-            try
-            {
-                var result = await _http.GetFromJsonAsync<Product>(url, _jsonOptions);
-                return result ?? null;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                // TODO: log error or handle accordingly
-                return null;
-            }
+
+            var response = await _http.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Product>(_jsonOptions);
         }
 
         public async Task<Product?> GetProductByIdAsync(int Id)
         {
             string url = $"products/{Id}";
-            try
-            {
-                var result = await _http.GetFromJsonAsync<Product>(url, _jsonOptions);
-                return result ?? null;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                // TODO: log error or handle accordingly
-                return null;
-            }
+
+            var response = await _http.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Product>(_jsonOptions);
         }
 
         public async Task<bool> UpdateProductAsync(Product product)
