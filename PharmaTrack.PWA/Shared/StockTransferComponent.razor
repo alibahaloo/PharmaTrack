@@ -121,6 +121,9 @@
     <ValidationSummary />
 </EditForm>
 @code {
+    [Parameter] public EventCallback OnSaved { get; set; }
+
+
     private ElementReference upcInput;
     private bool isSaving = false;
     private bool keepAfterSave = true;
@@ -153,6 +156,8 @@
             StateHasChanged();
             await InventoryService.StockTransferAsync(eventModel);
             ShowToastForSuccessSave();
+
+            await OnSaved.InvokeAsync();
         }
         catch (HttpRequestException ex)
         {

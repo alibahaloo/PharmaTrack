@@ -94,7 +94,7 @@
         </table>
     </div>
     <div class="col-6">
-        <StockTransferComponent />
+        <StockTransferComponent OnSaved="async () => await HandleTransferCompleted()" />
     </div>
 </div>
 
@@ -192,4 +192,9 @@
 
     private string GetLoadingStatus() => isLoadingProducts ? "" : "d-none";
     private string GetDataStatus() => isLoadingProducts ? "d-none" : "";
+
+    private async Task HandleTransferCompleted()
+    {
+        await LoadProducts();
+    }
 }

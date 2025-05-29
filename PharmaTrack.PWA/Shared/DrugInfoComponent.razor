@@ -1,0 +1,280 @@
+﻿@using PharmaTrack.Core.DTOs;
+
+<div class="row small">
+    <div class="col-sm-4 fw-bold">Drug Code</div>
+    <div class="col-sm-8">@drugInfo.Product?.DrugCode</div>
+
+    <div class="col-sm-4 fw-bold">DIN</div>
+    <div class="col-sm-8">@drugInfo.Product?.DrugIdentificationNumber</div>
+
+    <div class="col-sm-4 fw-bold">Brand</div>
+    <div class="col-sm-8">@drugInfo.Product?.BrandName</div>
+
+    <div class="col-sm-4 fw-bold">Categorization</div>
+    <div class="col-sm-8">@drugInfo.Product?.ProductCategorization</div>
+
+    <div class="col-sm-4 fw-bold">Description</div>
+    <div class="col-sm-8">@drugInfo.Product?.Descriptor</div>
+
+    <div class="col-sm-4 fw-bold">Last Updated</div>
+    <div class="col-sm-8">@drugInfo.Product?.LastUpdateDate</div>
+</div>
+
+<hr />
+
+@if (drugInfo.Ingredients?.Any() == true)
+{
+    <h5>Ingredients</h5>
+    <table class="table table-bordered table-sm small">
+        <thead class="table-light">
+            <tr>
+                <th>Code</th>
+                <th>Ingredient</th>
+                <th>Strength</th>
+                <th>Unit</th>
+                <th>Type</th>
+                <th>Dosage</th>
+                <th>Unit</th>
+                <th>Base</th>
+                <th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var i in drugInfo.Ingredients)
+            {
+                <tr>
+                    <td>@i.ActiveIngredientCode</td>
+                    <td>@i.Ingredient</td>
+                    <td>@i.Strength</td>
+                    <td>@i.StrengthUnit</td>
+                    <td>@i.StrengthType</td>
+                    <td>@i.DosageValue</td>
+                    <td>@i.DosageUnit</td>
+                    <td>@i.Base</td>
+                    <td>@i.Notes</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (drugInfo.Companies?.Any() == true)
+{
+    <h5>Companies</h5>
+    <table class="table table-bordered table-sm small">
+        <thead class="table-light">
+            <tr>
+                <th>Code</th>
+                <th>MFR</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>City</th>
+                <th>Province/State</th>
+                <th>Country</th>
+                <th>Postal Code</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in drugInfo.Companies)
+            {
+                <tr>
+                    <td>@c.CompanyCode</td>
+                    <td>@c.MfrCode</td>
+                    <td>@c.CompanyName</td>
+                    <td>@c.CompanyType</td>
+                    <td>@c.CityName</td>
+                    <td>@c.Province</td>
+                    <td>@c.Country</td>
+                    <td>@c.PostalCode</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (drugInfo.Statuses?.Any() == true)
+{
+    <h5>Statuses</h5>
+    <table class="table table-bordered table-sm small">
+        <thead class="table-light">
+            <tr>
+                <th>Flag</th>
+                <th>Status</th>
+                <th>History Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in drugInfo.Statuses)
+            {
+                <tr>
+                    <td>@s.CurrentStatusFlag</td>
+                    <td>@s.Status</td>
+                    <td>@s.HistoryDate</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (drugInfo.Forms?.Any() == true)
+{
+    <h5>Forms</h5>
+    <table class="table table-bordered table-sm small">
+        <thead class="table-light">
+            <tr>
+                <th>Code</th>
+                <th>Form</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var f in drugInfo.Forms)
+            {
+                <tr>
+                    <td>@f.PharmFormCode</td>
+                    <td>@f.PharmaceuticalForm</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (drugInfo.Packagings?.Any() == true)
+{
+    <h5>Packaging</h5>
+    <table class="table table-bordered table-sm small">
+        <thead class="table-light">
+            <tr>
+                <th>UPC</th>
+                <th>Type</th>
+                <th>Size</th>
+                <th>Unit</th>
+                <th>Information</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in drugInfo.Packagings)
+            {
+                <tr>
+                    <td>@p.Upc</td>
+                    <td>@p.PackageType</td>
+                    <td>@p.PackageSize</td>
+                    <td>@p.PackageSizeUnit</td>
+                    <td>@p.ProductInformation</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (drugInfo.Routes?.Any() == true)
+{
+    <h5>Routes</h5>
+    <table class="table table-bordered table-sm small">
+        <thead class="table-light">
+            <tr>
+                <th>Code</th>
+                <th>Route</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in drugInfo.Routes)
+            {
+                <tr>
+                    <td>@r.RouteOfAdministrationCode</td>
+                    <td>@r.RouteOfAdministration</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (drugInfo.PharmaceuticalStds?.Any() == true)
+{
+    <h5>Pharmaceutical Standards</h5>
+    <table class="table table-bordered table-sm small">
+        <thead class="table-light">
+            <tr>
+                <th>STD</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var std in drugInfo.PharmaceuticalStds)
+            {
+                <tr>
+                    <td>@std.PharmaceuticalStd</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (drugInfo.Schedules?.Any() == true)
+{
+    <h5>Schedules</h5>
+    <table class="table table-bordered table-sm small">
+        <thead class="table-light">
+            <tr>
+                <th>Schedule</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in drugInfo.Schedules)
+            {
+                <tr>
+                    <td>@s.Schedule</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (drugInfo.TherapeuticClasses?.Any() == true)
+{
+    <h5>Therapeutic Classes</h5>
+    <table class="table table-bordered table-sm small">
+        <thead class="table-light">
+            <tr>
+                <th>ATC Number</th>
+                <th>ATC</th>
+                <th>AHFS</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var t in drugInfo.TherapeuticClasses)
+            {
+                <tr>
+                    <td>@t.TcAtcNumber</td>
+                    <td>@t.TcAtc</td>
+                    <td>@t.TcAhfsNumber</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (drugInfo.VeterinarySpecies?.Any() == true)
+{
+    <h5>Veterinary Species</h5>
+    <table class="table table-bordered table-sm small">
+        <thead class="table-light">
+            <tr>
+                <th>Species</th>
+                <th>Sub Species</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var v in drugInfo.VeterinarySpecies)
+            {
+                <tr>
+                    <td>@v.VetSpecies</td>
+                    <td>@v.VetSubSpecies</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public DrugInfoDto drugInfo { get; set; } = default!;
+}
