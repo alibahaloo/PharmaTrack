@@ -83,14 +83,11 @@ namespace Drug.API.Controllers
 
                      // exact match on ActiveIngredientCode if numeric
                      || (isNumeric && t.ActiveIngredientCode == code)
-                    )
-                    // then collapse duplicates by Ingredient text
-                    .GroupBy(t => t.Ingredient)
-                    .Select(g => g.First());
+                    );
             }
 
             // 3) enforce a stable OrderBy before paging
-            query = query.OrderBy(t => t.Ingredient);
+            query = query.OrderBy(t => t.Id).GroupBy(t => t.Ingredient).Select(g => g.First());
 
             var result = await EFExtensions.GetPaged(query, curPage);
             var response = new PagedResponse<DrugIngredient>

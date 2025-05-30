@@ -11,7 +11,6 @@ namespace Drug.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class DrugsController : ControllerBase
     {
         private readonly DrugDBContext _context;
@@ -105,6 +104,9 @@ namespace Drug.API.Controllers
                 // if they typed a numeric code, we’ll match DrugCode exactly
                 var isNumeric = int.TryParse(lower, out var code);
 
+                //query = query.Where(t => t.BrandName != null && t.BrandName.ToLower().Contains(lower));
+
+
                 query = query
                     .Where(t =>
                         // exact match on DIN
@@ -119,14 +121,11 @@ namespace Drug.API.Controllers
 
                      // exact on DrugCode (only if parse succeeded)
                      || (isNumeric && t.DrugCode == code)
-                    )
-                    // collapse duplicates by BrandName
-                    .GroupBy(t => t.BrandName)
-                    .Select(g => g.First());
+                    );
             }
 
             // 3) always enforce an OrderBy before paging
-            query = query.OrderBy(t => t.Id).GroupBy(t => t.BrandName).Select(g => g.First()); ;
+            query = query.OrderBy(t => t.Id).GroupBy(t => t.BrandName).Select(g => g.First());
 
             var result = await EFExtensions.GetPaged(query, curPage);
 
