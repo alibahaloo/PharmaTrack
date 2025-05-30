@@ -62,20 +62,36 @@ namespace Drug.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetIngredients([FromQuery] DrugIngredientQuery request, int curPage = 1)
+        public async Task<IActionResult> GetIngredients([FromQuery] string? searchPhrase, int curPage = 1)
         {
             IQueryable<DrugIngredient> query = _context.DrugIngredients;
 
-            if (request != null)
+            if (!string.IsNullOrWhiteSpace(searchPhrase))
             {
-                query = query.Where(
-                    t => (string.IsNullOrEmpty(request.Ingredient) || (t.Ingredient != null && t.Ingredient.ToLower().Contains(request.Ingredient.ToLower()))) &&
-                    (request.DrugCode == null || t.DrugCode == request.DrugCode) &&
-                    (request.ActiveIngredientCode == null || t.ActiveIngredientCode == request.ActiveIngredientCode)
-                )
+                var lower = searchPhrase!.Trim().ToLowerInvariant();
+                var isNumeric = int.TryParse(lower, out var code);
+
+                query = query
+                    .Where(t =>
+                        // substring match on Ingredient
+                        ((t.Ingredient ?? "")
+                           .ToLower()
+                           .Contains(lower))
+
+                     // exact match on DrugCode if numeric
+                     || (isNumeric && t.DrugCode == code)
+
+                     // exact match on ActiveIngredientCode if numeric
+                     || (isNumeric && t.ActiveIngredientCode == code)
+                    )
+                    // then collapse duplicates by Ingredient text
                     .GroupBy(t => t.Ingredient)
                     .Select(g => g.First());
             }
+
+            // 3) enforce a stable OrderBy before paging
+            query = query.OrderBy(t => t.Ingredient);
+
             var result = await EFExtensions.GetPaged(query, curPage);
             var response = new PagedResponse<DrugIngredient>
             {

@@ -95,19 +95,39 @@ namespace Drug.API.Controllers
         }  
 
         [HttpGet]
-        public async Task<IActionResult> GetDrugs([FromQuery] DrugInfoRequest request, int curPage = 1)
+        public async Task<IActionResult> GetDrugs([FromQuery] string? searchPhrase, int curPage = 1)
         {
             IQueryable<DrugProduct> query = _context.Drugs;
-            if (request != null)
+            if (!string.IsNullOrWhiteSpace(searchPhrase))
             {
-                query = query.Where(t =>
-                    (string.IsNullOrEmpty(request.DIN) || t.DrugIdentificationNumber == request.DIN) &&
-                    (string.IsNullOrEmpty(request.BrandName) || ((t.BrandName ?? string.Empty).ToLower().Contains(request.BrandName.ToLower()))) &&
-                    (request.DrugCode == null || t.DrugCode == request.DrugCode)
-                )
+                var lower = searchPhrase.Trim().ToLowerInvariant();
+
+                // if they typed a numeric code, we’ll match DrugCode exactly
+                var isNumeric = int.TryParse(lower, out var code);
+
+                query = query
+                    .Where(t =>
+                        // exact match on DIN
+                        (t.DrugIdentificationNumber ?? "")
+                            .ToLower()
+                            .Equals(lower)
+
+                     // partial on BrandName
+                     || (t.BrandName ?? "")
+                            .ToLower()
+                            .Contains(lower)
+
+                     // exact on DrugCode (only if parse succeeded)
+                     || (isNumeric && t.DrugCode == code)
+                    )
+                    // collapse duplicates by BrandName
                     .GroupBy(t => t.BrandName)
                     .Select(g => g.First());
             }
+
+            // 3) always enforce an OrderBy before paging
+            query = query.OrderBy(t => t.Id).GroupBy(t => t.BrandName).Select(g => g.First()); ;
+
             var result = await EFExtensions.GetPaged(query, curPage);
 
             var response = new PagedResponse<DrugProduct>

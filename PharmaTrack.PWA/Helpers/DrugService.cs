@@ -34,24 +34,16 @@ namespace PharmaTrack.PWA.Helpers
                 return [];
             }
         }
-        public async Task<PagedResponse<DrugIngredient>?> GetIngredientsAsync(DrugIngredientQuery request, int curPage = 1)
+        public async Task<PagedResponse<DrugIngredient>?> GetIngredientsAsync(string? searchPhrase, int curPage = 1)
         {
             // Convert TransactionsRequest to query parameters
             var queryParameters = new List<string>
-                {
-                    $"curPage={curPage}"
-                };
-            if (request.DrugCode != null)
             {
-                queryParameters.Add($"DrugCode={Uri.EscapeDataString(request.DrugCode.Value.ToString())}");
-            }
-            if (request.ActiveIngredientCode != null)
+                $"curPage={curPage}"
+            };
+            if (!string.IsNullOrEmpty(searchPhrase))
             {
-                queryParameters.Add($"ActiveIngredientCode={Uri.EscapeDataString(request.ActiveIngredientCode.Value.ToString())}");
-            }
-            if (!string.IsNullOrEmpty(request.Ingredient))
-            {
-                queryParameters.Add($"Ingredient={Uri.EscapeDataString(request.Ingredient)}");
+                queryParameters.Add($"searchPhrase={Uri.EscapeDataString(searchPhrase)}");
             }
 
             string queryString = string.Join("&", queryParameters);
@@ -89,24 +81,17 @@ namespace PharmaTrack.PWA.Helpers
             }
         }
 
-        public async Task<PagedResponse<DrugProduct>?> GetDrugsAsync(DrugQuery request, int curPage = 1)
+        public async Task<PagedResponse<DrugProduct>?> GetDrugsAsync(string? searchPhrase, int curPage = 1)
         {
             // Convert TransactionsRequest to query parameters
             var queryParameters = new List<string>
             {
                 $"curPage={curPage}"
             };
-            if (request.DrugCode != null)
+
+            if (!string.IsNullOrEmpty(searchPhrase))
             {
-                queryParameters.Add($"DrugCode={Uri.EscapeDataString(request.DrugCode.Value.ToString())}");
-            }
-            if (!string.IsNullOrEmpty(request.DIN))
-            {
-                queryParameters.Add($"DIN={Uri.EscapeDataString(request.DIN)}");
-            }
-            if (!string.IsNullOrEmpty(request.BrandName))
-            {
-                queryParameters.Add($"BrandName={Uri.EscapeDataString(request.BrandName)}");
+                queryParameters.Add($"searchPhrase={Uri.EscapeDataString(searchPhrase)}");
             }
 
             string queryString = string.Join("&", queryParameters);

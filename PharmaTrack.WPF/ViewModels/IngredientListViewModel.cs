@@ -119,15 +119,8 @@ namespace PharmaTrack.WPF.ViewModels
             IsLoading = true;
             try
             {
-                // Create a request with filters from ViewModel properties
-                var request = new DrugIngredientQuery
-                {
-                    DrugCode = DrugCode,
-                    ActiveIngredientCode = ActiveIngredientCode,
-                    Ingredient = Ingredient,
-                };
-
-                var response = await _drugService.GetIngredientsAsync(request, CurrentPage);
+                //TODO do with searchPhrase
+                var response = await _drugService.GetIngredientsAsync(Ingredient, CurrentPage);
                 if (response != null)
                 {
                     Ingredients.Clear();

@@ -314,8 +314,7 @@
     {
         isLoadingIngredients = true;
         StateHasChanged(); 
-        var query = new DrugIngredientQuery { Ingredient = searchTerm };
-        response = await DrugService.GetIngredientsAsync(query, curPage);
+        response = await DrugService.GetIngredientsAsync(searchTerm, curPage);
         if (response != null)
         {
             totalItemCount = response.TotalItemCount;

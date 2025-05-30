@@ -340,8 +340,7 @@
     {
         isLoadingDrugs = true;
         StateHasChanged();
-        var query = new DrugQuery{ BrandName = searchTerm };
-        drugsResponse = await DrugService.GetDrugsAsync(query, curPage);
+        drugsResponse = await DrugService.GetDrugsAsync(searchTerm, curPage);
         if (drugsResponse != null)
         {
             totalItemCount = drugsResponse.TotalItemCount;
