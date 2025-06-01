@@ -6,6 +6,7 @@
 @inject DrugService DrugService;
 
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+<Modal @ref="updateProductModal" Size="ModalSize.Large" UseStaticBackdrop=true />
 <div class="row">
     <div class="col-6">
         <div class="row mb-1">
@@ -62,7 +63,13 @@
                             </th>
                             <td>
                                 <span>
-                                    @product.Name (@product.Brand)
+                                    @product.Name (@product.Brand) 
+                                </span>
+                                <span 
+                                    class="fst-italic text-info text-decoration-underline d-block"
+                                    @onclick="async () => await OnShowUpdateProductModalClick(product.Id)"
+                                    role="button">
+                                    See details<i class="ms-1 bi bi-box-arrow-up-right"></i>
                                 </span>
                             </td>
                             <td>
@@ -120,6 +127,8 @@
 </div>
 
 @code {
+    private Modal updateProductModal = default!;
+
     private string searchTerm = string.Empty;
     private CancellationTokenSource? _debounceCts;
     private int curPage = 1;
@@ -286,7 +295,7 @@
         try
         {
             Product = await InventoryService.GetProductByUPCAsync(UPC);
-            messages.Add(ToastForSuccessUPC());
+            messages.Add(ToastForInfo("Product found with the given UPC."));
             if (Product != null && !string.IsNullOrEmpty(Product.DIN))
             {
                 drugInfo = await DrugService.GetDrugInfoByDINAsync(Product.DIN);   
@@ -294,7 +303,7 @@
         }
         catch (Exception)
         {
-            messages.Add(ToastForFailUPC());
+            messages.Add(ToastForWarning("No product found with the given UPC."));
         }
     }
 
@@ -308,18 +317,25 @@
 
     List<ToastMessage> messages = new List<ToastMessage>();
 
-    private ToastMessage ToastForSuccessUPC()
+    private ToastMessage ToastForInfo(string message)
     => new ToastMessage
     {
         Type = ToastType.Info,
-        Message = $"Product found with the given UPC.",
+        Message = message,
     };
 
-    private ToastMessage ToastForFailUPC()
+    private ToastMessage ToastForSuccess(string message)
+    => new ToastMessage
+    {
+        Type = ToastType.Success,
+        Message = message,
+    };
+
+    private ToastMessage ToastForWarning(string message)
     => new ToastMessage
     {
         Type = ToastType.Warning,
-        Message = $"No product found with the given UPC.",
+        Message = message,
     };
 
     private ToastMessage ToastForError(string message)
@@ -328,4 +344,28 @@
         Type = ToastType.Danger,
         Message = $"An Error Occurred: {message}",
     };
+
+    private async Task OnShowUpdateProductModalClick(int ProductId)
+    {
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnCloseCallback", EventCallback.Factory.Create<MouseEventArgs>(this, OnCloseCallback) },
+            { "OnSaveCallback", EventCallback.Factory.Create<MouseEventArgs>(this, OnSaveCallback) },
+            { "ProductId", ProductId }
+        };
+        await updateProductModal.ShowAsync<UpdateProductModal>(title: "Update Product", parameters: parameters);
+
+    }
+
+    private async Task OnSaveCallback(MouseEventArgs e)
+    {
+        messages.Add(ToastForSuccess("Product updated successfully."));
+        await LoadProducts();
+        await updateProductModal.HideAsync();
+    }
+
+    private async Task OnCloseCallback(MouseEventArgs e)
+    {
+        await updateProductModal.HideAsync();
+    }
 }

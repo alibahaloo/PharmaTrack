@@ -22,7 +22,7 @@ namespace Inventory.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProducts([FromQuery] string? searchPhrase, int curPage = 1)
         {
-            IQueryable<Product> query = _context.Products;
+            IQueryable<PharmaTrack.Core.DBModels.Product> query = _context.Products;
 
             if (!string.IsNullOrWhiteSpace(searchPhrase))
             {
@@ -41,7 +41,7 @@ namespace Inventory.API.Controllers
 
             var result = await EFExtensions.GetPaged(query, curPage);
 
-            var response = new PagedResponse<Product>
+            var response = new PagedResponse<PharmaTrack.Core.DBModels.Product>
             {
                 Data = [.. result.Data], 
                 CurrentPage = curPage,
@@ -89,9 +89,9 @@ namespace Inventory.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProductById(int id, [FromBody] ProductUpdateRequest updateRequest)
+        public async Task<IActionResult> UpdateProductById(int id, [FromBody] Product product)
         {
-            if (updateRequest == null)
+            if (product == null)
             {
                 return BadRequest("Invalid product data.");
             }
@@ -106,11 +106,11 @@ namespace Inventory.API.Controllers
             try
             {
                 // Update the fields of the existing product with data from the request
-                existingProduct.UPC = updateRequest.UPC;
-                existingProduct.Name = updateRequest.Name;
-                existingProduct.NPN = updateRequest.NPN;
-                existingProduct.DIN = updateRequest.DIN;
-                existingProduct.Brand = updateRequest.Brand;
+                existingProduct.UPC = product.UPC;
+                existingProduct.Name = product.Name;
+                existingProduct.NPN = product.NPN;
+                existingProduct.DIN = product.DIN;
+                existingProduct.Brand = product.Brand;
                 //existingProduct.Quantity = updateRequest.Quantity;
                 existingProduct.UpdatedAt = DateTime.UtcNow;
 

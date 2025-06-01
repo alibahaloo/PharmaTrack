@@ -37,21 +37,12 @@ namespace PharmaTrack.PWA.Helpers
             return await response.Content.ReadFromJsonAsync<Product>(_jsonOptions);
         }
 
-        public async Task<bool> UpdateProductAsync(Product product)
+        public async Task UpdateProductAsync(Product product)
         {
             string url = $"products/{product.Id}";
 
-            try
-            {
-                var response = await _http.PutAsJsonAsync(url, product, _jsonOptions);
-                response.EnsureSuccessStatusCode();
-                return true;
-            }
-            catch (HttpRequestException)
-            {
-                // TODO: log the error, or propagate
-                return false;
-            }
+            var response = await _http.PutAsJsonAsync(url, product, _jsonOptions);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task StockTransferAsync(StockTransferRequest request)

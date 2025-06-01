@@ -90,7 +90,7 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
-        public async Task<PagedResponse<Product>?> GetProductsAsync(string? searchPhrase, int curPage = 1)
+        public async Task<PagedResponse<Core.DBModels.Product>?> GetProductsAsync(string? searchPhrase, int curPage = 1)
         {
             string? accessToken = TokenStorage.AccessToken;
             if (accessToken == null) { throw new UnauthorizedAccessException(accessToken); }
@@ -120,7 +120,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into Product object)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<PagedResponse<Product>>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<PagedResponse<Core.DBModels.Product>>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -132,7 +132,7 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
-        public async Task<Product?> GetProductByUPCAsync(string UPC)
+        public async Task<Core.DBModels.Product?> GetProductByUPCAsync(string UPC)
         {
             if (string.IsNullOrWhiteSpace(UPC))
             {
@@ -153,7 +153,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into Product object)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Product>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<Core.DBModels.Product>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -165,7 +165,7 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
-        public async Task<Product?> GetProductByIdAsync(int Id)
+        public async Task<Core.DBModels.Product?> GetProductByIdAsync(int Id)
         {
             string apiUrl = $"{_productsUrl}{Id}";
 
@@ -181,7 +181,7 @@ namespace PharmaTrack.WPF.Helpers
             {
                 // Parse the response (deserialize JSON into Product object)
                 var responseData = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<Product>(responseData, new System.Text.Json.JsonSerializerOptions
+                return JsonSerializer.Deserialize<Core.DBModels.Product>(responseData, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
@@ -193,7 +193,7 @@ namespace PharmaTrack.WPF.Helpers
                 _ => new HttpRequestException($"{await response.Content.ReadAsStringAsync()}"),
             };
         }
-        public async Task UpdateProductAsync(Product product)
+        public async Task UpdateProductAsync(Core.DBModels.Product product)
         {
             string apiUrl = $"{_productsUrl}{product.Id}";
 

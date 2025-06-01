@@ -8,9 +8,16 @@
 
 <EditForm EditContext="editContext" OnValidSubmit="HandleValidSubmit">
     <div class="row">
+        <div class="col mb-3">
+            <button type="button" @onclick="async () => await ShowToastForScanning()" title="Click to scan barcode" class="bg-success input-group-text bi bi-upc-scan">
+                <span class="ms-1">Scan barcode</span>
+            </button>
+        </div>
+    </div>
+    <div class="row">
         <div class="col-4">
             <div class="input-group mb-3">
-                <span role="button" @onclick="async () => await ShowToastForScanning()" title="Click to scan barcode" class="bg-success input-group-text bi bi-upc-scan"></span>
+                <span class="input-group-text">UPC</span>
                 <input id="upc"
                        @ref="upcInput"
                        @bind-value="eventModel.UPC"
@@ -24,19 +31,20 @@
         </div>
         <div class="col-4">
             <div class="input-group mb-3">
-                <span class="input-group-text bi bi-code"></span>
-                <InputText id="npn"
-                           @bind-Value="eventModel.NPN"
-                           placeholder="NPN"
+                <span class="input-group-text">DIN</span>
+                <InputText id="DIN"
+                           @bind-Value="eventModel.DIN"
+                           placeholder="DIN"
                            class="form-control" />
+                <button class="btn btn-info bi bi-search" type="button" title="Validate"></button>
             </div>
         </div>
         <div class="col-4">
             <div class="input-group mb-3">
-                <span class="input-group-text bi bi-code"></span>
-                <InputText id="DIN"
-                           @bind-Value="eventModel.DIN"
-                           placeholder="DIN"
+                <span class="input-group-text bi">NPN</span>
+                <InputText id="npn"
+                           @bind-Value="eventModel.NPN"
+                           placeholder="NPN"
                            class="form-control" />
             </div>
         </div>

@@ -45,8 +45,8 @@ public class ProductViewModel : INotifyPropertyChanged
             OnPropertyChanged(); // Notify UI of changes
         }
     }
-    private Product _product = default!;
-    public Product Product
+    private PharmaTrack.Core.DBModels.Product _product = default!;
+    public PharmaTrack.Core.DBModels.Product Product
     {
         get => _product;
         set
@@ -178,7 +178,7 @@ public class ProductViewModel : INotifyPropertyChanged
         DrugInfoIsExpanded = false;
         try
         {
-            Product = await _inventoryService.GetProductByIdAsync(productId) ?? new Product();
+            Product = await _inventoryService.GetProductByIdAsync(productId) ?? new PharmaTrack.Core.DBModels.Product();
 
             ExecuteLookupDrugCommand();
 

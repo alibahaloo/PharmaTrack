@@ -358,7 +358,7 @@ namespace PharmaTrack.WPF.ViewModels
                     throw new ArgumentException("UPC input cannot be empty.");
                 }
 
-                Product? product = await _inventoryService.GetProductByUPCAsync(UPCInput);
+                Core.DBModels.Product? product = await _inventoryService.GetProductByUPCAsync(UPCInput);
 
                 if (product != null)
                 {

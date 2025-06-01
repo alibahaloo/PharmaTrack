@@ -1,0 +1,139 @@
+﻿@using PharmaTrack.Core.DBModels;
+@using PharmaTrack.Core.DTOs;
+@using PharmaTrack.PWA.Helpers
+@inject InventoryService InventoryService;
+
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
+
+@if (product != null)
+{
+    <EditForm Model="product" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="row">
+            <div class="col">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">Name</span>
+                    <TextInput @bind-Value="product.Name"
+                               class="form-control"
+                               Placeholder="Product Name" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="input-group mb-3">
+                <span class="input-group-text">Brand</span>
+                <TextInput @bind-Value="product.Brand"
+                           class="form-control"
+                           Placeholder="Product Brand" />
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">UPC</span>
+                    <TextInput @bind-Value="product.UPC"
+                               class="form-control"
+                               Placeholder="Product UPC" />
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">DIN</span>
+                    <TextInput @bind-Value="product.DIN"
+                               class="form-control"
+                               Placeholder="Product DIN" />
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">NPN</span>
+                    <TextInput @bind-Value="product.NPN"
+                               class="form-control"
+                               Placeholder="Product NPN" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row text-end">
+            <div class="col">
+                @if (isSaving)
+                {
+                    <button class="btn btn-sm btn-primary bi bi-floppy mx-1" disabled>
+                        <span class="spinner-grow spinner-grow-sm" aria-hidden="true"></span>
+                        <span role="status">Saving ...</span>
+                    </button>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-sm btn-primary bi bi-floppy mx-1">
+                        <span class="ms-1">Save</span>
+                    </button>
+                }
+                <button type="button" role="button" class="btn btn-sm btn-warning bi bi-x-lg mx-1" @onclick="OnCloseCallback">
+                    <span class="ms-1">Cancel</span>
+                </button>
+            </div>
+        </div>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public EventCallback<MouseEventArgs> OnCloseCallback { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnSaveCallback { get; set; }
+
+    [Parameter] public int ProductId { get; set; } = default!;
+
+    private EditContext editContext = default!;
+    private Product? product;
+    private bool isSaving = false;
+
+    List<ToastMessage> messages = new List<ToastMessage>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        product = await InventoryService.GetProductByIdAsync(ProductId);
+        if (product == null)
+        {
+            throw new Exception();
+        }
+        editContext = new EditContext(product);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+    }
+
+    private ToastMessage ToastForError(string message)
+    => new ToastMessage
+    {
+        Type = ToastType.Danger,
+        Message = $"{message}. DateTime: {DateTime.Now}",
+    };
+
+    private async Task HandleValidSubmit()
+    {
+        // this will run ALL your [Required] checks + your IValidatableObject.Validate()
+        if (!editContext.Validate())
+            return;
+
+        if (product == null) return;
+
+        try
+        {
+            isSaving = true;
+            await InventoryService.UpdateProductAsync(product);
+            isSaving = false;
+            await OnSaveCallback.InvokeAsync();
+        }
+        catch (Exception ex)
+        {
+            isSaving = false;
+            messages.Add(ToastForError(ex.Message));
+        }
+    }
+}

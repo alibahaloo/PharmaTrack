@@ -15,7 +15,7 @@ namespace PharmaTrack.WPF.ViewModels
     {
         private readonly InventoryService _inventoryService;
 
-        public ObservableCollection<Product> Products { get; set; } = [];
+        public ObservableCollection<Core.DBModels.Product> Products { get; set; } = [];
 
         private string _statusMessage = default!;
         public string StatusMessage
@@ -97,8 +97,8 @@ namespace PharmaTrack.WPF.ViewModels
             get => _npn;
             set { _npn = value; OnPropertyChanged(nameof(NPN)); }
         }
-        private Product _selectedProduct = default!;
-        public Product SelectedProduct
+        private Core.DBModels.Product _selectedProduct = default!;
+        public Core.DBModels.Product SelectedProduct
         {
             get => _selectedProduct;
             set

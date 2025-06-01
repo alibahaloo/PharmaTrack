@@ -55,7 +55,9 @@
                             </th>
                             <td>
                                 <span>@ingredient.Ingredient</span>
-                                <span class="fst-italic text-info text-decoration-underline" role="button" @onclick="async () => await OnShowIngredientInfoModal(ingredient.ActiveIngredientCode)">See details</span>
+                                <span class="d-block fst-italic text-info text-decoration-underline" role="button" @onclick="async () => await OnShowIngredientInfoModal(ingredient.ActiveIngredientCode)">
+                                    See details<i class="ms-1 bi bi-box-arrow-up-right"></i>
+                                 </span>
                             </td>
                             <td>
                                 <small>@ingredient.ActiveIngredientCode</small>

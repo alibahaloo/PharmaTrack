@@ -268,7 +268,7 @@ else
         var parameters = new Dictionary<string, object>();
         parameters.Add("OnCloseCallback", EventCallback.Factory.Create<MouseEventArgs>(this, HideCreateScheduleModal));
         parameters.Add("OnSaveCallback", EventCallback.Factory.Create<MouseEventArgs>(this, OnSaveCallback));
-        await createScheduleModal.ShowAsync<CreateSchedule>(title: "Create new schedule", parameters: parameters);
+        await createScheduleModal.ShowAsync<CreateScheduleModal>(title: "Create new schedule", parameters: parameters);
     }
     private async Task OnSaveCallback(MouseEventArgs e)
     {

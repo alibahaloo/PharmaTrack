@@ -61,7 +61,9 @@
                                 <span>
                                     @drug.BrandName
                                 </span>
-                                <span class="fst-italic text-info text-decoration-underline" role="button" @onclick="async () => await OnShowDrugInfoModal(drug.DrugCode)">See details</span>
+                                <span class="d-block fst-italic text-info text-decoration-underline" role="button" @onclick="async () => await OnShowDrugInfoModal(drug.DrugCode)">
+                                    See details<i class="ms-1 bi bi-box-arrow-up-right"></i>
+                                 </span>
                             </td>
                             <td>
                                 <small>Drug Code: @drug.DrugCode</small>
