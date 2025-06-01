@@ -19,13 +19,15 @@ namespace PharmaTrack.PWA.Helpers
             _drugService = drugService;
         }
 
-        public async Task<Product?> GetProductByUPCAsync(string UPC)
+        public async Task<Product> GetProductByUPCAsync(string UPC)
         {
             string url = $"products/upc/{UPC}";
 
             var response = await _http.GetAsync(url);
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<Product>(_jsonOptions);
+
+            var product = await response.Content.ReadFromJsonAsync<Product>(_jsonOptions);
+            return product ?? throw new InvalidOperationException($"No product found for UPC: {UPC}");
         }
 
         public async Task<Product?> GetProductByIdAsync(int Id)
@@ -39,6 +41,12 @@ namespace PharmaTrack.PWA.Helpers
 
         public async Task UpdateProductAsync(Product product)
         {
+            //Check if DIN is valid, if there's one
+            if (!string.IsNullOrEmpty(product.DIN))
+            {
+                _ = await _drugService.GetDrugInfoByDINAsync(product.DIN) ?? throw new InvalidOperationException("Invalid DIN. No drug found with the given DIN");
+            }
+
             string url = $"products/{product.Id}";
 
             var response = await _http.PutAsJsonAsync(url, product, _jsonOptions);

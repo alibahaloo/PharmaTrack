@@ -93,19 +93,15 @@
 
     List<ToastMessage> messages = new List<ToastMessage>();
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
+        await base.OnParametersSetAsync();
         product = await InventoryService.GetProductByIdAsync(ProductId);
         if (product == null)
         {
             throw new Exception();
         }
         editContext = new EditContext(product);
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        await base.OnParametersSetAsync();
     }
 
     private ToastMessage ToastForError(string message)

@@ -288,22 +288,13 @@
     private string GetLoadingStatus() => isLoadingProducts ? "" : "d-none";
     private string GetDataStatus() => isLoadingProducts ? "d-none" : "";
 
-    private async Task HandleUPCSearch(string UPC)
+    private async Task HandleUPCSearch(Product product)
     {
-        SearchTerm = UPC;
+        SearchTerm = product.UPC;
 
-        try
+        if (!string.IsNullOrEmpty(product.DIN))
         {
-            Product = await InventoryService.GetProductByUPCAsync(UPC);
-            messages.Add(ToastForInfo("Product found with the given UPC."));
-            if (Product != null && !string.IsNullOrEmpty(Product.DIN))
-            {
-                drugInfo = await DrugService.GetDrugInfoByDINAsync(Product.DIN);   
-            }            
-        }
-        catch (Exception)
-        {
-            messages.Add(ToastForWarning("No product found with the given UPC."));
+            drugInfo = await DrugService.GetDrugInfoByDINAsync(product.DIN);
         }
     }
 
