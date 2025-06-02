@@ -2,15 +2,10 @@
 @using PharmaTrack.Core.DTOs;
 @using PharmaTrack.PWA.Helpers
 @inject InventoryService InventoryService;
-
-<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
-
+@inject DrugService DrugService;
 @if (product != null)
 {
-    <EditForm Model="product" OnValidSubmit="HandleValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
+    <EditForm EditContext="editContext" OnSubmit="HandleSubmit">
         <div class="row">
             <div class="col">
                 <div class="input-group mb-3">
@@ -46,6 +41,7 @@
                     <TextInput @bind-Value="product.DIN"
                                class="form-control"
                                Placeholder="Product DIN" />
+                    <button class="btn btn-info bi bi-search" type="button" title="Validate" @onclick="ValidateDINAsync"></button>
                 </div>
             </div>
             <div class="col-4">
@@ -78,20 +74,30 @@
                 </button>
             </div>
         </div>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
     </EditForm>
+} else
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 }
 
 @code {
     [Parameter] public EventCallback<MouseEventArgs> OnCloseCallback { get; set; }
     [Parameter] public EventCallback<MouseEventArgs> OnSaveCallback { get; set; }
-
     [Parameter] public int ProductId { get; set; } = default!;
 
     private EditContext editContext = default!;
+    private ValidationMessageStore messageStore = default!;
+
     private Product? product;
     private bool isSaving = false;
 
-    List<ToastMessage> messages = new List<ToastMessage>();
+    private FieldIdentifier modelIdentifier = default!;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -102,18 +108,36 @@
             throw new Exception();
         }
         editContext = new EditContext(product);
+        messageStore = new ValidationMessageStore(editContext);
+        //For generic errors
+        modelIdentifier = new FieldIdentifier(editContext.Model, fieldName: string.Empty);
     }
 
-    private ToastMessage ToastForError(string message)
-    => new ToastMessage
+    private async Task ValidateDINAsync()
     {
-        Type = ToastType.Danger,
-        Message = $"{message}. DateTime: {DateTime.Now}",
-    };
+        messageStore.Clear();
+        if (string.IsNullOrEmpty(product?.DIN)) return;
+        try
+        {
+            var drug = await DrugService.GetDrugInfoByDINAsync(product.DIN);
+            if (drug == null)
+            {
+                messageStore.Add(editContext.Field(nameof(product.DIN)), "Invalid DIN. No drug found with the given DIN.");
+            }
+        }
+        catch (Exception ex)
+        {
+            messageStore.Add(modelIdentifier, ex.Message);
+        } finally
+        {
+            editContext.NotifyValidationStateChanged();
+        }
+    }
 
-    private async Task HandleValidSubmit()
+    private async Task HandleSubmit()
     {
-        // this will run ALL your [Required] checks + your IValidatableObject.Validate()
+        messageStore.Clear();
+        editContext.NotifyValidationStateChanged();
         if (!editContext.Validate())
             return;
 
@@ -129,7 +153,8 @@
         catch (Exception ex)
         {
             isSaving = false;
-            messages.Add(ToastForError(ex.Message));
+            messageStore.Add(editContext.Field(nameof(product.DIN)), ex.Message);
+            editContext.NotifyValidationStateChanged();
         }
     }
 }
