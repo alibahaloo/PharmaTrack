@@ -1,5 +1,6 @@
 ﻿using PharmaTrack.Core.DBModels;
 using PharmaTrack.Core.DTOs;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -19,15 +20,15 @@ namespace PharmaTrack.PWA.Helpers
             _drugService = drugService;
         }
 
-        public async Task<Product> GetProductByUPCAsync(string UPC)
+        public async Task<Product?> GetProductByUPCAsync(string UPC)
         {
             string url = $"products/upc/{UPC}";
 
             var response = await _http.GetAsync(url);
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
             response.EnsureSuccessStatusCode();
-
-            var product = await response.Content.ReadFromJsonAsync<Product>(_jsonOptions);
-            return product ?? throw new InvalidOperationException($"No product found for UPC: {UPC}");
+            return await response.Content.ReadFromJsonAsync<Product>(_jsonOptions);
         }
 
         public async Task<Product?> GetProductByIdAsync(int Id)
@@ -35,6 +36,8 @@ namespace PharmaTrack.PWA.Helpers
             string url = $"products/{Id}";
 
             var response = await _http.GetAsync(url);
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                return null;
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<Product>(_jsonOptions);
         }

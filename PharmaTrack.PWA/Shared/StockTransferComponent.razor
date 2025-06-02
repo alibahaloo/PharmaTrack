@@ -165,13 +165,12 @@
 
     private async Task HandleUPCSearch()
     {
-        try
+        var searchResult = await InventoryService.GetProductByUPCAsync(eventModel.UPC);
+        if (searchResult != null)
         {
-            var searchResult = await InventoryService.GetProductByUPCAsync(eventModel.UPC);
             messages.Add(ToastForUPCResult(true));
             await OnUPCSearch.InvokeAsync(searchResult);
-        }
-        catch 
+        } else
         {
             messages.Add(ToastForUPCResult(false));
         }
