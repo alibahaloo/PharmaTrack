@@ -3,6 +3,7 @@
 @using PharmaTrack.PWA.Helpers
 @inject InventoryService InventoryService;
 @inject DrugService DrugService;
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 @if (product != null)
 {
     <EditForm EditContext="editContext" OnSubmit="HandleSubmit">
@@ -99,6 +100,8 @@
 
     private FieldIdentifier modelIdentifier = default!;
 
+    List<ToastMessage> messages = new List<ToastMessage>();
+
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
@@ -123,6 +126,9 @@
             if (drug == null)
             {
                 messageStore.Add(editContext.Field(nameof(product.DIN)), "Invalid DIN. No drug found with the given DIN.");
+            } else
+            {
+                messages.Add(ToastForDINResult(true));
             }
         }
         catch (Exception ex)
@@ -155,6 +161,26 @@
             isSaving = false;
             messageStore.Add(editContext.Field(nameof(product.DIN)), ex.Message);
             editContext.NotifyValidationStateChanged();
+        }
+    }
+
+    private ToastMessage ToastForDINResult(bool success)
+    {
+        if (success)
+        {
+            return new ToastMessage
+            {
+                Type = ToastType.Success,
+                Message = $"Valid DIN.",
+            };
+        }
+        else
+        {
+            return new ToastMessage
+            {
+                Type = ToastType.Danger,
+                Message = $"Invalid DIN. No drug found with the given DIN.",
+            };
         }
     }
 }

@@ -2,6 +2,7 @@
 @using PharmaTrack.Core.DBModels;
 @using PharmaTrack.Core.DTOs;
 @inject InventoryService InventoryService;
+@inject DrugService DrugService;
 <h5>Stock Transfer</h5>
 
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
@@ -26,7 +27,7 @@
                        @onkeydown:preventDefault="preventDefaultOnEnter"
                        placeholder="UPC"
                        class="form-control" />
-                <button class="btn btn-info bi bi-search" type="button" @onclick="async () => await HandleUPCSearch()"></button>
+                <button class="btn btn-info bi bi-search" type="button" @onclick="HandleUPCSearch"></button>
             </div>
         </div>
         <div class="col-4">
@@ -36,7 +37,7 @@
                            @bind-Value="eventModel.DIN"
                            placeholder="DIN"
                            class="form-control" />
-                <button class="btn btn-info bi bi-search" type="button" title="Validate"></button>
+                <button class="btn btn-info bi bi-search" type="button" title="Validate DIN" @onclick="ValidateDINAsync"></button>
             </div>
         </div>
         <div class="col-4">
@@ -163,8 +164,29 @@
         }
     }
 
+    private async Task ValidateDINAsync()
+    {
+        if (string.IsNullOrEmpty(eventModel.DIN)) return;
+        try
+        {
+            var drug = await DrugService.GetDrugInfoByDINAsync(eventModel.DIN);
+            if (drug == null)
+            {
+                messages.Add(ToastForDINResult(false));
+            } else
+            {
+                messages.Add(ToastForDINResult(true));
+            }
+        }
+        catch (Exception ex)
+        {
+            messages.Add(ToastForError(ex.Message));
+        }
+    }
+
     private async Task HandleUPCSearch()
     {
+        if (string.IsNullOrEmpty(eventModel.UPC)) return;
         var searchResult = await InventoryService.GetProductByUPCAsync(eventModel.UPC);
         if (searchResult != null)
         {
