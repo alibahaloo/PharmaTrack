@@ -22,7 +22,7 @@ namespace Inventory.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProducts([FromQuery] string? searchPhrase, int curPage = 1)
         {
-            IQueryable<PharmaTrack.Core.DBModels.Product> query = _context.Products;
+            IQueryable<Product> query = _context.Products;
 
             if (!string.IsNullOrWhiteSpace(searchPhrase))
             {
@@ -41,7 +41,7 @@ namespace Inventory.API.Controllers
 
             var result = await EFExtensions.GetPaged(query, curPage);
 
-            var response = new PagedResponse<PharmaTrack.Core.DBModels.Product>
+            var response = new PagedResponse<Product>
             {
                 Data = [.. result.Data], 
                 CurrentPage = curPage,

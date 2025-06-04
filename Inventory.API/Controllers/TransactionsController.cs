@@ -20,20 +20,23 @@ namespace Inventory.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTransactions([FromQuery] TransactionsRequest request, int curPage = 1)
+        public async Task<IActionResult> GetTransactions([FromQuery] string? searchPhrase, TransactionType transactionType = TransactionType.In, int curPage = 1)
         {
             IQueryable<Transaction> query = _context.Transactions.Include(t => t.Product);
 
-            if (request != null)
-            {
+            if (!string.IsNullOrWhiteSpace(searchPhrase)) {
+                var lower = searchPhrase!.Trim().ToLowerInvariant();
                 query = query.Where(t =>
-                    (string.IsNullOrEmpty(request.UPC) || t.Product.UPC == request.UPC) &&
-                    (string.IsNullOrEmpty(request.Product) || t.Product.Name.ToLower().Contains(request.Product.ToLower())) &&
-                    (string.IsNullOrEmpty(request.Brand) || (t.Product.Brand != null && t.Product.Brand.ToLower().Contains(request.Brand.ToLower()))) &&
-                    (string.IsNullOrEmpty(request.CreatedBy) || (t.CreatedBy == request.CreatedBy)) &&
-                    (request.Type == null || t.Type == request.Type)
+                    t.Product.UPC.ToLower() == lower ||
+                    (t.Product.NPN != null && t.Product.NPN.ToLower() == lower) ||
+                    (t.Product.DIN != null && t.Product.DIN.ToLower() == lower) ||
+                    t.Product.Name.ToLower().Contains(lower) ||
+                    (t.Product.Brand != null && t.Product.Brand.ToLower().Contains(lower))
                 );
             }
+
+            // always order before paging
+            query = query.Where(p => p.Type == transactionType).OrderBy(p => p.Id);
 
             var result = await EFExtensions.GetPaged(query, curPage);
 

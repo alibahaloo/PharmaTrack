@@ -1,0 +1,257 @@
+﻿@page "/transactions"
+@using PharmaTrack.PWA.Helpers
+@using PharmaTrack.Core.DTOs;
+@using PharmaTrack.Core.DBModels;
+@inject InventoryService InventoryService;
+
+<div class="row">
+    <div class="col-6">
+        <div class="row mb-1">
+            <div class="col-4">
+                <button class="btn-sm btn btn-secondary bi bi-chevron-left @GetPrevBtnStatus()" @onclick="LoadPrevPageAsync"></button>
+                <button class="btn-sm btn btn-secondary bi bi-chevron-right @GetNextBtnStatus()" @onclick="LoadNextPageAsync"></button>
+                <small>@GetShowingText()</small>
+            </div>
+            <div class="col-8 d-flex align-items-center justify-content-end gap-2">
+                <div class="input-group input-group-sm">
+                    <input class="form-control" type="search" placeholder="Search" aria-label="Search" @bind="SearchTerm" @bind:event="oninput" />
+                </div>
+            </div>
+        </div>
+
+        <table class="table table-sm table-hover" style="width: 100%">
+            <thead>
+                <tr>
+                    <th scope="col" style="width: 50px;">ID</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">In/Out</th>
+                    <th scope="col">Dates</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < 10; i++)
+                {
+                    <tr class="placeholder-glow @GetLoadingStatus()">
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                        <td>
+                            <div class="placeholder col-12"></div>
+                        </td>
+                    </tr>
+                }
+                @if (_response != null)
+                {
+                    @foreach (var transaction in _response.Data)
+                    {
+                        <tr class="small @GetDataStatus()" @onclick="async () => await LoadProductDetails(transaction.ProductId)">
+                            <th scope="row" class="text-center">
+                                @transaction.Id
+                            </th>
+                            <td>
+                                <span>
+                                    @transaction.Product.Name (@transaction.Product.Brand)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="d-block">
+                                    @transaction.Quantity
+                                </span>
+                            </td>
+                            <td>
+                                <span class="d-block">
+                                    @if (transaction.Type == TransactionType.In)
+                                    {
+                                        <span>
+                                            Stock In
+                                        </span>
+                                    } else
+                                    {
+                                        <span>
+                                            Stock Out
+                                        </span>
+                                    }
+                                </span>
+                            </td>
+                            <td>
+                                <span class="d-block">
+                                    <strong>Created At:</strong> @transaction.Timestamp
+                                </span>
+                                <span class="d-block">
+                                    <strong>By:</strong> @transaction.CreatedBy
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-6">
+        @if (_isLoadingProductDetails)
+        {
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        } else
+        {
+            if (_product != null)
+            {
+                <h3>Product Details:</h3>
+                <div class="row small">
+                    <div class="col-sm-4 fw-bold">Name</div>
+                    <div class="col-sm-8">@_product.Name (@_product.Brand)</div>
+
+                    <div class="col-sm-4 fw-bold">UPC</div>
+                    <div class="col-sm-8">@_product.UPC</div>
+
+                    <div class="col-sm-4 fw-bold">DIN</div>
+                    <div class="col-sm-8">@_product.DIN</div>
+
+                    <div class="col-sm-4 fw-bold">NPN</div>
+                    <div class="col-sm-8">@_product.NPN</div>
+
+                    <div class="col-sm-4 fw-bold">Inventory Quantity</div>
+                    <div class="col-sm-8">@_product.Quantity</div>
+
+                    <div class="col-sm-4 fw-bold">Last Updated</div>
+                    <div class="col-sm-8">@_product.UpdatedAt</div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private string _searchTerm = string.Empty;
+    private CancellationTokenSource? _debounceCts;
+    private int curPage = 1;
+    private int totalPageCount = 1;
+    private int totalItemCount = 1;
+    private PagedResponse<Transaction>? _response;
+    private Product? _product;
+
+    private bool _isLoadingTransactions = false;
+    private bool _isLoadingProductDetails = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTransactions();
+    }
+
+    public string SearchTerm
+    {
+        get => _searchTerm;
+        set
+        {
+            if (_searchTerm == value) return;
+            _searchTerm = value;
+
+            // cancel any pending invocation
+            _debounceCts?.Cancel();
+            _debounceCts = new CancellationTokenSource();
+            var token = _debounceCts.Token;
+
+            // Kick off a delayed LoadDrugs; if 'SearchTerm' changes again within 300 ms, this run is cancelled.
+            _ = InvokeAsync(async () =>
+            {
+                try
+                {
+                    await Task.Delay(300, token);
+                    if (token.IsCancellationRequested) return;
+
+                    await LoadTransactions();
+                }
+                catch (TaskCanceledException)
+                {
+                    // ignore; a new keystroke arrived
+                }
+                finally
+                {
+                    if (!token.IsCancellationRequested)
+                    {
+                        _isLoadingTransactions = false;
+                        StateHasChanged();         // render results
+                    }
+                }
+            });
+        }
+    }
+
+    private async Task LoadProductDetails(int id)
+    {
+        try
+        {
+            _isLoadingProductDetails = true;
+            StateHasChanged();
+
+            _product = await InventoryService.GetProductByIdAsync(id);
+
+            if (!string.IsNullOrEmpty(_product?.DIN))
+            {
+                //drugInfo = await DrugService.GetDrugInfoByDINAsync(_product.DIN);
+            }
+        }
+        catch (Exception ex)
+        {
+            //messages.Add(ToastForError(ex.Message));
+        }
+        finally
+        {
+            _isLoadingProductDetails = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadTransactions()
+    {
+        _isLoadingTransactions = true;
+        StateHasChanged();
+        _response = await InventoryService.GetTransactionsAsync(_searchTerm, TransactionType.In, curPage);
+        if (_response != null)
+        {
+            totalItemCount = _response.TotalItemCount;
+            totalPageCount = _response.TotalPageCount;
+        }
+
+        _isLoadingTransactions = false;
+        StateHasChanged();
+    }
+
+    private async Task LoadNextPageAsync()
+    {
+        curPage++;
+        await LoadTransactions();
+    }
+
+    private async Task LoadPrevPageAsync()
+    {
+        curPage--;
+        await LoadTransactions();
+    }
+
+    private string GetShowingText()
+    {
+        int start = (curPage - 1) * 10 + 1;
+        int end = Math.Min(curPage * 10, totalItemCount);
+        return $"Showing {start}–{end} of {totalItemCount}";
+    }
+
+    private string GetPrevBtnStatus() => curPage == 1 ? "disabled" : string.Empty;
+    private string GetNextBtnStatus() => curPage == totalPageCount ? "disabled" : string.Empty;
+
+    private string GetLoadingStatus() => _isLoadingTransactions ? "" : "d-none";
+    private string GetDataStatus() => _isLoadingTransactions ? "d-none" : "";
+}

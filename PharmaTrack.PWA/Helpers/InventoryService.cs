@@ -98,7 +98,7 @@ namespace PharmaTrack.PWA.Helpers
             }
         }
 
-        public async Task<PagedResponse<Transaction>?> GetTransactionsAsync(TransactionsRequest request, int curPage = 1)
+        public async Task<PagedResponse<Transaction>?> GetTransactionsAsync(string? searchPhrase, TransactionType transactionType = TransactionType.In, int curPage = 1)
         {
             // Convert TransactionsRequest to query parameters
             var queryParameters = new List<string>
@@ -106,26 +106,12 @@ namespace PharmaTrack.PWA.Helpers
                 $"curPage={curPage}"
             };
 
-            if (!string.IsNullOrEmpty(request.UPC))
+            if (!string.IsNullOrEmpty(searchPhrase))
             {
-                queryParameters.Add($"upc={Uri.EscapeDataString(request.UPC)}");
+                queryParameters.Add($"searchPhrase={Uri.EscapeDataString(searchPhrase)}");
             }
-            if (!string.IsNullOrEmpty(request.Product))
-            {
-                queryParameters.Add($"product={Uri.EscapeDataString(request.Product)}");
-            }
-            if (!string.IsNullOrEmpty(request.Brand))
-            {
-                queryParameters.Add($"brand={Uri.EscapeDataString(request.Brand)}");
-            }
-            if (!string.IsNullOrEmpty(request.CreatedBy))
-            {
-                queryParameters.Add($"createdBy={Uri.EscapeDataString(request.CreatedBy)}");
-            }
-            if (request.Type.HasValue)
-            {
-                queryParameters.Add($"type={(int)request.Type.Value}");
-            }
+
+            queryParameters.Add($"transactionType={transactionType}");
 
             string queryString = string.Join("&", queryParameters);
             string url = $"transactions?{queryString}";
