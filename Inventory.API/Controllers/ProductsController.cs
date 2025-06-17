@@ -1,8 +1,9 @@
 ﻿using Inventory.API.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using PharmaTrack.Core.DTOs;
 using PharmaTrack.Core.DBModels;
+using PharmaTrack.Core.DTOs;
 using PharmaTrack.Shared.Services;
 
 
@@ -10,6 +11,7 @@ namespace Inventory.API.Controllers
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductsController : ControllerBase
     {
         private readonly InventoryDbContext _context;

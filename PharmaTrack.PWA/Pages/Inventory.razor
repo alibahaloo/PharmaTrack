@@ -4,6 +4,7 @@
 @using PharmaTrack.Core.DBModels;
 @inject InventoryService InventoryService;
 @inject DrugService DrugService;
+@attribute [Authorize]
 
 <Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 <Modal @ref="updateProductModal" Size="ModalSize.Large" UseStaticBackdrop=true />

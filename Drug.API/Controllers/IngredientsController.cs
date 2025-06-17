@@ -1,5 +1,4 @@
 ﻿using Drug.API.Data;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmaTrack.Core.DBModels;
@@ -10,7 +9,6 @@ namespace Drug.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize]
     public class IngredientsController : ControllerBase
     {
         private readonly DrugDBContext _context;
