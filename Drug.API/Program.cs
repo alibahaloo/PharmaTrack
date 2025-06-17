@@ -112,8 +112,7 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
     Authorization = new[] { new AllowAllDashboardAuthorizationFilter() }
 });
 
-app.UseHttpsRedirection();
-
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
