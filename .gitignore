@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# ignore the host’s published Blazor output
+/PharmaTrack.Host/wwwroot
+
 # Config files for App
 config.json
 

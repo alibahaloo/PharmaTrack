@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmaTrack.PWA", "PharmaTr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmaTrack.Core", "PharmaTrack.Core\PharmaTrack.Core.csproj", "{615D341B-974A-4B47-AD80-406D6BAB7573}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PharmaTrack.Host", "PharmaTrack.Host\PharmaTrack.Host.csproj", "{EA1876BA-6850-4ED5-AF40-60DC1FD91664}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -135,6 +137,18 @@ Global
 		{615D341B-974A-4B47-AD80-406D6BAB7573}.Release|x64.Build.0 = Release|Any CPU
 		{615D341B-974A-4B47-AD80-406D6BAB7573}.Release|x86.ActiveCfg = Release|Any CPU
 		{615D341B-974A-4B47-AD80-406D6BAB7573}.Release|x86.Build.0 = Release|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Debug|x64.Build.0 = Debug|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Debug|x86.Build.0 = Debug|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Release|ARM64.Build.0 = Release|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Release|x64.ActiveCfg = Release|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Release|x64.Build.0 = Release|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Release|x86.ActiveCfg = Release|Any CPU
+		{EA1876BA-6850-4ED5-AF40-60DC1FD91664}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
