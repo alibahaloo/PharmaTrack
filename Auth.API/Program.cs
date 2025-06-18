@@ -44,7 +44,8 @@ var sharedConfiguration = SharedConfiguration.GetSharedConfiguration();
 builder.Configuration.AddConfiguration(sharedConfiguration);
 
 // pull your single config value
-var blazorClientURL = builder.Configuration["Cors:AllowedOrigin"] ?? throw new InvalidOperationException("Cors:AllowedOrigin not found in appsettings.json");
+var dockerBlazorURL = builder.Configuration["Cors:DockerBlazorClient"] ?? throw new InvalidOperationException("Cors:DockerBlazorClient not found in appsettings.json");
+var localBlazorURL = builder.Configuration["Cors:LocalBlazorClient"] ?? throw new InvalidOperationException("Cors:LocalBlazorClient not found in appsettings.json");
 
 // Add CORS support
 builder.Services.AddCors(options =>
@@ -52,7 +53,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowBlazorClient", policy =>
     {
         policy
-        .WithOrigins(blazorClientURL)
+        .WithOrigins(dockerBlazorURL, localBlazorURL)
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();

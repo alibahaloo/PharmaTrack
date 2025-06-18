@@ -53,16 +53,19 @@ RUN dotnet publish -c Release -o /host
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 
-# 3a) Copy Host binaries
+# 3a) Copy Host binaries (but we'll remove its wwwroot next)
 COPY --from=host-build /host ./
 
-# 3b) Copy the PWA static files (including _framework) into wwwroot
-COPY --from=pwa-build /pwa/wwwroot ./wwwroot
+# 3b) Remove the (empty/nested) wwwroot that came from Host
+RUN rm -rf wwwroot
 
-# Prepare HTTPS cert mount point
+# 3c) Copy your Blazor PWA’s publish output into a fresh wwwroot
+COPY --from=pwa-build /pwa/wwwroot/. ./wwwroot/
+
+# 3d) Prepare HTTPS cert mount point
 RUN mkdir -p /https && chmod 755 /https
 
-# Configure Kestrel & URLs
+# 3e) Kestrel & URL config
 ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx \
     ASPNETCORE_Kestrel__Certificates__Default__Password=YourP@ssw0rd! \
     ASPNETCORE_URLS="https://+:443;http://+:80" \
