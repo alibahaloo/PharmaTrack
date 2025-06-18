@@ -6,11 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- builds the WASM project and treats its wwwroot as static web assets -->
-    <ProjectReference Include="..\PharmaTrack.PWA\PharmaTrack.PWA.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <!-- brings in UseBlazorFrameworkFiles() and other static‐asset helpers -->
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.0" />
   </ItemGroup>

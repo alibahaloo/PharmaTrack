@@ -1,4 +1,26 @@
 services:
+  pharmatrack-host:
+    container_name: PharmaTrack.Host
+    build:
+      context: ..  
+      dockerfile: PharmaTrack/PharmaTrack.Host/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "https://+:443;http://+:80"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "YourP@ssw0rd!"
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "false"
+    volumes:
+      - ./devCerts/aspnetapp.pfx:/https/aspnetapp.pfx:ro
+    ports:
+      - "5000:80"
+      - "5001:443"
+    depends_on:
+      - inventory-api
+      - auth-api
+      - schedule-api
+      - drug-api
+
   inventory-api:
     container_name: Inventory.API
     build:
