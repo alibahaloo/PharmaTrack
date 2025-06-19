@@ -102,6 +102,39 @@ function Ensure-DotNetEF {
     }
 }
 
+function Ensure-DotNetServe {
+    Write-Host "INFO: Installing dotnet-serve..." -ForegroundColor Cyan
+
+    try {
+        dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org | Out-Null
+        dotnet tool install --global dotnet-serve --ignore-failed-sources --no-cache
+        Write-Host "SUCCESS: dotnet-serve installed successfully." -ForegroundColor Green
+    }
+    catch {
+        Write-Host "INFO: dotnet-serve might already be installed. Trying to update it..." -ForegroundColor Cyan
+        try {
+            dotnet tool update --global dotnet-serve
+            Write-Host "SUCCESS: dotnet-serve updated successfully." -ForegroundColor Green
+        }
+        catch {
+            Write-Error "ERROR: Failed to install or update dotnet-serve: $($_.Exception.Message)" -ForegroundColor Red
+            exit 1
+        }
+    }
+
+    Write-Host "INFO: Ensuring .dotnet\tools is in PATH for current session..." -ForegroundColor Cyan
+
+    $toolsPath = "$env:USERPROFILE\.dotnet\tools"
+    if ($env:Path -notlike "*$toolsPath*") {
+        $env:Path += ";$toolsPath"
+        Write-Host "SUCCESS: PATH updated. You can now use 'dotnet-serve' immediately." -ForegroundColor Green
+    }
+    else {
+        Write-Host "INFO: PATH already includes .dotnet\tools. No update needed." -ForegroundColor Cyan
+    }
+}
+
+
 function Remove-ServiceIfExists {
     param([string]$name)
     if (Get-Service -Name $name -ErrorAction SilentlyContinue) {
@@ -501,6 +534,7 @@ $PreflightAnswer = Read-Host
 if ($PreflightAnswer -match '^[Yy]$') {
     Ensure-DotNet9
     Ensure-DotNetEF
+    Ensure-DotNetServe
     Ensure-SqlExpressInstallation
     Ensure-SqlExpressServerUser
 } else {
