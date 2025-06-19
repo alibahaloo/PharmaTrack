@@ -21,29 +21,22 @@ builder.Host.UseWindowsService(options => {
     options.ServiceName = "PharmaTrack Drug API";
 });
 
-// if we're running this in production (as a service), then we will read the cert
-if (builder.Environment.IsProduction())
+// Configure URL and ports
+builder.WebHost.ConfigureKestrel((context, options) =>
 {
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        // HTTP endpoint
-        options.ListenAnyIP(8085, listenOpts =>
-            listenOpts.Protocols = HttpProtocols.Http1AndHttp2);
+    options.Configure(context.Configuration.GetSection("Kestrel"));
+});
 
-        // HTTPS endpoint (load your PFX)
-        options.ListenAnyIP(8086, listenOpts =>
-        {
-            listenOpts.UseHttps(
-                "certs/PharmaTrackCert.pfx",
-                "YourP@ssw0rd!"
-            );
-        });
-    });
+string blazorURL = string.Empty;
+
+if (builder.Environment.IsDevelopment())
+{
+    blazorURL = builder.Configuration["Cors:LocalBlazorClient"] ?? throw new InvalidOperationException("Cors:LocalBlazorClient not found in appsettings.json");
 }
-
-// pull your single config value
-var dockerBlazorURL = builder.Configuration["Cors:DockerBlazorClient"] ?? throw new InvalidOperationException("Cors:DockerBlazorClient not found in appsettings.json");
-var localBlazorURL = builder.Configuration["Cors:LocalBlazorClient"] ?? throw new InvalidOperationException("Cors:LocalBlazorClient not found in appsettings.json");
+else if (builder.Environment.IsProduction())
+{
+    blazorURL = builder.Configuration["Cors:DockerBlazorClient"] ?? throw new InvalidOperationException("Cors:DockerBlazorClient not found in appsettings.json");
+}
 
 // Add CORS support
 builder.Services.AddCors(options =>
@@ -51,7 +44,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowBlazorClient", policy =>
     {
         policy
-        .WithOrigins(dockerBlazorURL, localBlazorURL)
+        .WithOrigins(blazorURL)
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();

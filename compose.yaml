@@ -32,13 +32,9 @@ services:
         Server=inventory-db;Database=Inventory;User Id=sa;
         Password=YourStrong!Passw0rd;
         MultipleActiveResultSets=true;TrustServerCertificate=True
-      ASPNETCORE_URLS: "https://+:443;http://+:80"
-      ASPNETCORE_Kestrel__Certificates__Default__Password: "YourP@ssw0rd!"
-    volumes:
-      - ./devCerts/aspnetapp.pfx:/https/aspnetapp.pfx:ro
+      ASPNETCORE_URLS: "http://+:80"
     ports:
       - "9083:80"
-      - "9084:443"
     depends_on:
       - inventory-db
 
@@ -53,13 +49,9 @@ services:
         Server=auth-db;Database=Auth;User Id=sa;
         Password=YourStrong!Passw0rd;
         MultipleActiveResultSets=true;TrustServerCertificate=True
-      ASPNETCORE_URLS: "https://+:443;http://+:80"
-      ASPNETCORE_Kestrel__Certificates__Default__Password: "YourP@ssw0rd!"
-    volumes:
-      - ./devCerts/aspnetapp.pfx:/https/aspnetapp.pfx:ro
+      ASPNETCORE_URLS: "http://+:80"
     ports:
       - "9085:80"
-      - "9086:443"
     depends_on:
       - auth-db
 
@@ -74,13 +66,9 @@ services:
         Server=schedule-db;Database=Schedule;User Id=sa;
         Password=YourStrong!Passw0rd;
         MultipleActiveResultSets=true;TrustServerCertificate=True
-      ASPNETCORE_URLS: "https://+:443;http://+:80"
-      ASPNETCORE_Kestrel__Certificates__Default__Password: "YourP@ssw0rd!"
-    volumes:
-      - ./devCerts/aspnetapp.pfx:/https/aspnetapp.pfx:ro
+      ASPNETCORE_URLS: "http://+:80"
     ports:
       - "9087:80"
-      - "9088:443"
     depends_on:
       - schedule-db
 
@@ -95,13 +83,9 @@ services:
         Server=drug-db;Database=Drug;User Id=sa;
         Password=YourStrong!Passw0rd;
         MultipleActiveResultSets=true;TrustServerCertificate=True
-      ASPNETCORE_URLS: "https://+:443;http://+:80"
-      ASPNETCORE_Kestrel__Certificates__Default__Password: "YourP@ssw0rd!"
-    volumes:
-      - ./devCerts/aspnetapp.pfx:/https/aspnetapp.pfx:ro
+      ASPNETCORE_URLS: "http://+:80"
     ports:
       - "9089:80"
-      - "9090:443"
     depends_on:
       - drug-db
 

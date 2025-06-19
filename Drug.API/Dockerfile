@@ -31,22 +31,16 @@ FROM --platform=linux/amd64 mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS final
 
 WORKDIR /app
 
-# Install globalization support, CA certs
-RUN apk add --no-cache icu-libs ca-certificates && update-ca-certificates
+# Install globalization support
+RUN apk add --no-cache icu-libs
 
 # Copy published output + DataFiles
 COPY --from=build /app .  
 COPY --from=build /source/Drug.API/DataFiles ./DataFiles
 
-# Prepare mount point for your host-exported PFX
-RUN mkdir -p /https && chmod 755 /https
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 
- # Tell Kestrel where to find the PFX
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx \
-    ASPNETCORE_Kestrel__Certificates__Default__Password=YourP@ssw0rd! \
-    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
-
-EXPOSE 80 443
+EXPOSE 80
 
 USER $APP_UID
 

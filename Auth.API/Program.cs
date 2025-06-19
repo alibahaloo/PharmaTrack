@@ -1,6 +1,5 @@
 ﻿using Auth.API.Data;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 
 using PharmaTrack.Shared.Services;
@@ -19,33 +18,25 @@ builder.Host.UseWindowsService(options => {
     options.ServiceName = "PharmaTrack Auth API";
 });
 
-// if we're running this in production (as a service), then we will read the cert
-if (builder.Environment.IsProduction())
-{
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        // HTTP endpoint
-        options.ListenAnyIP(8083, listenOpts =>
-            listenOpts.Protocols = HttpProtocols.Http1AndHttp2);
-
-        // HTTPS endpoint (load your PFX)
-        options.ListenAnyIP(8084, listenOpts =>
-        {
-            listenOpts.UseHttps(
-                "certs/PharmaTrackCert.pfx",
-                "YourP@ssw0rd!"
-            );
-        });
-    });
-}
-
 // Load the shared configuration
 var sharedConfiguration = SharedConfiguration.GetSharedConfiguration();
 builder.Configuration.AddConfiguration(sharedConfiguration);
 
-// pull your single config value
-var dockerBlazorURL = builder.Configuration["Cors:DockerBlazorClient"] ?? throw new InvalidOperationException("Cors:DockerBlazorClient not found in appsettings.json");
-var localBlazorURL = builder.Configuration["Cors:LocalBlazorClient"] ?? throw new InvalidOperationException("Cors:LocalBlazorClient not found in appsettings.json");
+// Configure URL and ports
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
+    options.Configure(context.Configuration.GetSection("Kestrel"));
+});
+
+string blazorURL = string.Empty;
+
+if (builder.Environment.IsDevelopment())
+{
+    blazorURL = builder.Configuration["Cors:LocalBlazorClient"] ?? throw new InvalidOperationException("Cors:LocalBlazorClient not found in appsettings.json");
+} else if (builder.Environment.IsProduction())
+{
+    blazorURL = builder.Configuration["Cors:DockerBlazorClient"] ?? throw new InvalidOperationException("Cors:DockerBlazorClient not found in appsettings.json");
+}
 
 // Add CORS support
 builder.Services.AddCors(options =>
@@ -53,7 +44,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowBlazorClient", policy =>
     {
         policy
-        .WithOrigins(dockerBlazorURL, localBlazorURL)
+        .WithOrigins(blazorURL)
         .AllowAnyHeader()
         .AllowAnyMethod()
         .AllowCredentials();
