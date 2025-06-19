@@ -34,7 +34,7 @@ services:
         MultipleActiveResultSets=true;TrustServerCertificate=True
       ASPNETCORE_URLS: "http://+:80"
     ports:
-      - "9083:80"
+      - "9093:80"
     depends_on:
       - inventory-db
 
@@ -51,7 +51,7 @@ services:
         MultipleActiveResultSets=true;TrustServerCertificate=True
       ASPNETCORE_URLS: "http://+:80"
     ports:
-      - "9085:80"
+      - "9091:80"
     depends_on:
       - auth-db
 
@@ -68,7 +68,7 @@ services:
         MultipleActiveResultSets=true;TrustServerCertificate=True
       ASPNETCORE_URLS: "http://+:80"
     ports:
-      - "9087:80"
+      - "9094:80"
     depends_on:
       - schedule-db
 
@@ -85,7 +85,7 @@ services:
         MultipleActiveResultSets=true;TrustServerCertificate=True
       ASPNETCORE_URLS: "http://+:80"
     ports:
-      - "9089:80"
+      - "9092:80"
     depends_on:
       - drug-db
 
