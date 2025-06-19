@@ -23,10 +23,13 @@ $ErrorActionPreference = 'Stop'
 $projects = @(
     @{ ProjectPath = ".\Auth.API\Auth.API.csproj";        PublishDir = ".\publish\AuthAPI";      ServiceName = "PharmaTrackAuthAPI";      DisplayName = "PharmaTrack Auth API Service";        Description = "PharmaTrack Auth.API as Windows Service" },
     @{ ProjectPath = ".\Schedule.API\Schedule.API.csproj"; PublishDir = ".\publish\ScheduleAPI"; ServiceName = "PharmaTrackScheduleAPI"; DisplayName = "PharmaTrack Schedule API Service";  Description = "PharmaTrack Schedule.API as Windows Service" },
-    #@{ ProjectPath = ".\Gateway.API\Gateway.API.csproj";   PublishDir = ".\publish\GatewayAPI";  ServiceName = "PharmaTrackGatewayAPI";  DisplayName = "PharmaTrack Gateway API Service";   Description = "PharmaTrack Gateway.API as Windows Service" },
     @{ ProjectPath = ".\Drug.API\Drug.API.csproj";         PublishDir = ".\publish\DrugAPI";     ServiceName = "PharmaTrackDrugAPI";      DisplayName = "PharmaTrack Drug API Service";      Description = "PharmaTrack Drug.API as Windows Service" },
     @{ ProjectPath = ".\Inventory.API\Inventory.API.csproj";PublishDir = ".\publish\InventoryAPI"; ServiceName = "PharmaTrackInventoryAPI"; DisplayName = "PharmaTrack Inventory API Service"; Description = "PharmaTrack Inventory.API as Windows Service" }
 )
+
+# Define base URL
+$drugApiBaseUrl = "http://localhost:9092"
+$authApiBaseUrl = "http://localhost:9091"
 
 # Certificate settings
 $certSubject    = 'CN=PharmaTrack'
@@ -38,8 +41,6 @@ $wpfProjectPath = ".\PharmaTrack.WPF\PharmaTrack.WPF.csproj"
 
 # Script directories
 $scriptDir      = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$centralCertDir = Join-Path $scriptDir 'certs'
-$centralPfxPath = Join-Path $centralCertDir 'PharmaTrackCert.pfx'
 
 $adminUsername = "user@email.com"
 $adminPassword = "B4guy#kSDvKJJP+"
@@ -129,49 +130,24 @@ function Install-Service {
 
 #region Deploy Functions
 
-function Deploy-Certificates {
-    Write-Host "`nINFO: Deploying certificates..." -ForegroundColor Cyan
-    New-Item -ItemType Directory -Path $centralCertDir -Force | Out-Null
-    if (-not (Test-Path $centralPfxPath)) {
-        $cert      = New-SelfSignedCertificate -Subject $certSubject -DnsName "localhost" -CertStoreLocation 'Cert:\LocalMachine\My' -NotAfter (Get-Date).AddYears($certValidYears)
-        $securePwd = ConvertTo-SecureString -String $pfxPassword -AsPlainText -Force
-        Export-PfxCertificate -Cert $cert -FilePath $centralPfxPath -Password $securePwd
-
-        Import-PfxCertificate -FilePath $centralPfxPath -CertStoreLocation Cert:\LocalMachine\My -Password $securePwd
-        Import-PfxCertificate -FilePath $centralPfxPath -CertStoreLocation Cert:\LocalMachine\Root -Password $securePwd
-
-        $thumb       = $cert.Thumbprint.Replace(' ', '').ToUpper()
-        $machineCert = Get-ChildItem Cert:\LocalMachine\My | Where-Object Thumbprint -eq $thumb
-        $keyName     = $machineCert.PrivateKey.CspKeyContainerInfo.UniqueKeyContainerName
-        $keyPath     = Join-Path $env:ProgramData "Microsoft\Crypto\RSA\MachineKeys\$keyName"
-
-        Write-Host "INFO: Granting LocalSystem read-access to the private key..." -ForegroundColor Cyan
-        icacls $keyPath /grant "NT AUTHORITY\SYSTEM:(R)" | Out-Null
-        Write-Host "SUCCESS: Certificate created, trusted, and permissions set." -ForegroundColor Green
-    } else {
-        Write-Host "INFO: PFX exists at $centralPfxPath – skipping." -ForegroundColor Cyan
-    }
-}
-
 function Deploy-APIs {
     Write-Host "`nINFO: Deploying APIs..." -ForegroundColor Cyan
 
-    foreach ($proj in $projects) { Remove-ServiceIfExists -name $proj.ServiceName }
+    foreach ($proj in $projects) {
+        Remove-ServiceIfExists -name $proj.ServiceName
+    }
 
     foreach ($proj in $projects) {
         $outDir = Join-Path $scriptDir $proj.PublishDir
         Write-Host "INFO: Publishing $($proj.ProjectPath) to $outDir..." -ForegroundColor Cyan
         dotnet publish $proj.ProjectPath -c Release -r win-x64 --self-contained true -o $outDir
 
-        Write-Host "INFO: Copying cert to $outDir\certs" -ForegroundColor Cyan
-        New-Item -ItemType Directory -Path (Join-Path $outDir 'certs') -Force | Out-Null
-        Copy-Item -Path $centralPfxPath -Destination (Join-Path $outDir 'certs') -Force
-
         $exePath = Join-Path $outDir ([IO.Path]::GetFileNameWithoutExtension($proj.ProjectPath) + '.exe')
         Remove-ServiceIfExists -name $proj.ServiceName
-        Install-Service        -name $proj.ServiceName -display $proj.DisplayName -binPath $exePath -desc $proj.Description
+        Install-Service -name $proj.ServiceName -display $proj.DisplayName -binPath $exePath -desc $proj.Description
     }
 }
+
 
 function Deploy-WPF {
     Write-Host "`nINFO: Deploying WPF app and creating shortcut..." -ForegroundColor Cyan
@@ -200,7 +176,7 @@ function Deploy-WPF {
 function Import-Initial-Data {
     Write-Host "`nINFO: Importing initial data into the system..." -ForegroundColor Cyan
     Write-Host "`INFO: Waiting for API readiness via /health..." -ForegroundColor Cyan
-    $healthUrl   = 'https://localhost:8086/health'
+    $healthUrl   = "$drugApiBaseUrl/health"
     $maxRetries  = 12          # e.g. 12 attempts
     $delaySecs   = 5           # 5 seconds between tries
     $attempt     = 0
@@ -228,7 +204,8 @@ function Import-Initial-Data {
 
     # POST to import drug data
     try {
-        $response = Invoke-WebRequest -Uri "https://localhost:8086/api/Jobs/import-drug-data" -Method POST
+        $drugDataUrl = "$drugApiBaseUrl/api/Jobs/import-drug-data"
+        $response = Invoke-WebRequest -Uri $drugDataUrl -Method POST
     } catch {
         throw "ERROR: Failed to send request to import drug data: $($_.Exception.Message)";
     }
@@ -240,7 +217,8 @@ function Import-Initial-Data {
 
     # POST to import interaction data
     try {
-        $response = Invoke-WebRequest -Uri "https://localhost:8086/api/Jobs/import-interaction-data" -Method POST
+        $interactionDataUrl = "$drugApiBaseUrl/api/Jobs/import-interaction-data"
+        $response = Invoke-WebRequest -Uri $interactionDataUrl -Method POST
     } catch {
         throw "ERROR: Failed to send request to import interaction data: $($_.Exception.Message)";
     }
@@ -250,7 +228,8 @@ function Import-Initial-Data {
     }
     Write-Host "SUCCESS: Interaction data import scheduled successfully (Status $($response.StatusCode))." -ForegroundColor Green
 
-    Write-Host "INFO: You can view the jobs status here: https://localhost:8086/hangfire" -ForegroundColor Cyan
+
+    Write-Host "INFO: You can view the jobs status here: $drugApiBaseUrl/hangfire" -ForegroundColor Cyan
 }
 
 function Run-Database-Migrations {
@@ -474,7 +453,7 @@ function Register-User {
         [string]$Password
     )
 
-    $url = "https://localhost:8084/Auth/Register"
+    $url = "$authApiBaseUrl/Auth/Register"
 
     $body = @{
         username = $Username
@@ -537,7 +516,6 @@ else {
     Write-Host "WARNING: Skipping database migrations!" -ForegroundColor Yellow
 }
 
-Deploy-Certificates
 Deploy-APIs
 
 Write-Host "`nQ: Do you wish to install the Windows Application (WPF)? [Y]es / [N]o" -ForegroundColor Magenta
