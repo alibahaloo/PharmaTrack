@@ -22,11 +22,11 @@ PharmaTrack is a free, modern solution designed to empower small and medium-size
 * Drug Product data: [Health Canada Drug Database](https://www.canada.ca/en/health-canada/services/drugs-health-products/drug-products/drug-product-database.html)
 * Drug Interactions: [DDInter Database](https://ddinter.scbdd.com/)
 
+---
+
 # PharmaTrack Deployment Guide
 
 This guide walks you through running and deploying PharmaTrack on Windows. Development is cross-platform using Docker, while production deployment is Windows-only—services are installed as Windows Services and configured to start automatically with the operating system.
-
----
 
 ## Prerequisites
 
@@ -74,7 +74,7 @@ PharmaTrack/
 ├── deploy.ps1                  # Publishes and installs services as Windows Services
 ├── PharmaTrack.sln             # Visual Studio solution file
 ├── README.md                   # This file
-└── publish/                    # Output folder for published builds
+└── publish/                    # Output folder for published builds via deployment script
 ```
 
 ---
