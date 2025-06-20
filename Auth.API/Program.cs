@@ -28,15 +28,7 @@ builder.WebHost.ConfigureKestrel((context, options) =>
     options.Configure(context.Configuration.GetSection("Kestrel"));
 });
 
-string blazorURL = string.Empty;
-
-if (builder.Environment.IsDevelopment())
-{
-    blazorURL = builder.Configuration["Cors:LocalBlazorClient"] ?? throw new InvalidOperationException("Cors:LocalBlazorClient not found in appsettings.json");
-} else if (builder.Environment.IsProduction())
-{
-    blazorURL = builder.Configuration["Cors:DockerBlazorClient"] ?? throw new InvalidOperationException("Cors:DockerBlazorClient not found in appsettings.json");
-}
+var blazorURL = builder.Configuration["Cors:BlazorClient"] ?? throw new InvalidOperationException("Cors:BlazorClient not found in appsettings.json");
 
 // Add CORS support
 builder.Services.AddCors(options =>
