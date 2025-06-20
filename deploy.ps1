@@ -31,11 +31,6 @@ $projects = @(
 $drugApiBaseUrl = "http://localhost:9092"
 $authApiBaseUrl = "http://localhost:9091"
 
-# Certificate settings
-$certSubject    = 'CN=PharmaTrack'
-$certValidYears = 1
-$pfxPassword    = 'YourP@ssw0rd!'
-
 # WPF project path
 $wpfProjectPath = ".\PharmaTrack.WPF\PharmaTrack.WPF.csproj"
 
@@ -181,6 +176,101 @@ function Deploy-APIs {
     }
 }
 
+function Install-Service {
+    param(
+        [string]$name,
+        [string]$display,
+        [string]$binPath,   # <-- fully quoted exe + args
+        [string]$desc
+    )
+    Write-Host "INFO: Installing service '$name'..." -ForegroundColor Cyan
+
+    # Create the service using exactly what we passed in:
+    New-Service `
+      -Name          $name `
+      -BinaryPathName $binPath `
+      -DisplayName   $display `
+      -StartupType   Automatic
+
+    # Add description and start
+    Set-Service -Name $name -Description $desc
+    Start-Service -Name $name
+
+    Write-Host "SUCCESS: Service '$name' is running." -ForegroundColor Green
+}
+
+
+function Ensure-Nssm {
+    $installDir = Join-Path $env:ProgramFiles 'nssm'
+    $nssmExe    = Join-Path $installDir 'nssm.exe'
+
+    if (-not (Test-Path $nssmExe)) {
+        Write-Host "INFO: NSSM not found—downloading and installing…" -ForegroundColor Yellow
+
+        # 1) Download nssm zip
+        $zipUrl  = 'https://nssm.cc/release/nssm-2.24.zip'
+        $zipFile = Join-Path $env:TEMP 'nssm.zip'
+        Invoke-WebRequest $zipUrl -OutFile $zipFile
+
+        # 2) Expand and copy the 64-bit binary
+        Expand-Archive $zipFile -DestinationPath $env:TEMP -Force
+        New-Item -Path $installDir -ItemType Directory -Force | Out-Null
+        Copy-Item -Path (Join-Path $env:TEMP 'nssm-2.24\win64\nssm.exe') `
+                  -Destination $nssmExe -Force
+
+        # Clean up
+        Remove-Item $zipFile -Force
+    }
+
+    return $nssmExe
+}
+
+function Deploy-PWA {
+    Write-Host "`nINFO: Deploying PharmaTrack.PWA as Windows Service…" -ForegroundColor Cyan
+
+    #–– CONFIG ––
+    $pwaProj    = ".\PharmaTrack.PWA\PharmaTrack.PWA.csproj"
+    $wwwroot    = (Resolve-Path ".\publish\PWA\wwwroot").ProviderPath
+    $svcName    = "PharmaTrackPWA"
+    $svcDesc    = "Hosts PharmaTrack PWA via dotnet-serve"
+    $port       = 9090
+
+    #–– Remove any old service ––
+    if (Get-Service -Name $svcName -ErrorAction SilentlyContinue) {
+        Write-Host "INFO: Removing existing service '$svcName'…" -ForegroundColor Yellow
+        sc.exe delete $svcName | Out-Null
+        Start-Sleep -Seconds 2
+    }
+
+    #–– Ensure dotnet-serve is installed ––
+    if (-not (Get-Command dotnet-serve -ErrorAction SilentlyContinue)) {
+        Write-Host "INFO: Installing dotnet-serve tool…" -ForegroundColor Yellow
+        dotnet tool install --global dotnet-serve
+        $env:PATH += ";" + (Join-Path $env:USERPROFILE ".dotnet\tools")
+    }
+    $serveExe = (Get-Command dotnet-serve).Source
+
+    #–– Publish the PWA ––
+    Write-Host "INFO: Publishing to …\publish\PWA…" -ForegroundColor Cyan
+    dotnet publish $pwaProj -c Release -o (Split-Path $wwwroot)
+
+    #–– Install via NSSM ––
+    $nssm = Ensure-Nssm
+
+    # Arguments: point to wwwroot and the port
+    $appArgs = "-d `"$wwwroot`" -p $port"
+
+    Write-Host "INFO: Registering service with NSSM…" -ForegroundColor Cyan
+    & $nssm install $svcName $serveExe $appArgs
+    & $nssm set     $svcName DisplayName     "PharmaTrack PWA Service"
+    & $nssm set     $svcName Description     $svcDesc
+    & $nssm set     $svcName Start           SERVICE_AUTO_START
+
+    Write-Host "INFO: Starting service…" -ForegroundColor Cyan
+    & $nssm start   $svcName
+
+    Write-Host "SUCCESS: Service '$svcName' is running and will auto-start on boot." -ForegroundColor Green
+}
 
 function Deploy-WPF {
     Write-Host "`nINFO: Deploying WPF app and creating shortcut..." -ForegroundColor Cyan
@@ -526,6 +616,9 @@ function Register-User {
 Write-Host "`===========================================" -ForegroundColor DarkBlue -BackgroundColor Gray
 Write-Host "`Installing PharmaTrack ..." -ForegroundColor DarkBlue -BackgroundColor Gray
 Write-Host "`===========================================" -ForegroundColor DarkBlue -BackgroundColor Gray
+
+Deploy-PWA
+exit
 
 Assert-Admin
 

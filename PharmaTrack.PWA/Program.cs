@@ -9,10 +9,10 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-var authUrl = builder.Configuration["ApiUrls:http:Auth"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Auth' (under ApiUrls in appsettings.json).");
-var scheduleUrl = builder.Configuration["ApiUrls:http:Schedule"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Schedule' (under ApiUrls in appsettings.json).");
-var drugUrl = builder.Configuration["ApiUrls:http:Drug"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Drug' (under ApiUrls in appsettings.json).");
-var inventoryUrl = builder.Configuration["ApiUrls:http:Inventory"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Inventory' (under ApiUrls in appsettings.json).");
+var authUrl = builder.Configuration["ApiUrls:Auth"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Auth' (under ApiUrls in appsettings.json).");
+var scheduleUrl = builder.Configuration["ApiUrls:Schedule"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Schedule' (under ApiUrls in appsettings.json).");
+var drugUrl = builder.Configuration["ApiUrls:Drug"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Drug' (under ApiUrls in appsettings.json).");
+var inventoryUrl = builder.Configuration["ApiUrls:Inventory"] ?? throw new InvalidOperationException("Missing configuration value 'ApiUrls:Inventory' (under ApiUrls in appsettings.json).");
 
 builder.Services.AddBlazorBootstrap();
 
