@@ -1,4 +1,28 @@
-﻿# PharmaTrack Deployment Guide
+﻿# About PharmaTrack
+
+PharmaTrack is a free, modern solution designed to empower small and medium-sized pharmacies with the tools they need to operate efficiently and safely. It offers:
+
+* **User Management**
+  Secure handling of user accounts, roles, and permissions.
+
+* **Task Management**
+  Create and assign tasks to pharmacy staff with calendar views for daily, weekly, and monthly planning.
+
+* **Inventory Management**
+  Track product inventory with full support for stock-in/stock-out using UPC barcode scanners. All transactions are logged for audit and history.
+
+* **Drug Interactions**
+  Check for interactions between up to 10 drugs simultaneously. Search by product (e.g., Advil) or active ingredient (e.g., Ibuprofen).
+
+* **Drug & Ingredient Lookup**
+  Access rich details about drugs and ingredients including brand names, market availability, and product details.
+
+**Data Sources:**
+
+* Drug Product data: [Health Canada Drug Database](https://www.canada.ca/en/health-canada/services/drugs-health-products/drug-products/drug-product-database.html)
+* Drug Interactions: [DDInter Database](https://ddinter.scbdd.com/)
+
+# PharmaTrack Deployment Guide
 
 This guide walks you through running and deploying PharmaTrack on Windows. Development is cross-platform using Docker, while production deployment is Windows-only—services are installed as Windows Services and configured to start automatically with the operating system.
 
@@ -38,17 +62,14 @@ This guide walks you through running and deploying PharmaTrack on Windows. Devel
 PharmaTrack/
 ├── .github/                     # GitHub workflows and metadata
 ├── Auth.API/                   # Auth API service
-├── certs/                      # (legacy) certificate store — can be ignored
-├── devCerts/                   # (legacy) development certificates — can be ignored
 ├── Drug.API/                   # Drug API service
 ├── Inventory.API/              # Inventory API service
-├── PharmaTrack.Core/           # Core shared logic
-├── PharmaTrack.Host/           # Windows Service host app
+├── PharmaTrack.Core/           # Core DB Models and DTOs
+├── PharmaTrack.Host/           # Host to serve static files for PWA
 ├── PharmaTrack.PWA/            # Progressive Web App frontend
-├── PharmaTrack.Shared/         # DTOs and shared contracts
-├── PharmaTrack.WPF/            # WPF Client (for legacy purposes)
+├── PharmaTrack.Shared/         # Shared services and configurations between APIs
+├── PharmaTrack.WPF/            # WPF Client
 ├── Schedule.API/               # Schedule API service
-├── TemplateEngineHost/         # Email template service
 ├── compose.yaml                # Docker Compose configuration
 ├── deploy.ps1                  # Publishes and installs services as Windows Services
 ├── PharmaTrack.sln             # Visual Studio solution file
