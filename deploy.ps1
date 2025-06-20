@@ -21,10 +21,41 @@ $ErrorActionPreference = 'Stop'
 
 # List of API projects to publish & install
 $projects = @(
-    @{ ProjectPath = ".\Auth.API\Auth.API.csproj";        PublishDir = ".\publish\AuthAPI";      ServiceName = "PharmaTrackAuthAPI";      DisplayName = "PharmaTrack Auth API Service";        Description = "PharmaTrack Auth.API as Windows Service" },
-    @{ ProjectPath = ".\Schedule.API\Schedule.API.csproj"; PublishDir = ".\publish\ScheduleAPI"; ServiceName = "PharmaTrackScheduleAPI"; DisplayName = "PharmaTrack Schedule API Service";  Description = "PharmaTrack Schedule.API as Windows Service" },
-    @{ ProjectPath = ".\Drug.API\Drug.API.csproj";         PublishDir = ".\publish\DrugAPI";     ServiceName = "PharmaTrackDrugAPI";      DisplayName = "PharmaTrack Drug API Service";      Description = "PharmaTrack Drug.API as Windows Service" },
-    @{ ProjectPath = ".\Inventory.API\Inventory.API.csproj";PublishDir = ".\publish\InventoryAPI"; ServiceName = "PharmaTrackInventoryAPI"; DisplayName = "PharmaTrack Inventory API Service"; Description = "PharmaTrack Inventory.API as Windows Service" }
+    @{
+        ProjectPath = ".\PharmaTrack.Host\PharmaTrack.Host.csproj"; 
+        PublishDir = ".\publish\Host";
+        ServiceName = "PharmaTrackHost";
+        DisplayName = "PharmaTrack Host Service";
+        Description = "PharmaTrack Host as Windows Service"
+    },
+    @{
+        ProjectPath = ".\Auth.API\Auth.API.csproj";
+        PublishDir = ".\publish\AuthAPI";
+        ServiceName = "PharmaTrackAuthAPI";
+        DisplayName = "PharmaTrack Auth API Service";
+        Description = "PharmaTrack Auth.API as Windows Service" 
+    },
+    @{ 
+        ProjectPath = ".\Schedule.API\Schedule.API.csproj";
+        PublishDir = ".\publish\ScheduleAPI"; 
+        ServiceName = "PharmaTrackScheduleAPI"; 
+        DisplayName = "PharmaTrack Schedule API Service";
+        Description = "PharmaTrack Schedule.API as Windows Service"
+    },
+    @{
+        ProjectPath = ".\Drug.API\Drug.API.csproj";
+        PublishDir = ".\publish\DrugAPI";
+        ServiceName = "PharmaTrackDrugAPI";
+        DisplayName = "PharmaTrack Drug API Service";
+        Description = "PharmaTrack Drug.API as Windows Service"
+    },
+    @{
+        ProjectPath = ".\Inventory.API\Inventory.API.csproj";
+        PublishDir = ".\publish\InventoryAPI";
+        ServiceName = "PharmaTrackInventoryAPI";
+        DisplayName = "PharmaTrack Inventory API Service";
+        Description = "PharmaTrack Inventory.API as Windows Service"
+    }
 )
 
 # Define base URL
@@ -97,39 +128,6 @@ function Ensure-DotNetEF {
     }
 }
 
-function Ensure-DotNetServe {
-    Write-Host "INFO: Installing dotnet-serve..." -ForegroundColor Cyan
-
-    try {
-        dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org | Out-Null
-        dotnet tool install --global dotnet-serve --ignore-failed-sources --no-cache
-        Write-Host "SUCCESS: dotnet-serve installed successfully." -ForegroundColor Green
-    }
-    catch {
-        Write-Host "INFO: dotnet-serve might already be installed. Trying to update it..." -ForegroundColor Cyan
-        try {
-            dotnet tool update --global dotnet-serve
-            Write-Host "SUCCESS: dotnet-serve updated successfully." -ForegroundColor Green
-        }
-        catch {
-            Write-Error "ERROR: Failed to install or update dotnet-serve: $($_.Exception.Message)" -ForegroundColor Red
-            exit 1
-        }
-    }
-
-    Write-Host "INFO: Ensuring .dotnet\tools is in PATH for current session..." -ForegroundColor Cyan
-
-    $toolsPath = "$env:USERPROFILE\.dotnet\tools"
-    if ($env:Path -notlike "*$toolsPath*") {
-        $env:Path += ";$toolsPath"
-        Write-Host "SUCCESS: PATH updated. You can now use 'dotnet-serve' immediately." -ForegroundColor Green
-    }
-    else {
-        Write-Host "INFO: PATH already includes .dotnet\tools. No update needed." -ForegroundColor Cyan
-    }
-}
-
-
 function Remove-ServiceIfExists {
     param([string]$name)
     if (Get-Service -Name $name -ErrorAction SilentlyContinue) {
@@ -199,78 +197,49 @@ function Install-Service {
     Write-Host "SUCCESS: Service '$name' is running." -ForegroundColor Green
 }
 
-
-function Ensure-Nssm {
-    $installDir = Join-Path $env:ProgramFiles 'nssm'
-    $nssmExe    = Join-Path $installDir 'nssm.exe'
-
-    if (-not (Test-Path $nssmExe)) {
-        Write-Host "INFO: NSSM not found—downloading and installing…" -ForegroundColor Yellow
-
-        # 1) Download nssm zip
-        $zipUrl  = 'https://nssm.cc/release/nssm-2.24.zip'
-        $zipFile = Join-Path $env:TEMP 'nssm.zip'
-        Invoke-WebRequest $zipUrl -OutFile $zipFile
-
-        # 2) Expand and copy the 64-bit binary
-        Expand-Archive $zipFile -DestinationPath $env:TEMP -Force
-        New-Item -Path $installDir -ItemType Directory -Force | Out-Null
-        Copy-Item -Path (Join-Path $env:TEMP 'nssm-2.24\win64\nssm.exe') `
-                  -Destination $nssmExe -Force
-
-        # Clean up
-        Remove-Item $zipFile -Force
-    }
-
-    return $nssmExe
-}
-
 function Deploy-PWA {
-    Write-Host "`nINFO: Deploying PharmaTrack.PWA as Windows Service…" -ForegroundColor Cyan
+    Write-Host "`nINFO: Deploying PharmaTrack.PWA to its own publish folder…" -ForegroundColor Cyan
 
     #–– CONFIG ––
-    $pwaProj    = ".\PharmaTrack.PWA\PharmaTrack.PWA.csproj"
-    $wwwroot    = (Resolve-Path ".\publish\PWA\wwwroot").ProviderPath
-    $svcName    = "PharmaTrackPWA"
-    $svcDesc    = "Hosts PharmaTrack PWA via dotnet-serve"
-    $port       = 9090
+    $solutionRoot = $PSScriptRoot
+    $pwaProj      = Join-Path $solutionRoot "PharmaTrack.PWA\PharmaTrack.PWA.csproj"
+    $pwaPublish   = Join-Path $solutionRoot "publish\PWA"
 
-    #–– Remove any old service ––
-    if (Get-Service -Name $svcName -ErrorAction SilentlyContinue) {
-        Write-Host "INFO: Removing existing service '$svcName'…" -ForegroundColor Yellow
-        sc.exe delete $svcName | Out-Null
-        Start-Sleep -Seconds 2
+    #–– 1) Publish the PWA ––
+    Write-Host "INFO: dotnet publish $pwaProj → $pwaPublish" -ForegroundColor Cyan
+    dotnet publish $pwaProj -c Release -o $pwaPublish
+
+    #–– source wwwroot of PWA ––
+    $pwaWwwRoot = Join-Path $pwaPublish "wwwroot"
+    if ( -not (Test-Path $pwaWwwRoot) ) {
+        Write-Error "ERROR: Cannot find PWA wwwroot at $pwaWwwRoot" -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "SUCCESS: PWA published. wwwroot at $pwaWwwRoot" -ForegroundColor Green
+
+
+    #–– 2) Copy PWA assets into Host’s wwwroot ––
+    $hostWwwRoot = Join-Path $solutionRoot "publish\Host\wwwroot"
+    Write-Host "`nINFO: Preparing Host wwwroot at $hostWwwRoot" -ForegroundColor Cyan
+
+    # ensure host wwwroot exists and is clean
+    if ( Test-Path $hostWwwRoot ) {
+        Write-Host "INFO: Clearing existing files…" -ForegroundColor Cyan
+        Remove-Item (Join-Path $hostWwwRoot '*') -Recurse -Force
+    }
+    else {
+        Write-Host "INFO: Creating Host wwwroot directory…" -ForegroundColor Cyan
+        New-Item -ItemType Directory -Path $hostWwwRoot | Out-Null
     }
 
-    #–– Ensure dotnet-serve is installed ––
-    if (-not (Get-Command dotnet-serve -ErrorAction SilentlyContinue)) {
-        Write-Host "INFO: Installing dotnet-serve tool…" -ForegroundColor Yellow
-        dotnet tool install --global dotnet-serve
-        $env:PATH += ";" + (Join-Path $env:USERPROFILE ".dotnet\tools")
-    }
-    $serveExe = (Get-Command dotnet-serve).Source
+    # copy everything from PWA/wwwroot into Host/wwwroot
+    Write-Host "INFO: Copying PWA static assets into Host wwwroot…" -ForegroundColor Cyan
+    Copy-Item -Path (Join-Path $pwaWwwRoot '*') -Destination $hostWwwRoot -Recurse -Force
 
-    #–– Publish the PWA ––
-    Write-Host "INFO: Publishing to …\publish\PWA…" -ForegroundColor Cyan
-    dotnet publish $pwaProj -c Release -o (Split-Path $wwwroot)
-
-    #–– Install via NSSM ––
-    $nssm = Ensure-Nssm
-
-    # Arguments: point to wwwroot and the port
-    $appArgs = "-d `"$wwwroot`" -p $port"
-
-    Write-Host "INFO: Registering service with NSSM…" -ForegroundColor Cyan
-    & $nssm install $svcName $serveExe $appArgs
-    & $nssm set     $svcName DisplayName     "PharmaTrack PWA Service"
-    & $nssm set     $svcName Description     $svcDesc
-    & $nssm set     $svcName Start           SERVICE_AUTO_START
-
-    Write-Host "INFO: Starting service…" -ForegroundColor Cyan
-    & $nssm start   $svcName
-
-    Write-Host "SUCCESS: Service '$svcName' is running and will auto-start on boot." -ForegroundColor Green
+    Write-Host "SUCCESS: All PWA assets are now in Host's wwwroot." -ForegroundColor Green
 }
+
+
 
 function Deploy-WPF {
     Write-Host "`nINFO: Deploying WPF app and creating shortcut..." -ForegroundColor Cyan
@@ -617,9 +586,6 @@ Write-Host "`===========================================" -ForegroundColor DarkB
 Write-Host "`Installing PharmaTrack ..." -ForegroundColor DarkBlue -BackgroundColor Gray
 Write-Host "`===========================================" -ForegroundColor DarkBlue -BackgroundColor Gray
 
-Deploy-PWA
-exit
-
 Assert-Admin
 
 Write-Host "`nQ: Check for prerequisites? If this is the first time running this script, you MUST do this step. [Y]es / [N]o" -ForegroundColor Magenta
@@ -627,7 +593,6 @@ $PreflightAnswer = Read-Host
 if ($PreflightAnswer -match '^[Yy]$') {
     Ensure-DotNet9
     Ensure-DotNetEF
-    Ensure-DotNetServe
     Ensure-SqlExpressInstallation
     Ensure-SqlExpressServerUser
 } else {
@@ -643,6 +608,7 @@ else {
     Write-Host "WARNING: Skipping database migrations!" -ForegroundColor Yellow
 }
 
+Deploy-PWA
 Deploy-APIs
 
 Write-Host "`nQ: Do you wish to install the Windows Application (WPF)? [Y]es / [N]o" -ForegroundColor Magenta
