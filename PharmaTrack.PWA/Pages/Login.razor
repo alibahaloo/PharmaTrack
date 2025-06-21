@@ -5,36 +5,55 @@
 @inject AuthService AuthService
 @inject NavigationManager Navigation
 
-<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-
-    <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <InputText id="username"
-                   class="form-control"
-                   @bind-Value="loginModel.Username" />
+@if (isLoading)
+{
+    <div class="d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 300px);">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
     </div>
+}
+else
+{
+    <div class="d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 300px);">
+        <div class="border rounded p-4 shadow" style="min-width: 500px; height:500px;">
+            <h2>Login</h2>
+            <hr />
+            <EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
-    <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <InputText id="password"
-                   type="password"
-                   class="form-control"
-                   @bind-Value="loginModel.Password" />
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <InputText id="username"
+                               class="form-control"
+                               @bind-Value="loginModel.Username" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <InputText id="password"
+                               type="password"
+                               class="form-control"
+                               @bind-Value="loginModel.Password" />
+                </div>
+
+                <div class="form-check mb-3">
+                    <InputCheckbox id="rememberMe"
+                                   class="form-check-input"
+                                   @bind-Value="loginModel.RememberMe" />
+                    <label for="rememberMe" class="form-check-label">
+                        Remember me
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary ps-5 pe-5">Log in</button>
+            </EditForm>
+        </div>
     </div>
+}
 
-    <div class="form-check mb-3">
-        <InputCheckbox id="rememberMe"
-                       class="form-check-input"
-                       @bind-Value="loginModel.RememberMe" />
-        <label for="rememberMe" class="form-check-label">
-            Remember me
-        </label>
-    </div>
 
-    <button type="submit" class="btn btn-primary">Log in</button>
-</EditForm>
 
 @if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -43,11 +62,13 @@
 
 @code {
     private LoginModel loginModel = new();
-    private string errorMessage;
+    private string? errorMessage;
+    private bool isLoading = false;
 
     private async Task HandleLogin()
     {
         errorMessage = null;
+        isLoading = true;
 
         var success = await AuthService.LoginAsync(
             loginModel.Username,
@@ -63,12 +84,14 @@
         {
             errorMessage = "Invalid username or password.";
         }
+
+        isLoading = false;
     }
 
     private class LoginModel
     {
-        [Required] public string Username { get; set; }
-        [Required] public string Password { get; set; }
+        [Required] public string Username { get; set; } = default!;
+        [Required] public string Password { get; set; } = default!;
         public bool RememberMe { get; set; }
     }
 }
