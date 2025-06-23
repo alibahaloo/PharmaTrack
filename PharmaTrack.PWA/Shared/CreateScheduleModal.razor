@@ -61,7 +61,17 @@
 
     <div class="row mb-3 text-end">
         <div class="col">
-            <button type="submit" class="btn btn-primary">Save</button>
+            @if (isLoading)
+            {
+                <button class="btn btn-primary me-1" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                    <span role="status">Loading...</span>
+                </button>
+            } else
+            {
+                <button type="submit" class="btn btn-primary me-1">Save</button>
+            }
+            
             <button type="button" class="btn btn-secondary" @onclick="OnCloseCallback">Cancel</button>
         </div>
     </div>
@@ -108,6 +118,8 @@
         }
     }
 
+    private bool isLoading = false;
+
     private FormModel eventModel = new()
         {
         // prefill today’s date
@@ -152,6 +164,7 @@
         if (!editContext.Validate())
             return;
 
+        isLoading = true;
         // build the event
         var evt = new ScheduleTask
         {
@@ -161,9 +174,19 @@
             Description = eventModel.Description!
         };
 
-        if (await scheduleService.CreateScheduleAsync(evt))
+        try
         {
+            await scheduleService.CreateScheduleAsync(evt);
             await OnSaveCallback.InvokeAsync();
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 }

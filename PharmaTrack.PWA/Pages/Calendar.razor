@@ -135,45 +135,55 @@
     <div class="calendar-grid">
         @foreach (var dt in cells)
         {
-            @if (dt.HasValue)
-            {
-                var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date);
-                bool isToday = dt.Value.Date == DateTime.Today;
-
-                var click = dt.HasValue && dateEvents.Count() > 0
-                ? EventCallback.Factory.Create(this, () => OnShowModalClick(dt.Value))
-                : EventCallback.Factory.Create(this, () => Task.CompletedTask);
-
-                <div class="cell border border-1" @onclick="click">
-                    <div class="row">
-                        @if (isToday)
-                        {
-                            <div class="col-6 fw-bold text-black text-decoration-underline">@dt.Value.Day</div>
-                        }
-                        else
-                        {
-                            <div class="col-6 text-secondary">@dt.Value.Day</div>
-                        }
-
-                        @if (dateEvents.Count() > 0)
-                        {
-                            <div class="col-6 text-end fw-bold">
-                                <span class="badge rounded-pill bg-danger small">@dateEvents.Count()</span>
-                            </div>
-                            @foreach (var ev in dateEvents)
-                            {
-                                <div class="text-black text-truncate" style="font-size: 12px" title="@ev.UserName - @ev.Description">
-                                    <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
-                                </div>
-                            }
-                        }
-                    </div>
-                </div>
-            }
-            else
+            @if (isLoading)
             {
                 <div class="cell border border-1">
+                    <p class="placeholder-glow">
+                        <span class="placeholder col-12 bg-secondary"></span>
+                    </p>
                 </div>
+            } else
+            {
+                @if (dt.HasValue)
+                {
+                    var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date);
+                    bool isToday = dt.Value.Date == DateTime.Today;
+
+                    var click = dt.HasValue && dateEvents.Count() > 0
+                    ? EventCallback.Factory.Create(this, () => OnShowModalClick(dt.Value))
+                    : EventCallback.Factory.Create(this, () => Task.CompletedTask);
+
+                    <div class="cell border border-1" @onclick="click">
+                        <div class="row">
+                            @if (isToday)
+                            {
+                                <div class="col-6 fw-bold text-black text-decoration-underline">@dt.Value.Day</div>
+                            }
+                            else
+                            {
+                                <div class="col-6 text-secondary">@dt.Value.Day</div>
+                            }
+
+                            @if (dateEvents.Count() > 0)
+                            {
+                                <div class="col-6 text-end fw-bold">
+                                    <span class="badge rounded-pill bg-danger small">@dateEvents.Count()</span>
+                                </div>
+                                @foreach (var ev in dateEvents)
+                                {
+                                    <div class="text-black text-truncate" style="font-size: 12px" title="@ev.UserName - @ev.Description">
+                                        <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="cell border border-1">
+                    </div>
+                }
             }
         }
     </div>
@@ -205,11 +215,22 @@ else
                     }
                 </div>
                 <div class="border" style="height: 500px; overflow-y: auto;">
-                    @foreach (var ev in dateEvents)
+                    @if (isLoading)
                     {
-                        <div class="small m-2" title="@ev.Description">
-                            <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
+                        <div class="m-1">
+                            <p class="placeholder-glow">
+                                <span class="placeholder col-12 bg-secondary"></span>
+                            </p>
                         </div>
+                        
+                    } else
+                    {
+                        @foreach (var ev in dateEvents)
+                        {
+                            <div class="small m-2" title="@ev.Description">
+                                <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
+                            </div>
+                        }
                     }
                 </div>
             </div>
@@ -218,6 +239,8 @@ else
 }
 
 @code {
+    private bool isLoading = false;
+
     private List<string> daysList = new List<string>{
         "Monday",
         "Tuesday",
@@ -279,9 +302,18 @@ else
 
     private async Task LoadEvents()
     {
-        Events = IsMonthlyView
+        isLoading = true;
+        try
+        {
+            Events = IsMonthlyView
             ? await ScheduleService.GetMonthlySchedulesAsync(CurrentDate, SelectedUser)
             : await ScheduleService.GetWeeklySchedulesAsync(WeekStart, SelectedUser);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+        
     }
 
     private async Task ShowMonthly()

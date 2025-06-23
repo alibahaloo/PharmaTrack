@@ -15,23 +15,13 @@ namespace PharmaTrack.PWA.Helpers
         {
             _http = http;
         }
-        public async Task<bool> CreateScheduleAsync(ScheduleTask newTask)
+        public async Task CreateScheduleAsync(ScheduleTask newTask)
         {
             const string url = "schedules";
-            try
-            {
-                // POST the newEvent as JSON, using your case-insensitive options
-                var response = await _http.PostAsJsonAsync(url, newTask, _jsonOptions);
-
-                // if the server returns success, deserialize and return the created object
-                response.EnsureSuccessStatusCode();
-                return true;
-            }
-            catch (HttpRequestException)
-            {
-                // TODO: log the error, or propagate
-                return false;
-            }
+            // POST the newEvent as JSON, using your case-insensitive options
+            var response = await _http.PostAsJsonAsync(url, newTask, _jsonOptions);
+            // if the server returns success, deserialize and return the created object
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task<List<ScheduleTask>> GetMonthlySchedulesAsync(DateTime date, string username = "")
