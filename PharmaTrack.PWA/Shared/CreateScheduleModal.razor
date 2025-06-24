@@ -120,11 +120,7 @@
 
     private bool isLoading = false;
 
-    private FormModel eventModel = new()
-        {
-        // prefill today’s date
-            Date = DateOnly.FromDateTime(DateTime.Today)
-        };
+    private FormModel eventModel = new();
 
     private EditContext editContext = default!;
 
@@ -134,9 +130,20 @@
         editContext = new EditContext(eventModel);
     }
 
+    protected override void OnParametersSet()
+    {
+        if (Date.HasValue)
+        {
+            eventModel.Date = DateOnly.FromDateTime(Date.Value);
+        } else
+        {
+            eventModel.Date = DateOnly.FromDateTime(DateTime.Today);
+        }
+    }
+
     [Parameter] public EventCallback<MouseEventArgs> OnCloseCallback { get; set; }
     [Parameter] public EventCallback<MouseEventArgs> OnSaveCallback { get; set; }
-
+    [Parameter] public DateTime? Date { get; set; }
 
     private IEnumerable<UserDto>? users;
 

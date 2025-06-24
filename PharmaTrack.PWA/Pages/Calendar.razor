@@ -1,73 +1,79 @@
 ﻿@page "/calendar"
 @using PharmaTrack.PWA.Helpers
-@using PharmaTrack.Core.DBModels;
-@using PharmaTrack.Core.DTOs;
+@using PharmaTrack.Core.DBModels
+@using PharmaTrack.Core.DTOs
 @inject ScheduleService ScheduleService
 @inject AuthService AuthService
 @inject IJSRuntime JSRuntime
 @attribute [Authorize]
 
 <style>
-    .weekday-header, .calendar-grid {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    .weekday-header,
+    .calendar-grid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
     }
 
     .weekday-header {
-    text-align: center;
-    font-weight: bold;
+        text-align: center;
+        font-weight: bold;
     }
 
     .calendar-grid {
-    /* gap: 1px; */
-    margin-bottom: 1rem;
+        /* gap: 1px; */
+        margin-bottom: 1rem;
     }
 
     .calendar-grid .cell {
-    background-color: #fff;
-    padding: 0.5rem;
-    height: 110px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    /* box-sizing: border-box; */
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        background-color: #fff;
+        padding: 0.3rem;
+        height: 110px;
+    }
+
+    .calendar-grid .cell .cell-body {
+        flex-grow: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .week-grid {
-    display: flex;
+        display: flex;
     }
 
     .week-col {
-    flex: 1;
-    min-height: 500px;
-    min-width: 0; /* Prevents overflow issues */
-    max-width: 14.2857%; /* 100 / 7 */
+        flex: 1;
+        min-height: 500px;
+        min-width: 0; /* Prevents overflow issues */
+        max-width: 14.2857%; /* 100 / 7 */
     }
 </style>
-<Modal @ref="createScheduleModal" UseStaticBackdrop=true/>
-<Modal @ref="modal" Title=@SelectedDate.ToLongDateString() Size="ModalSize.Large">
+
+<Modal @ref="createScheduleModal" UseStaticBackdrop="true" />
+<Modal @ref="modal" Title="@SelectedDate.ToLongDateString()" Size="ModalSize.Large">
     <BodyTemplate>
-        @{
-            <table class="table">
-                <thead>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Username</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in SelectedDateEvents)
+                {
                     <tr>
-                        <th scope="col">Username</th>
-                        <th scope="col">Time</th>
-                        <th scope="col">Description</th>
+                        <th scope="row">@item.UserName</th>
+                        <td>@item.Start.ToShortTimeString()-@item.End.ToShortTimeString()</td>
+                        <td>@item.Description</td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in SelectedDateEvents)
-                    {
-                        <tr>
-                            <th scope="row">@item.UserName</th>
-                            <td>@item.Start.ToShortTimeString()-@item.End.ToShortTimeString()</td>
-                            <td>@item.Description</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
+                }
+            </tbody>
+        </table>
     </BodyTemplate>
 </Modal>
 
@@ -76,10 +82,9 @@
         <button class="btn-sm btn btn-secondary" @onclick="GoToToday">Today</button>
         <button class="btn-sm btn btn-secondary bi bi-chevron-left" @onclick="GoToPrev"></button>
         <button class="btn-sm btn btn-secondary bi bi-chevron-right" @onclick="GoToNext"></button>
-        <button class="btn btn-sm btn-primary bi-calendar-plus" @onclick="OnShowCreateScheduleModalClick"></button>
+        <button class="btn btn-sm btn btn-primary bi-calendar-plus" @onclick="OnShowCreateScheduleModalClick"></button>
     </div>
     <div class="col-4 d-flex align-items-center justify-content-end gap-2">
-
         <div class="btn-group">
             <button class="btn btn-sm @GetMonthlyClass()" @onclick="ShowMonthly">Monthly</button>
             <button class="btn btn-sm @GetWeeklyClass()" @onclick="ShowWeekly">Weekly</button>
@@ -87,22 +92,18 @@
 
         <div class="input-group input-group-sm">
             <span class="input-group-text" id="basic-addon1">Filter by User</span>
-            <input 
-            @bind="SelectedUser" 
-            @onselectionchange="LoadEvents"
-            class="form-control form-control-sm" 
-            list="usersList" 
-            id="usernameList" 
-            placeholder="Select user ..." 
-            aria-label="Username" 
-            aria-describedby="basic-addon1">
+            <input @bind="SelectedUser"
+                   @onselectionchange="LoadEvents"
+                   class="form-control form-control-sm"
+                   list="usersList"
+                   id="usernameList"
+                   placeholder="Select user ..."
+                   aria-label="Username"
+                   aria-describedby="basic-addon1" />
             <datalist id="usersList">
-                @{
-                    foreach (var item in Users)
-                    {
-                        <option value="@item.UserName">
-                        </option>
-                    }
+                @foreach (var item in Users)
+                {
+                    <option value="@item.UserName"></option>
                 }
             </datalist>
         </div>
@@ -132,6 +133,7 @@
             <div class="text-black bg-white border border-1">@dayName</div>
         }
     </div>
+
     <div class="calendar-grid">
         @foreach (var dt in cells)
         {
@@ -142,48 +144,56 @@
                         <span class="placeholder col-12 bg-secondary"></span>
                     </p>
                 </div>
-            } else
+            }
+            else if (dt.HasValue)
             {
-                @if (dt.HasValue)
-                {
-                    var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date);
-                    bool isToday = dt.Value.Date == DateTime.Today;
+                var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date).ToList();
+                bool isToday = dt.Value.Date == DateTime.Today;
+                var click = dateEvents.Any()
+                ? EventCallback.Factory.Create(this, () => OnShowModalClick(dt.Value))
+                : EventCallback.Factory.Create(this, () => Task.CompletedTask);
 
-                    var click = dt.HasValue && dateEvents.Count() > 0
-                    ? EventCallback.Factory.Create(this, () => OnShowModalClick(dt.Value))
-                    : EventCallback.Factory.Create(this, () => Task.CompletedTask);
-
-                    <div class="cell border border-1" @onclick="click">
-                        <div class="row">
+                <div class="cell border border-1">
+                    <!-- Header -->
+                    <div class="cell-header row align-items-center">
+                        <div class="col-6 d-flex align-items-center">
                             @if (isToday)
                             {
-                                <div class="col-6 fw-bold text-black text-decoration-underline">@dt.Value.Day</div>
+                                <span class="fw-bold text-black text-decoration-underline">@dt.Value.Day</span>
                             }
                             else
                             {
-                                <div class="col-6 text-secondary">@dt.Value.Day</div>
+                                <span class="text-secondary">@dt.Value.Day</span>
                             }
+                            <span class="bi bi-calendar-plus text-primary ms-1 small" role="button" @onclick="() => CreateScheduleWithDate(dt)"></span>
+                        </div>
+                        @if (dateEvents.Count > 0)
+                        {
+                            <div class="col-6 text-end fw-bold">
+                                <span class="badge rounded-pill bg-danger small">@dateEvents.Count</span>
+                            </div>
+                        }
+                    </div>
 
-                            @if (dateEvents.Count() > 0)
-                            {
-                                <div class="col-6 text-end fw-bold">
-                                    <span class="badge rounded-pill bg-danger small">@dateEvents.Count()</span>
-                                </div>
+                    <!-- Body -->
+                    @if (dateEvents.Any())
+                    {
+                        <div class="cell-body row" @onclick="click">
+                            <div class="col">
                                 @foreach (var ev in dateEvents)
                                 {
-                                    <div class="text-black text-truncate" style="font-size: 12px" title="@ev.UserName - @ev.Description">
+                                    <div class="text-black text-truncate" style="font-size:12px" title="@ev.UserName - @ev.Description">
                                         <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
                                     </div>
                                 }
-                            }
+                            </div>
                         </div>
-                    </div>
-                }
-                else
-                {
-                    <div class="cell border border-1">
-                    </div>
-                }
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="cell border border-1"></div>
             }
         }
     </div>
@@ -197,10 +207,9 @@ else
             var todayClass = isToday ? "fw-bold" : "fw-light";
             var dateEvents = Events.Where(e => e.Start.Date == WeekStart.AddDays(d).Date);
 
-            var index = d; // Freeze the current value
+            var index = d;
             var currentDate = WeekStart.AddDays(index);
-
-            var weeklyClick = dateEvents.Count() > 0
+            var weeklyClick = dateEvents.Any()
             ? EventCallback.Factory.Create(this, () => OnShowModalClick(currentDate))
             : EventCallback.Factory.Create(this, () => Task.CompletedTask);
 
@@ -222,8 +231,8 @@ else
                                 <span class="placeholder col-12 bg-secondary"></span>
                             </p>
                         </div>
-                        
-                    } else
+                    }
+                    else
                     {
                         @foreach (var ev in dateEvents)
                         {
@@ -239,20 +248,12 @@ else
 }
 
 @code {
-    private bool isLoading = false;
-
-    private List<string> daysList = new List<string>{
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"
-    };
-    // Modal for daily events
+    private bool isLoading;
+    private List<string> daysList = new()
+  {
+    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+  };
     private Modal modal = default!;
-    // Modal for creating new events
     private Modal createScheduleModal = default!;
     private DateTime SelectedDate;
     private DateTime CurrentDate = DateTime.Today;
@@ -270,7 +271,7 @@ else
         Users = await AuthService.GetUsernames();
     }
 
-    async Task ClearUserFilter()
+    private async Task ClearUserFilter()
     {
         SelectedUser = string.Empty;
         await LoadEvents();
@@ -288,17 +289,45 @@ else
 
     private async Task OnShowCreateScheduleModalClick()
     {
-        var parameters = new Dictionary<string, object>();
-        parameters.Add("OnCloseCallback", EventCallback.Factory.Create<MouseEventArgs>(this, HideCreateScheduleModal));
-        parameters.Add("OnSaveCallback", EventCallback.Factory.Create<MouseEventArgs>(this, OnSaveCallback));
-        await createScheduleModal.ShowAsync<CreateScheduleModal>(title: "Create new schedule", parameters: parameters);
+        var parameters = new Dictionary<string, object>
+        {
+            { "OnCloseCallback", EventCallback.Factory.Create<MouseEventArgs>(this, HideCreateScheduleModal) },
+            { "OnSaveCallback",   EventCallback.Factory.Create<MouseEventArgs>(this, OnSaveCallback) }
+        };
+
+        await createScheduleModal.ShowAsync<CreateScheduleModal>(
+            title: "Create new schedule",
+            parameters: parameters
+        );
     }
+
+    private async Task CreateScheduleWithDate(DateTime? date)
+    {
+        var parameters = new Dictionary<string, object>
+            {
+                { "OnCloseCallback", EventCallback.Factory.Create<MouseEventArgs>(this, HideCreateScheduleModal) },
+                { "OnSaveCallback",   EventCallback.Factory.Create<MouseEventArgs>(this, OnSaveCallback) }
+            };
+        if (date != null)
+        {
+            parameters.Add("Date", date);
+        } 
+
+        await createScheduleModal.ShowAsync<CreateScheduleModal>(
+            title: "Create new schedule",
+            parameters: parameters
+        );
+    }
+
+
     private async Task OnSaveCallback(MouseEventArgs e)
     {
         await LoadEvents();
         await createScheduleModal.HideAsync();
     }
-    private void HideCreateScheduleModal(MouseEventArgs e) => createScheduleModal.HideAsync();
+
+    private void HideCreateScheduleModal(MouseEventArgs e) =>
+      createScheduleModal.HideAsync();
 
     private async Task LoadEvents()
     {
@@ -306,14 +335,13 @@ else
         try
         {
             Events = IsMonthlyView
-            ? await ScheduleService.GetMonthlySchedulesAsync(CurrentDate, SelectedUser)
-            : await ScheduleService.GetWeeklySchedulesAsync(WeekStart, SelectedUser);
+              ? await ScheduleService.GetMonthlySchedulesAsync(CurrentDate, SelectedUser)
+              : await ScheduleService.GetWeeklySchedulesAsync(WeekStart, SelectedUser);
         }
         finally
         {
             isLoading = false;
         }
-        
     }
 
     private async Task ShowMonthly()
@@ -337,16 +365,16 @@ else
     private async Task GoToPrev()
     {
         CurrentDate = IsMonthlyView
-            ? CurrentDate.AddMonths(-1)
-            : CurrentDate.AddDays(-7);
+          ? CurrentDate.AddMonths(-1)
+          : CurrentDate.AddDays(-7);
         await LoadEvents();
     }
 
     private async Task GoToNext()
     {
         CurrentDate = IsMonthlyView
-            ? CurrentDate.AddMonths(1)
-            : CurrentDate.AddDays(7);
+          ? CurrentDate.AddMonths(1)
+          : CurrentDate.AddDays(7);
         await LoadEvents();
     }
 
