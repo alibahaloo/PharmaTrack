@@ -117,11 +117,13 @@
             }
         }
     }
+    [Parameter] public EventCallback<MouseEventArgs> OnCloseCallback { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnSaveCallback { get; set; }
+    [Parameter] public DateTime? Date { get; set; }
 
+    private IEnumerable<UserDto>? users;
     private bool isLoading = false;
-
     private FormModel eventModel = new();
-
     private EditContext editContext = default!;
 
     protected override void OnInitialized()
@@ -140,12 +142,6 @@
             eventModel.Date = DateOnly.FromDateTime(DateTime.Today);
         }
     }
-
-    [Parameter] public EventCallback<MouseEventArgs> OnCloseCallback { get; set; }
-    [Parameter] public EventCallback<MouseEventArgs> OnSaveCallback { get; set; }
-    [Parameter] public DateTime? Date { get; set; }
-
-    private IEnumerable<UserDto>? users;
 
     private async Task<AutoCompleteDataProviderResult<UserDto>> UsersDataProvider(AutoCompleteDataProviderRequest<UserDto> request)
     {

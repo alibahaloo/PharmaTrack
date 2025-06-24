@@ -34,16 +34,8 @@ namespace PharmaTrack.PWA.Helpers
                 url = $"schedules/monthly?date={date:yyyy-MM-dd}";
             }
 
-            try
-            {
-                var result = await _http.GetFromJsonAsync<List<ScheduleTask>>(url, _jsonOptions);
-                return result ?? [];
-            }
-            catch (HttpRequestException)
-            {
-                // TODO: log error or handle accordingly
-                return [];
-            }
+            var result = await _http.GetFromJsonAsync<List<ScheduleTask>>(url, _jsonOptions);
+            return result ?? [];
         }
 
         public async Task<List<ScheduleTask>> GetWeeklySchedulesAsync(DateTime weekStart, string username = "")
@@ -58,16 +50,8 @@ namespace PharmaTrack.PWA.Helpers
                 url = $"schedules/weekly?date={weekStart:yyyy-MM-dd}";
             }
 
-            try
-            {
-                var result = await _http.GetFromJsonAsync<List<ScheduleTask>>(url);
-                return result ?? [];
-            }
-            catch (HttpRequestException)
-            {
-                // TODO: log error or handle accordingly
-                return [];
-            }
+            var result = await _http.GetFromJsonAsync<List<ScheduleTask>>(url);
+            return result ?? [];
         }
 
         public async Task<List<ScheduleTask>> GetDailySchedulesAsync(DateTime date)

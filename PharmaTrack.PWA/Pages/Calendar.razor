@@ -375,15 +375,22 @@ else
     private async Task LoadEvents()
     {
         isLoading = true;
+        StateHasChanged();
+
         try
         {
             Events = IsMonthlyView
               ? await ScheduleService.GetMonthlySchedulesAsync(CurrentDate, SelectedUser)
               : await ScheduleService.GetWeeklySchedulesAsync(WeekStart, SelectedUser);
         }
+        catch(Exception ex)
+        {
+            messages.Add(ToastForError($"ERROR: {ex.Message}"));
+        }
         finally
         {
             isLoading = false;
+            StateHasChanged();
         }
     }
 

@@ -85,17 +85,8 @@ namespace PharmaTrack.PWA.Helpers
             string queryString = string.Join("&", queryParameters);
             string url = $"products?{queryString}";
 
-            try
-            {
-                var result = await _http.GetFromJsonAsync<PagedResponse<Product>>(url, _jsonOptions);
-                return result ?? null;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                // TODO: log error or handle accordingly
-                return null;
-            }
+            var result = await _http.GetFromJsonAsync<PagedResponse<Product>>(url, _jsonOptions);
+            return result ?? null;
         }
 
         public async Task<PagedResponse<Transaction>?> GetTransactionsAsync(string? searchPhrase, TransactionType transactionType = TransactionType.In, int curPage = 1)
@@ -116,17 +107,8 @@ namespace PharmaTrack.PWA.Helpers
             string queryString = string.Join("&", queryParameters);
             string url = $"transactions?{queryString}";
 
-            try
-            {
-                var result = await _http.GetFromJsonAsync<PagedResponse<Transaction>>(url, _jsonOptions);
-                return result ?? null;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                // TODO: log error or handle accordingly
-                return null;
-            }
+            var result = await _http.GetFromJsonAsync<PagedResponse<Transaction>>(url, _jsonOptions);
+            return result ?? null;
         }
     }
 }

@@ -253,15 +253,26 @@
     {
         isLoadingProducts = true;
         StateHasChanged();
-        response = await InventoryService.GetProductsAsync(searchTerm, curPage);
-        if (response != null)
-        {
-            totalItemCount = response.TotalItemCount;
-            totalPageCount = response.TotalPageCount;
-        }
 
-        isLoadingProducts = false;
-        StateHasChanged();
+        try
+        {
+            response = await InventoryService.GetProductsAsync(searchTerm, curPage);
+            if (response != null)
+            {
+                totalItemCount = response.TotalItemCount;
+                totalPageCount = response.TotalPageCount;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            messages.Add(ToastForError($"ERROR: {ex.Message}"));
+        }
+        finally
+        {
+            isLoadingProducts = false;
+            StateHasChanged();
+        }
     }
 
     private async Task LoadNextPageAsync()
