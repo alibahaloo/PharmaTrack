@@ -51,7 +51,7 @@
         max-width: 14.2857%; /* 100 / 7 */
     }
 </style>
-
+<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 <Modal @ref="createScheduleModal" UseStaticBackdrop="true" />
 <Modal @ref="modal" Title="@SelectedDate.ToLongDateString()" Size="ModalSize.Large">
     <BodyTemplate>
@@ -278,6 +278,35 @@ else
 
     private DateTime WeekStart => StartOfWeek(CurrentDate, DayOfWeek.Monday);
 
+    List<ToastMessage> messages = new List<ToastMessage>();
+    private ToastMessage ToastForInfo(string message)
+    => new ToastMessage
+    {
+        Type = ToastType.Info,
+        Message = message,
+    };
+
+    private ToastMessage ToastForSuccess(string message)
+    => new ToastMessage
+    {
+        Type = ToastType.Success,
+        Message = message,
+    };
+
+    private ToastMessage ToastForWarning(string message)
+    => new ToastMessage
+    {
+        Type = ToastType.Warning,
+        Message = message,
+    };
+
+    private ToastMessage ToastForError(string message)
+    => new ToastMessage
+    {
+        Type = ToastType.Danger,
+        Message = $"An Error Occurred: {message}",
+    };
+
     protected override async Task OnInitializedAsync()
     {
         await LoadEvents();
@@ -335,6 +364,7 @@ else
 
     private async Task OnSaveCallback(MouseEventArgs e)
     {
+        messages.Add(ToastForSuccess("Task created successfully."));
         await LoadEvents();
         await createScheduleModal.HideAsync();
     }
