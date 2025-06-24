@@ -148,10 +148,12 @@
             else if (dt.HasValue)
             {
                 var dateEvents = Events.Where(e => e.Start.Date == dt.Value.Date).ToList();
+                int eventCount = dateEvents.Count();
                 bool isToday = dt.Value.Date == DateTime.Today;
                 var click = dateEvents.Any()
                 ? EventCallback.Factory.Create(this, () => OnShowModalClick(dt.Value))
                 : EventCallback.Factory.Create(this, () => Task.CompletedTask);
+
 
                 <div class="cell border border-1">
                     <!-- Header -->
@@ -171,23 +173,23 @@
                                 <span class="bi bi-calendar-plus text-primary ms-1 small" role="button" @onclick="() => CreateScheduleWithDate(dt)"></span>
                             }
                         </div>
-                        @if (dateEvents.Count > 0)
+                        @if (eventCount > 0)
                         {
                             <div class="col-6 text-end fw-bold">
-                                <span class="badge rounded-pill bg-danger small">@dateEvents.Count</span>
+                                <span class="badge rounded-pill bg-danger small">@eventCount</span>
                             </div>
                         }
                     </div>
 
                     <!-- Body -->
-                    @if (dateEvents.Any())
+                    @if (eventCount > 0)
                     {
                         <div class="cell-body row" @onclick="click">
                             <div class="col">
                                 @foreach (var ev in dateEvents)
                                 {
                                     <div class="text-black text-truncate" style="font-size:12px" title="@ev.UserName - @ev.Description">
-                                        <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
+                                        <u><strong>@ev.Start.ToString("hh:mm tt")-@ev.End.ToString("hh:mm tt")</strong></u>: @ev.Description
                                     </div>
                                 }
                             </div>
@@ -210,6 +212,7 @@ else
             bool isToday = WeekStart.AddDays(d) == DateTime.Today;
             var todayClass = isToday ? "fw-bold" : "fw-light";
             var dateEvents = Events.Where(e => e.Start.Date == WeekStart.AddDays(d).Date);
+            int eventCount = dateEvents.Count();
 
             var index = d;
             var currentDate = WeekStart.AddDays(index);
@@ -228,9 +231,9 @@ else
                     <span class="m-2">
                         @daysList[d] @WeekStart.AddDays(d).ToShortDateString()
                     </span>
-                    @if (dateEvents.Any())
+                    @if (eventCount > 0)
                     {
-                        <span class="badge rounded-pill bg-danger small">@dateEvents.Count()</span>
+                        <span class="badge rounded-pill bg-danger small">@eventCount</span>
                     }
                 </div>
                 <div class="border" style="height: 500px; overflow-y: auto;" @onclick="weeklyClick">
@@ -247,7 +250,7 @@ else
                         @foreach (var ev in dateEvents)
                         {
                             <div class="small m-2" title="@ev.Description">
-                                <u><strong>@ev.Start.ToShortTimeString()-@ev.End.ToShortTimeString()</strong></u>: @ev.Description
+                                <u><strong>@ev.Start.ToString("hh:mm tt")-@ev.End.ToString("hh:mm tt")</strong></u>: @ev.Description
                             </div>
                         }
                     }
@@ -260,9 +263,9 @@ else
 @code {
     private bool isLoading;
     private List<string> daysList = new()
-  {
-    "Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"
-  };
+    {
+        "Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"
+    };
     private Modal modal = default!;
     private Modal createScheduleModal = default!;
     private DateTime SelectedDate;
