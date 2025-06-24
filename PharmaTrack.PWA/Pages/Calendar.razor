@@ -165,7 +165,11 @@
                             {
                                 <span class="text-secondary">@dt.Value.Day</span>
                             }
-                            <span class="bi bi-calendar-plus text-primary ms-1 small" role="button" @onclick="() => CreateScheduleWithDate(dt)"></span>
+
+                            @if (dt >= DateTime.Today)
+                            {
+                                <span class="bi bi-calendar-plus text-primary ms-1 small" role="button" @onclick="() => CreateScheduleWithDate(dt)"></span>
+                            }
                         </div>
                         @if (dateEvents.Count > 0)
                         {
@@ -213,8 +217,14 @@ else
             ? EventCallback.Factory.Create(this, () => OnShowModalClick(currentDate))
             : EventCallback.Factory.Create(this, () => Task.CompletedTask);
 
-            <div class="week-col bg-white text-black" @onclick="weeklyClick">
-                <div class="border text-center border-1 @todayClass">
+            <div class="week-col bg-white text-black">
+                <div class="border text-center p-1 @todayClass">
+
+                    @if (currentDate >= DateTime.Today)
+                    {
+                        <span class="bi bi-calendar-plus text-primary ms-1 small" role="button" @onclick="() => CreateScheduleWithDate(currentDate)"></span>
+                    }
+                    
                     <span class="m-2">
                         @daysList[d] @WeekStart.AddDays(d).ToShortDateString()
                     </span>
@@ -223,7 +233,7 @@ else
                         <span class="badge rounded-pill bg-danger small">@dateEvents.Count()</span>
                     }
                 </div>
-                <div class="border" style="height: 500px; overflow-y: auto;">
+                <div class="border" style="height: 500px; overflow-y: auto;" @onclick="weeklyClick">
                     @if (isLoading)
                     {
                         <div class="m-1">
@@ -251,7 +261,7 @@ else
     private bool isLoading;
     private List<string> daysList = new()
   {
-    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+    "Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"
   };
     private Modal modal = default!;
     private Modal createScheduleModal = default!;
