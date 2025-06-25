@@ -5,8 +5,6 @@
 @inject DrugService DrugService;
 <h5>Stock Transfer</h5>
 
-<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
-
 <EditForm EditContext="editContext" OnValidSubmit="HandleValidSubmit">
     <div class="row">
         <div class="col mb-3">
@@ -27,7 +25,7 @@
                        @onkeydown:preventDefault="preventDefaultOnEnter"
                        placeholder="UPC"
                        class="form-control" />
-                <button class="btn btn-info bi bi-search" type="button" @onclick="HandleUPCSearch"></button>
+                <button class="btn btn-info bi bi-search" type="button" title="Search UPC" @onclick="HandleUPCSearch"></button>
             </div>
         </div>
         <div class="col-4">
@@ -37,7 +35,7 @@
                            @bind-Value="eventModel.DIN"
                            placeholder="DIN"
                            class="form-control" />
-                <button class="btn btn-info bi bi-search" type="button" title="Validate DIN" @onclick="ValidateDINAsync"></button>
+                <button class="btn btn-info bi bi-search" type="button" title="Search DIN" @onclick="ValidateDINAsync"></button>
             </div>
         </div>
         <div class="col-4">
@@ -172,15 +170,15 @@
             var drug = await DrugService.GetDrugInfoByDINAsync(eventModel.DIN);
             if (drug == null)
             {
-                messages.Add(ToastForDINResult(false));
+                ToastHostService.ShowWarning("Invalid DIN. No drug found with the given DIN.");
             } else
             {
-                messages.Add(ToastForDINResult(true));
+                ToastHostService.ShowSuccess("Valid DIN.");
             }
         }
         catch (Exception ex)
         {
-            messages.Add(ToastForError(ex.Message));
+            ToastHostService.ShowError(ex.Message);
         }
     }
 
@@ -190,11 +188,11 @@
         var searchResult = await InventoryService.GetProductByUPCAsync(eventModel.UPC);
         if (searchResult != null)
         {
-            messages.Add(ToastForUPCResult(true));
+            ToastHostService.ShowSuccess("Product found with the given UPC.");
             await OnUPCSearch.InvokeAsync(searchResult);
         } else
         {
-            messages.Add(ToastForUPCResult(false));
+            ToastHostService.ShowWarning("No product found with the given UPC.");
         }
     }
 
@@ -209,7 +207,7 @@
             isSaving = true;
             StateHasChanged();
             await InventoryService.StockTransferAsync(eventModel);
-            messages.Add(ToastForSuccessSave());
+            ToastHostService.ShowSuccess($"Stock transfer saved successfully. DateTime: {DateTime.Now}");
 
             await OnSaved.InvokeAsync();
             if (!keepAfterSave)
@@ -219,7 +217,7 @@
         }
         catch (Exception ex)
         {
-            messages.Add(ToastForError(ex.Message));
+            ToastHostService.ShowError(ex.Message);
         } finally
         {
             isSaving = false;
@@ -234,70 +232,8 @@
         await OnReset.InvokeAsync();
     }
 
-    List<ToastMessage> messages = new List<ToastMessage>();
-
     private async Task ShowToastForScanning() {
-        messages.Add(ToastForScanning());
+        ToastHostService.ShowInfo("Ready to scan barcode...");
         await upcInput.FocusAsync();
-    }
-
-    private ToastMessage ToastForError(string message)
-    => new ToastMessage
-    {
-        Type = ToastType.Danger,
-        Message = $"{message}. DateTime: {DateTime.Now}",
-    };
-
-    private ToastMessage ToastForSuccessSave()
-    => new ToastMessage
-    {
-        Type = ToastType.Success,
-        Message = $"Stock transfer saved successfully. DateTime: {DateTime.Now}",
-    };
-
-    private ToastMessage ToastForScanning()
-    => new ToastMessage
-    {
-        Type = ToastType.Info,
-        Message = $"Ready to scan barcode.",
-    };
-
-    private ToastMessage ToastForDINResult(bool success)
-    {
-        if (success)
-        {
-            return new ToastMessage
-            {
-                Type = ToastType.Success,
-                Message = $"Valid DIN.",
-            };
-        }
-        else
-        {
-            return new ToastMessage
-            {
-                Type = ToastType.Danger,
-                Message = $"Invalid DIN. No drug found with the given DIN.",
-            };
-        }
-    }
-
-    private ToastMessage ToastForUPCResult(bool success)
-    {
-        if (success)
-        {
-            return new ToastMessage
-            {
-                Type = ToastType.Info,
-                Message = $"Product found with the given UPC.",
-            };
-        } else
-        {
-            return new ToastMessage
-            {
-                Type = ToastType.Warning,
-                Message = $"No product found with the given UPC.",
-            };
-        }
     }
 }

@@ -59,11 +59,11 @@
                                 @product.Id
                             </th>
                             <td>
-                                <span>
+                                <span class="d-block">
                                     @product.Name (@product.Brand) 
                                 </span>
                                 <span 
-                                    class="fst-italic text-info text-decoration-underline d-block"
+                                    class="fst-italic text-info text-decoration-underline"
                                     @onclick="async () => await OnShowUpdateProductModalClick(product.Id)"
                                     role="button">
                                     See details<i class="ms-1 bi bi-box-arrow-up-right"></i>
