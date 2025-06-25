@@ -1,7 +1,10 @@
 ﻿@inherits LayoutComponentBase
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using PharmaTrack.PWA.Helpers
 @inject PharmaTrack.PWA.Helpers.AuthService AuthService
 @inject NavigationManager Navigation
+@inject ToastHostService ToastService
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -28,12 +31,28 @@
         </div>
 
         <article class="content px-4">
+            <Toasts class="p-3"
+                    Messages="messages"
+                    AutoHide="true"
+                    Delay="6000"
+                    Placement="ToastsPlacement.TopRight" />
             @Body
         </article>
     </main>
 </div>
 
 @code {
+    private readonly List<ToastMessage> messages = new();
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += msg =>
+        {
+            messages.Add(msg);
+            StateHasChanged();  // re-render to pick up the new toast
+        };
+    }
+
     private async Task OnLogout()
     {
         await AuthService.LogoutAsync();

@@ -1,7 +1,4 @@
 ﻿@page "/transactions"
-@using PharmaTrack.PWA.Helpers
-@using PharmaTrack.Core.DTOs;
-@using PharmaTrack.Core.DBModels;
 @inject InventoryService InventoryService;
 @attribute [Authorize]
 
@@ -220,15 +217,25 @@
     {
         _isLoadingTransactions = true;
         StateHasChanged();
-        _response = await InventoryService.GetTransactionsAsync(_searchTerm, TransactionType.In, curPage);
-        if (_response != null)
-        {
-            totalItemCount = _response.TotalItemCount;
-            totalPageCount = _response.TotalPageCount;
-        }
 
-        _isLoadingTransactions = false;
-        StateHasChanged();
+        try
+        {
+            _response = await InventoryService.GetTransactionsAsync(_searchTerm, TransactionType.In, curPage);
+            if (_response != null)
+            {
+                totalItemCount = _response.TotalItemCount;
+                totalPageCount = _response.TotalPageCount;
+            }
+        }
+        catch(Exception ex)
+        {
+            ToastHostService.ShowError(ex.Message);
+        }
+        finally
+        {
+            _isLoadingTransactions = false;
+            StateHasChanged();
+        }
     }
 
     private async Task LoadNextPageAsync()

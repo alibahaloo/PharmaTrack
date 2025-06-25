@@ -1,3 +1,4 @@
+using BlazorBootstrap;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -44,5 +45,7 @@ builder.Services
   .AddHttpClient<InventoryService>(client =>
     client.BaseAddress = new Uri(inventoryUrl))
   .AddHttpMessageHandler<JwtRefreshHandler>();
+
+builder.Services.AddSingleton<ToastHostService>();
 
 await builder.Build().RunAsync();

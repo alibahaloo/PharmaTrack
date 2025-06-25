@@ -1,12 +1,8 @@
 ﻿@page "/inventory"
-@using PharmaTrack.PWA.Helpers
-@using PharmaTrack.Core.DTOs;
-@using PharmaTrack.Core.DBModels;
-@inject InventoryService InventoryService;
-@inject DrugService DrugService;
+@inject InventoryService InventoryService
+@inject DrugService DrugService
 @attribute [Authorize]
 
-<Toasts class="p-3" Messages="messages" AutoHide="true" Delay="6000" Placement="ToastsPlacement.TopRight" />
 <Modal @ref="updateProductModal" Size="ModalSize.Large" UseStaticBackdrop=true />
 <div class="row">
     <div class="col-6">
@@ -222,7 +218,7 @@
         }
         catch (Exception ex)
         {
-            messages.Add(ToastForError(ex.Message));
+            ToastHostService.ShowError(ex.Message);
         }
         finally
         {
@@ -241,7 +237,7 @@
         }
         catch (Exception ex)
         {
-            messages.Add(ToastForError(ex.Message));
+            ToastHostService.ShowError(ex.Message);
         } finally
         {
             isLoadingProductDetails = false;
@@ -266,7 +262,7 @@
         }
         catch (Exception ex)
         {
-            messages.Add(ToastForError($"ERROR: {ex.Message}"));
+            ToastHostService.ShowError(ex.Message);
         }
         finally
         {
@@ -318,36 +314,6 @@
         StateHasChanged();
     }
 
-    List<ToastMessage> messages = new List<ToastMessage>();
-
-    private ToastMessage ToastForInfo(string message)
-    => new ToastMessage
-    {
-        Type = ToastType.Info,
-        Message = message,
-    };
-
-    private ToastMessage ToastForSuccess(string message)
-    => new ToastMessage
-    {
-        Type = ToastType.Success,
-        Message = message,
-    };
-
-    private ToastMessage ToastForWarning(string message)
-    => new ToastMessage
-    {
-        Type = ToastType.Warning,
-        Message = message,
-    };
-
-    private ToastMessage ToastForError(string message)
-    => new ToastMessage
-    {
-        Type = ToastType.Danger,
-        Message = $"An Error Occurred: {message}",
-    };
-
     private async Task OnShowUpdateProductModalClick(int ProductId)
     {
         var parameters = new Dictionary<string, object>
@@ -362,7 +328,7 @@
 
     private async Task OnSaveCallback(MouseEventArgs e)
     {
-        messages.Add(ToastForSuccess("Product updated successfully."));
+        ToastHostService.ShowSuccess("Product updated successfully.");
         await LoadProducts();
         await updateProductModal.HideAsync();
     }
