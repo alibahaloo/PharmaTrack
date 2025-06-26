@@ -212,4 +212,16 @@ Docker CLI not found. Please install Docker Desktop or Docker CLI before running
 
 ## License
 
-MIT License
+This project, **PharmaTrack**, is licensed under the [Apache License 2.0](LICENSE).
+
+You are free to use, modify, and distribute this software, provided that you:
+
+- Include proper attribution to the original author.
+- Retain the license and notice files in any redistribution.
+
+See the [NOTICE](NOTICE) file for attribution details.
+
+---
+
+© 2025 Ali Bahaloo
+
